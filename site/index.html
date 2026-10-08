@@ -1707,7 +1707,7 @@ async function openNation(code) {
       `<div class="lsw"><div class="lsm">${esc(g.when ? g.when.slice(0, 10).split("-").reverse().join("/") : "")} · ${esc(drawLabel(g.draw))}</div>${linescore(g)}</div>`).join("")}</div>` : ""}
     <h3 class="pf-h">${t().allChamps}</h3>
     <div class="clist" id="nat-hist">${n.history.slice(0, showAll ? 25 : 999).map(h => `<div class="crow">
-      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}</small></span>
+      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}${h.club ? " · " + esc(h.club) : ""}</small></span>
       <span class="cr">${medalDot(h.medal)}${ordinal(h.rank)}</span><span class="cw">${h.w}–${h.l}</span></div>`).join("")}</div>
     ${showAll ? `<button class="btn sm" data-nat-all="${code}" style="margin-top:12px">${t().showAll} (${n.history.length})</button>` : ""}
     <p class="pf-src">${t().profileSrc} World Curling.</p>`);
@@ -1802,7 +1802,7 @@ document.addEventListener("click", ev => {
   if (ds.natAll) {
     const n = DATA.nations[ds.natAll];
     document.getElementById("nat-hist").innerHTML = n.history.map(h => `<div class="crow">
-      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}</small></span>
+      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}${h.club ? " · " + esc(h.club) : ""}</small></span>
       <span class="cr">${medalDot(h.medal)}${ordinal(h.rank)}</span><span class="cw">${h.w}–${h.l}</span></div>`).join("");
     b.remove(); return;
   }

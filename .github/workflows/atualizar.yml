@@ -1,15 +1,15 @@
 # Mantém o site atualizado sozinho no GitHub Pages.
 #   - a cada 15 minutos: placar ao vivo dos eventos em andamento (poucas páginas)
 #   - uma vez por dia: campeonatos recém-encerrados da World Curling, fichas novas e exportação completa
-# O banco (data/hello_curling.sqlite) fica no repositório para não precisar baixar tudo de novo.
+# O banco (data/hello_curling.sqlite) fica anexado à release "banco" do GitHub: é baixado no começo,
+# e na parte diária é substituído pela versão nova. Assim o repositório não cresce a cada atualização.
 # Só faz commit e publica quando algum dado mudou de verdade.
 name: Atualizar dados
 
 on:
   schedule:
     - cron: "*/15 * * * *"
-    # A parte diária é ligada depois que o histórico completo for enviado ao repositório:
-    # - cron: "30 6 * * *"
+    - cron: "30 6 * * *"
   workflow_dispatch:
     inputs:
       completo:
@@ -38,6 +38,10 @@ jobs:
           python-version: "3.12"
       - name: Testes
         run: python -m unittest discover -s tests
+      - name: Baixar o banco
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download banco --pattern hello_curling.sqlite --dir data
       - name: Placar ao vivo
         run: python -m hc sync-live
       - name: Campeonatos novos, fichas e exportação (diário)
@@ -55,8 +59,6 @@ jobs:
           git config user.name "hello-curling-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data
-          # o banco só é gravado na parte diária; no placar ao vivo ele é só consulta
-          if [ "${{ steps.diario.outcome }}" = "success" ]; then git add data/hello_curling.sqlite; fi
           if git diff --cached --quiet; then
             echo "mudou=false" >> "$GITHUB_OUTPUT"
           else
@@ -64,6 +66,11 @@ jobs:
             git push
             echo "mudou=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: Guardar o banco (diário)
+        if: steps.diario.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload banco data/hello_curling.sqlite --clobber
       - name: Montar site
         if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
         run: python -m hc build-site

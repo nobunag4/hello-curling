@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS entry (
   id       INTEGER PRIMARY KEY,
   event_id TEXT NOT NULL REFERENCES event(id),
   name     TEXT NOT NULL,             -- como a fonte chama o time ('Italy', 'Team Hasselborg')
+  club     TEXT,                      -- clube que representou o país (campeonatos antigos)
   nation   TEXT,
   rank     INTEGER,
   wins     INTEGER,
@@ -165,4 +166,12 @@ def connect(path: Path | str = DB_PATH) -> sqlite3.Connection:
     con = sqlite3.connect(path)
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    _migrate(con)
     return con
+
+
+def _migrate(con: sqlite3.Connection) -> None:
+    """Acrescenta colunas novas em bancos criados por versões anteriores."""
+    cols = {r[1] for r in con.execute("PRAGMA table_info(entry)")}
+    if "club" not in cols:
+        con.execute("ALTER TABLE entry ADD COLUMN club TEXT")

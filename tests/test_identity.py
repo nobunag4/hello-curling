@@ -89,6 +89,19 @@ class TestIdentity(unittest.TestCase):
         self.assertEqual(identity.live_id(self.con, b), a)
         self.assertEqual(identity.live_id(self.con, c), c)  # nascimento diferente: outra pessoa
 
+    def test_new_codes_with_same_teammates_merge(self):
+        # Japão: o time inteiro ganhou códigos novos em 2026
+        add_event(self.con, 7, 2023, "Men", {"Japan": ("JPN", [(600, "Seiji Yamamoto", "fourth"), (601, "Akira Otsuka", "third"),
+                                                                 (602, "Takahito Tomiyasu", "second")])})
+        add_event(self.con, 8, 2026, "Men", {"Japan": ("JPN", [(700, "Seiji Yamamoto", "fourth"), (701, "Akira Otsuka", "third"),
+                                                                 (702, "Takahito Tomiyasu", "second")])})
+        # homônimo de outra seleção, sem colegas em comum: não pode ser fundido
+        add_event(self.con, 9, 2024, "Men", {"Scotland": ("SCO", [(800, "Akira Otsuka", "fourth")])})
+        identity.find_wcf_duplicates(self.con)
+        self.assertEqual(identity.live_id(self.con, self.pid(700)), self.pid(600))
+        self.assertEqual(identity.live_id(self.con, self.pid(702)), self.pid(602))
+        self.assertEqual(identity.live_id(self.con, self.pid(800)), self.pid(800))
+
     def test_same_event_never_merges(self):
         add_event(self.con, 6, 2012, "Men", {"A": ("SWE", [(500, "Erik Larsson", "fourth")]),
                                              "B": ("SWE", [(501, "Erik Larsson", "fourth")])})
@@ -99,3 +112,27 @@ class TestIdentity(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTeamNames(unittest.TestCase):
+    def test_split(self):
+        self.assertEqual(ingest.split_team_name("Canada , Regina CC, Saskatchewan"), ("Canada", "Regina CC, Saskatchewan"))
+        self.assertEqual(ingest.split_team_name("Hong Kong, China"), ("Hong Kong, China", None))
+
+    def test_club_variants_become_one_team(self):
+        con = db.connect(":memory:")
+        details = {"title": "Scotch Cup", "division": "Men", "start": "1959-03-09", "end": "1959-03-14", "groups": {},
+                   "entries": [{"rank": 1, "wins": 1, "losses": 0, "code": "CAN", "name": "Canada , Regina CC, Saskatchewan", "players": []},
+                               {"rank": 2, "wins": 0, "losses": 1, "code": "SCO", "name": "Scotland , Kilgraston CC, Perth", "players": []}],
+                   "lineups": {"Canada , Regina CC, Saskatchewan,Canada": {"code": "CAN", "members": lineup((1, "Ernie Richardson", "fourth"))},
+                               "Scotland": {"code": "SCO", "members": lineup((2, "Willie Young", "fourth"))}}}
+        games = [{"draw": "Draw #1", "when": None, "sheet": None, "sides": [
+            {"name": "Canada", "hammer": False, "ends": [1], "total": 1, "lineup": []},
+            {"name": "Scotland", "hammer": True, "ends": [0], "total": 0, "lineup": []}]}]
+        ingest.ingest_wcf_event(con, {"tid": 5, "year": 1959, "type_id": 1, "division": "Men"}, details, games)
+        rows = con.execute("SELECT name, club, rank FROM entry ORDER BY rank").fetchall()
+        self.assertEqual([tuple(r) for r in rows], [("Canada", "Regina CC, Saskatchewan", 1), ("Scotland", "Kilgraston CC, Perth", 2)])
+        g = con.execute("SELECT e1.name, e2.name FROM game JOIN entry e1 ON e1.id = entry1 JOIN entry e2 ON e2.id = entry2").fetchone()
+        self.assertEqual(tuple(g), ("Canada", "Scotland"))
+        self.assertEqual(con.execute("SELECT COUNT(*) FROM entry_member").fetchone()[0], 2)
+        con.close()

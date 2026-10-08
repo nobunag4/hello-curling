@@ -7,3 +7,4 @@ data/*.sqlite-journal
 data/*.sqlite-wal
 data/*.sqlite-shm
 _site/
+data/*.sqlite

@@ -221,16 +221,44 @@ def find_wcf_duplicates(con: sqlite3.Connection) -> dict:
                 pb = con.execute("SELECT * FROM person WHERE id=?", (b,)).fetchone()
                 if pa["gender"] and pb["gender"] and pa["gender"] != pb["gender"]:
                     continue
+                subj = json.dumps({"a": pa["wcf_id"], "b": pb["wcf_id"], "name": pa["name"]}, ensure_ascii=False, sort_keys=True)
+                # Sem nascimento publicado: mesma seleção + 2 ou mais colegas de time em comum bastam
+                if not (pa["born"] and pb["born"]):
+                    na, nb = _nations_of(con, a), _nations_of(con, b)
+                    common = _mate_names(con, a) & _mate_names(con, b)
+                    born_ok = not (pa["born"] and pb["born"])
+                    if na and nb and na & nb and len(common) >= 2 and born_ok:
+                        merge(con, keep=a, drop=b,
+                              reason=f"mesmo nome, mesma seleção ({', '.join(sorted(na & nb))}) e {len(common)} colegas em comum")
+                        merged += 1
+                        con.execute("UPDATE review SET status='merged' WHERE kind='person_duplicate' AND subject=?", (subj,))
+                        continue
                 if pa["born"] and pb["born"]:
                     if pa["born"] == pb["born"]:
                         merge(con, keep=a, drop=b, reason=f"mesmo nome e nascimento ({pa['born']})")
                         merged += 1
-                    continue  # nascimentos diferentes: pessoas diferentes
+                        con.execute("UPDATE review SET status='merged' WHERE kind='person_duplicate' AND subject=?", (subj,))
+                    else:  # nascimentos diferentes: pessoas diferentes
+                        con.execute("UPDATE review SET status='distinct' WHERE kind='person_duplicate' AND subject=?", (subj,))
+                    continue
                 subject = json.dumps({"a": pa["wcf_id"], "b": pb["wcf_id"], "name": pa["name"]}, ensure_ascii=False, sort_keys=True)
                 cands = json.dumps([dict(id=x["id"], wcf=x["wcf_id"], name=x["name"], born=x["born"]) for x in (pa, pb)], ensure_ascii=False)
                 cur = con.execute("INSERT OR IGNORE INTO review(kind, subject, candidates) VALUES ('person_duplicate', ?, ?)", (subject, cands))
                 queued += cur.rowcount
     return {"merged": merged, "queued": queued}
+
+
+def _nations_of(con, pid: int) -> set[str]:
+    return {r[0] for r in con.execute(
+        "SELECT DISTINCT en.nation FROM entry_member m JOIN entry en ON en.id = m.entry_id WHERE m.person_id = ? AND en.nation IS NOT NULL", (pid,))}
+
+
+def _mate_names(con, pid: int) -> set[str]:
+    """Nomes (normalizados) de quem já esteve no mesmo time. Usamos nomes, e não códigos, porque
+    colegas que trocaram de código junto com a pessoa também têm códigos novos."""
+    return {r[0] for r in con.execute(
+        "SELECT DISTINCT n.key FROM entry_member m1 JOIN entry_member m2 ON m2.entry_id = m1.entry_id "
+        "JOIN person_name n ON n.person_id = m2.person_id WHERE m1.person_id = ? AND m2.person_id != ?", (pid, pid))}
 
 
 def _same_event(con, a: int, b: int) -> bool:

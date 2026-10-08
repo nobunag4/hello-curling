@@ -100,7 +100,7 @@ def run(args) -> None:
             if m:
                 medals[m] += 1
             w, l = rec[en["id"]]
-            hist.append({**ev_brief(en["event_id"]), "entry": en["id"], "team": en["name"], "rank": en["rank"], "medal": m,
+            hist.append({**ev_brief(en["event_id"]), "entry": en["id"], "team": en["name"], "club": en.get("club"), "rank": en["rank"], "medal": m,
                          "w": w, "l": l, "members": [[p, role, sk] for p, role, sk in members[en["id"]]]})
             for p, _, _ in members[en["id"]]:
                 people[p] = None

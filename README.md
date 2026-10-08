@@ -35,7 +35,7 @@ hc/
   export.py        gera os JSON do site
   db.py            esquema do banco SQLite
 data/
-  hello_curling.sqlite   o banco
+  hello_curling.sqlite   o banco (fora do git; a versão oficial fica anexada à release "banco" no GitHub)
   overrides.toml         decisões manuais de identidade
 tests/             testes com páginas reais salvas em tests/fixtures
 ```

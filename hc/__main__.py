@@ -3,6 +3,8 @@
   python3 -m hc sync-wcf [--types 1,22] [--since 2010]   baixa e grava campeonatos da World Curling
   python3 -m hc sync-live                                 placar ao vivo da temporada atual -> site/data/live.json
   python3 -m hc persons [--nations BRA,ITA] [--since 2018-19] [--limit N]   lê páginas pessoais
+  python3 -m hc reingest                                  regrava tudo a partir das cópias locais
+  python3 -m hc audit                                     confere as regras do curling em todo o banco
   python3 -m hc dupes                                     procura a mesma pessoa com dois códigos
   python3 -m hc overrides                                 aplica data/overrides.toml
   python3 -m hc review                                    mostra a fila de casos duvidosos
@@ -58,6 +60,38 @@ def cmd_sync_wcf(a):
     print(f"\n{done} eventos gravados, {skipped} futuros ignorados.")
 
 
+def cmd_reingest(a):
+    """Regrava todos os eventos a partir das cópias locais (data/raw), sem acessar o site. Use após corrigir um leitor."""
+    con = db.connect()
+    evs = con.execute("SELECT * FROM event WHERE source='wcf' ORDER BY id").fetchall()
+    n = 0
+    for e in evs:
+        tid = int(e["id"].split(":")[1])
+        meta = {"tid": tid, "type_id": e["type_id"], "year": e["year"], "division": e["division"], "name": e["name"],
+                "city": e["city"], "country": e["country"], "start": e["start_date"], "end": e["end_date"]}
+        try:
+            d, g = wcf.fetch_event(tid)  # vem do cache
+            ingest.ingest_wcf_event(con, meta, d, g)
+            n += 1
+        except Exception as ex:  # noqa: BLE001
+            print(f"{e['id']}: {ex}", file=sys.stderr)
+        if n % 50 == 0:
+            con.commit()
+    con.commit()
+    # pessoas que deixaram de aparecer em qualquer lugar (eram de times duplicados) continuam no banco, sem vínculos
+    print(f"{n} eventos regravados")
+
+
+def cmd_audit(a):
+    from . import audit
+    con = db.connect()
+    for r in audit.run(con, examples=a.examples):
+        ok = (1 - r["problems"] / r["checked"]) * 100 if r["checked"] else 100
+        print(f"\n[{r['problems']:>5} problemas / {r['checked']:>7} verificados · {ok:6.2f}% ok] {r['check']}")
+        for x in r["examples"]:
+            print("       ", x)
+
+
 def cmd_persons(a):
     con = db.connect()
     q = ("SELECT DISTINCT p.id, p.wcf_id, p.name FROM person p JOIN entry_member m ON m.person_id = p.id "
@@ -66,6 +100,12 @@ def cmd_persons(a):
     args = []
     if not a.refresh:
         q += " AND p.profile_at IS NULL"
+    if a.review:
+        ids = set()
+        for r in con.execute("SELECT subject FROM review WHERE kind='person_duplicate' AND status='open'"):
+            d = json.loads(r["subject"])
+            ids |= {d["a"], d["b"]}
+        q += f" AND p.wcf_id IN ({','.join(str(int(i)) for i in ids) or '0'})"
     if a.nations:
         q += f" AND en.nation IN ({','.join('?' * len(a.nations.split(',')))})"
         args += a.nations.split(",")
@@ -190,9 +230,13 @@ def main(argv=None):
     s = sub.add_parser("sync-wcf"); s.add_argument("--types"); s.add_argument("--since", type=int); s.add_argument("--force", action="store_true")
     s.set_defaults(f=cmd_sync_wcf)
     s = sub.add_parser("persons"); s.add_argument("--nations"); s.add_argument("--since"); s.add_argument("--limit", type=int)
-    s.add_argument("--refresh", action="store_true"); s.set_defaults(f=cmd_persons)
+    s.add_argument("--refresh", action="store_true")
+    s.add_argument("--review", action="store_true", help="só os atletas da fila de duplicatas")
+    s.set_defaults(f=cmd_persons)
     s = sub.add_parser("sync-live"); s.add_argument("--slugs"); s.add_argument("--max-age", type=float, default=120)
     s.set_defaults(f=cmd_sync_live)
+    sub.add_parser("reingest").set_defaults(f=cmd_reingest)
+    s = sub.add_parser("audit"); s.add_argument("--examples", type=int, default=5); s.set_defaults(f=cmd_audit)
     sub.add_parser("dupes").set_defaults(f=cmd_dupes)
     sub.add_parser("overrides").set_defaults(f=cmd_overrides)
     sub.add_parser("review").set_defaults(f=cmd_review)
