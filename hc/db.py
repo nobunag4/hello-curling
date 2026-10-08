@@ -155,6 +155,20 @@ CREATE TABLE IF NOT EXISTS squad_member (
   PRIMARY KEY (squad_id, person_id)
 );
 
+-- Fotos com licença livre (Wikidata + Commons), ligadas pelo código da World Curling
+CREATE TABLE IF NOT EXISTS photo (
+  person_id   INTEGER PRIMARY KEY REFERENCES person(id),
+  wcf_id      INTEGER,
+  qid         TEXT,                   -- item do Wikidata
+  file        TEXT NOT NULL,          -- arquivo no Commons
+  path        TEXT NOT NULL,          -- site/img/people/<path>
+  page        TEXT,                   -- página do arquivo no Commons (crédito)
+  author      TEXT,
+  license     TEXT,
+  license_url TEXT,
+  fetched_at  TEXT
+);
+
 -- Atalho: pessoa "viva" (resolve fusões de duplicatas)
 CREATE VIEW IF NOT EXISTS person_live AS
   SELECT p.id AS raw_id, COALESCE(p.merged_into, p.id) AS id FROM person p;

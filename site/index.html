@@ -86,7 +86,7 @@ nav .navbar { display: flex; justify-content: space-between; align-items: center
 .pop-links a:hover { text-decoration: none; opacity: 1; background: var(--bg2); }
 .pop-res { max-height: min(56vh, 460px); overflow-y: auto; display: grid; gap: 2px; padding-top: 4px; }
 .pop-res .ps { font-size: 11px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; padding: 10px 10px 4px; }
-.pop-res .pr { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; border: 0; background: none; color: var(--ink); font: inherit; font-size: 15px; text-align: left; padding: 9px 10px; border-radius: 12px; cursor: pointer; }
+.pop-res .pr { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; border: 0; background: none; color: var(--ink); font: inherit; font-size: 15px; text-align: left; padding: 9px 10px; border-radius: 12px; cursor: pointer; }
 .pop-res .pr:hover { background: var(--bg2); text-decoration: none; }
 .pop-res .pr small { color: var(--ink2); font-size: 12px; white-space: nowrap; }
 .pop-res .pr span { min-width: 0; }
@@ -111,7 +111,7 @@ nav .navbar { display: flex; justify-content: space-between; align-items: center
 .arch-q input:focus { box-shadow: inset 0 0 0 2px var(--ink); }
 .arch-q svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--ink2); }
 .arch-res { max-width: 560px; margin: 0 auto 36px; display: grid; gap: 6px; }
-.arch-res button { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; width: 100%; border: 0; background: var(--card); color: var(--ink); border-radius: 14px; padding: 12px 18px; font: inherit; font-size: 15px; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); }
+.arch-res button { display: flex; justify-content: space-between; gap: 12px; align-items: center; width: 100%; border: 0; background: var(--card); color: var(--ink); border-radius: 14px; padding: 12px 18px; font: inherit; font-size: 15px; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 1px var(--line); }
 .arch-res button:hover { box-shadow: inset 0 0 0 1px var(--ink2); }
 .arch-res small { color: var(--ink2); font-size: 13px; white-space: nowrap; }
 .arch-ctl { display: flex; justify-content: center; margin-bottom: 20px; }
@@ -389,6 +389,11 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 @media (prefers-reduced-motion: no-preference) { .sheet:not([hidden]) .sheet-panel { animation: load .45s cubic-bezier(.2,.7,.2,1) both; } }
 .sheet-x { position: sticky; top: 0; float: right; margin: -16px -12px 0 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg2); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 2; }
 .pf-head { text-align: center; margin-bottom: 28px; }
+.av { display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden; background: var(--bg2); color: var(--ink2); font-weight: 600; letter-spacing: .02em; box-shadow: inset 0 0 0 1px var(--line); }
+.av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; display: block; }
+.av.lg { width: 132px; height: 132px; font-family: var(--serif); font-weight: 400; font-size: 46px; letter-spacing: -0.03em; margin: 0 auto 18px; box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px var(--line2), 0 18px 40px -18px rgba(0,0,0,.5); }
+.av.sm { width: 30px; height: 30px; font-size: 11px; }
+.who { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
 .pf-k { font-size: 14px; font-weight: 500; color: var(--red); }
 .pf-name { font-size: clamp(40px, 6vw, 64px); margin: 6px auto 10px; }
 .pf-facts { color: var(--ink2); font-size: 15px; }
@@ -409,7 +414,8 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .md { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
 .md.m1 { background: #d4a72c; } .md.m2 { background: #a3acb6; } .md.m3 { background: #b4703e; }
 .mates { display: flex; flex-wrap: wrap; gap: 8px; }
-.mate { display: grid; text-align: left; gap: 1px; border: 0; box-shadow: inset 0 0 0 1px var(--line2); background: transparent; border-radius: 14px; padding: 9px 14px; cursor: pointer; font-size: 15px; font-weight: 500; }
+.mate { display: flex; align-items: center; gap: 10px; text-align: left; gap: 1px; border: 0; box-shadow: inset 0 0 0 1px var(--line2); background: transparent; border-radius: 14px; padding: 9px 14px; cursor: pointer; font-size: 15px; font-weight: 500; }
+.mate > span { display: grid; gap: 1px; }
 .mate small { font-size: 12px; color: var(--ink2); font-weight: 400; }
 .mate:hover { box-shadow: inset 0 0 0 1px var(--ink); }
 .lsl { display: grid; gap: 12px; }
@@ -951,7 +957,7 @@ const T = {
     days: "dias", day: "dia", endsToday: "termina hoje", today: "hoje", ended: "Encerrado",
     nothingLive: "Nenhum torneio hoje", firstGame: "Primeiro jogo",
     tbc: "Sede a confirmar", approx: "data aproximada",
-    watch: "Assistir", scores: "Site oficial",
+    watch: "Assistir", scores: "Site oficial", photo: "Foto",
     liveEnd: n => `● Ao vivo · ${n === "EE" ? "end extra" : "end " + n}`, hammer: "Hammer (última pedra do end)",
     liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver o placar por end", site: "Tabela oficial", dazn: "DAZN",
     bra: "Brasil", ita: "Itália", maybe: "possível",
@@ -1037,7 +1043,7 @@ const T = {
     days: "days", day: "day", endsToday: "ends today", today: "today", ended: "Finished",
     nothingLive: "No event today", firstGame: "First game",
     tbc: "Venue TBC", approx: "approximate dates",
-    watch: "Watch", scores: "Official site",
+    watch: "Watch", scores: "Official site", photo: "Photo",
     liveEnd: n => `● Live · ${n === "EE" ? "extra end" : "end " + n}`, hammer: "Hammer (last stone of the end)",
     liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game to see the end-by-end score", site: "Official draw", dazn: "DAZN",
     bra: "Brazil", ita: "Italy", maybe: "possible",
@@ -1694,6 +1700,23 @@ function searchPeople(q) {
   return { people, nations };
 }
 
+// Foto livre do atleta (Wikimedia Commons) ou, sem foto, as iniciais
+function photoOf(id) { return DATA.index && DATA.index.photos ? DATA.index.photos[String(id)] : null; }
+function initials(name) {
+  const w = String(name).split(/\s+/).filter(Boolean);
+  return ((w[0] || "")[0] + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+}
+function avatar(id, name, size) {
+  const ph = photoOf(id);
+  return `<span class="av ${size}">${ph ? `<img src="img/people/${ph[0]}" alt="" loading="lazy" decoding="async">` : initials(name)}</span>`;
+}
+function photoCredit(id) {
+  const ph = photoOf(id);
+  if (!ph) return "";
+  const [, author, lic, page] = ph;
+  return `<p class="pf-src">${t().photo}: ${esc(author || "Wikimedia Commons")}${lic ? " · " + esc(lic) : ""} · ${ext(page, "Wikimedia Commons ↗")}</p>`;
+}
+
 function flagChip(code) { return code ? `<span class="cc">${code}</span>` : ""; }
 function medalDot(m) { return m ? `<i class="md m${m}" title="${[null, t().gold, t().silver, t().bronze][m]}"></i>` : ""; }
 function ordinal(n) { return n == null ? "–" : state.lang === "pt" ? `${n}º` : `${n}${[, "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] || "th"}`; }
@@ -1743,6 +1766,7 @@ async function openPerson(id) {
       <span class="cw">${c.w}–${c.l}</span></div>`;
   openSheet(`
     <div class="pf-head">
+      ${avatar(id, p.name, "lg")}
       <div class="pf-k">${t().athlete}</div>
       <h2 class="pf-name">${esc(p.name)}</h2>
       <div class="pf-facts">${facts}</div>
@@ -1757,8 +1781,9 @@ async function openPerson(id) {
     <div class="clist">${players.map(row).join("") || `<div class="msg">–</div>`}</div>
     ${coach.length ? `<h3 class="pf-h">${t().asCoach}</h3><div class="clist">${coach.map(row).join("")}</div>` : ""}
     ${p.mates.length ? `<h3 class="pf-h">${t().mates}</h3><div class="mates">${p.mates.map(([q, n, nm]) =>
-      `<button class="mate" data-person="${q}">${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></button>`).join("")}</div>` : ""}
-    <p class="pf-src">${t().profileSrc} ${p.wcf ? ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗") : ""}</p>`);
+      `<button class="mate" data-person="${q}">${avatar(q, nm, "sm")}<span>${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></span></button>`).join("")}</div>` : ""}
+    <p class="pf-src">${t().profileSrc} ${p.wcf ? ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗") : ""}</p>
+    ${photoCredit(id)}`);
 }
 
 function drawLabel(d) {
@@ -2004,7 +2029,7 @@ function renderArchiveSearch() {
   const r = searchPeople(q);
   if (!r.people.length && !r.nations.length) { el.innerHTML = `<div class="msg">${t().archNone}</div>`; return; }
   el.innerHTML = r.nations.map(n => `<button data-nation="${n.code}"><span>${esc(nationName(n.code))}</span><small>${t().entriesN(n.entries)}</small></button>`).join("") +
-    r.people.map(p => `<button data-person="${p[0]}"><span>${esc(p[1])}</span><small>${p[2].map(c => c).join(" · ")} · ${p[3]}</small></button>`).join("");
+    r.people.map(p => `<button data-person="${p[0]}"><span class="who">${avatar(p[0], p[1], "sm")}${esc(p[1])}</span><small>${p[2].map(c => c).join(" · ")} · ${p[3]}</small></button>`).join("");
 }
 document.addEventListener("click", ev => {
   const s = ev.target.closest("[data-arch-sort]");
@@ -2026,7 +2051,7 @@ function popResultsHTML(q) {
   if (r.nations.length) h += `<div class="ps">${t().secNations}</div>` + cut(r.nations, 3).map(n =>
     `<button class="pr" data-nation="${n.code}"><span>${esc(nationName(n.code))}</span><small>${n.gold}/${n.silver}/${n.bronze}</small></button>`).join("");
   if (r.people.length) h += `<div class="ps">${t().secPeople}</div>` + cut(r.people, 5).map(p =>
-    `<button class="pr" data-person="${p[0]}"><span>${esc(p[1])}</span><small>${p[2].join(" · ")} · ${p[3]}</small></button>`).join("");
+    `<button class="pr" data-person="${p[0]}"><span class="who">${avatar(p[0], p[1], "sm")}${esc(p[1])}</span><small>${p[2].join(" · ")} · ${p[3]}</small></button>`).join("");
   if (r.games.length) h += `<div class="ps">${r.emptyDay ? t().nextGames : t().secGames}</div>` + cut(r.games, 5).map(gm => {
     const p = dayParts(dayKey(gm.t)), res = gm.sa != null ? `${gm.sa}–${gm.sb}` : `${p.d} ${p.m}, ${hm(gm.t)}`;
     return `<a class="pr" href="#jogos" data-gev-go="${gm.ev}" data-day-go="${dayKey(gm.t)}"><span>${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</span><small>${res}</small></a>`;

@@ -56,13 +56,14 @@ jobs:
           python -m hc persons --since 2025-26
           python -m hc dupes
           python -m hc overrides
+          python -m hc photos || echo "fotos: falhou, fica para amanhã"
           python -m hc export
       - name: Guardar mudanças
         id: commit
         run: |
           git config user.name "hello-curling-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data
+          git add site/data site/img/people
           if git diff --cached --quiet; then
             echo "mudou=false" >> "$GITHUB_OUTPUT"
           else

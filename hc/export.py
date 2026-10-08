@@ -163,7 +163,12 @@ def run(args) -> None:
         alias = sorted(a for a in aliases[p] if a != pr["name"])
         idx_people.append([p, pr["name"], nats, last, alias] if alias else [p, pr["name"], nats, last])
     idx_people.sort(key=lambda x: -x[3])
-    size = _dump(out / "index.json", {"generated": latest_season, "people": idx_people, "nations": sorted(nation_index, key=lambda n: n["code"]),
+    # fotos: só de quem está no índice e com o arquivo presente; [arquivo, autor, licença, página do Commons]
+    in_index = {x[0] for x in idx_people}
+    img_dir = out.parent / "img" / "people"
+    photos = {str(r["person_id"]): [r["path"], r["author"], r["license"], r["page"]]
+              for r in con.execute("SELECT * FROM photo") if r["person_id"] in in_index and (img_dir / r["path"]).exists()}
+    size = _dump(out / "index.json", {"generated": latest_season, "people": idx_people, "photos": photos, "nations": sorted(nation_index, key=lambda n: n["code"]),
                                       "events": len(events), "games": sum(len(v) for v in games_by_entry.values()) // 2})
     total += size
     print(f"{len(nation_index)} seleções, {len(idx_people)} atletas no índice, {total / 1e6:.1f} MB no total")

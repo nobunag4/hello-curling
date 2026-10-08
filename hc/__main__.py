@@ -9,6 +9,7 @@
   python3 -m hc overrides                                 aplica data/overrides.toml
   python3 -m hc review                                    mostra a fila de casos duvidosos
   python3 -m hc stats                                     números do banco
+  python3 -m hc photos                                    fotos livres dos atletas (Wikidata + Commons)
   python3 -m hc export                                    gera os arquivos JSON do site
   python3 -m hc build-site                                monta _site/ para o GitHub Pages
 """
@@ -214,6 +215,12 @@ def cmd_sync_live(a):
     print(f"gravado {path}")
 
 
+def cmd_photos(a):
+    from . import photos
+    con = db.connect()
+    print(photos.run(con, limit=a.limit))
+
+
 def cmd_export(a):
     from . import export
     export.run(a)
@@ -242,6 +249,7 @@ def main(argv=None):
     sub.add_parser("review").set_defaults(f=cmd_review)
     sub.add_parser("stats").set_defaults(f=cmd_stats)
     sub.add_parser("build-site").set_defaults(f=cmd_build_site)
+    s = sub.add_parser("photos"); s.add_argument("--limit", type=int); s.set_defaults(f=cmd_photos)
     s = sub.add_parser("export"); s.add_argument("--out", default="site/data"); s.set_defaults(f=cmd_export)
     a = p.parse_args(argv)
     t0 = time.time()
