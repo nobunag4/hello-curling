@@ -3,19 +3,22 @@
 #   - uma vez por dia: campeonatos recém-encerrados da World Curling, fichas novas e exportação completa
 # O banco (data/hello_curling.sqlite) fica anexado à release "banco" do GitHub: é baixado no começo,
 # e na parte diária é substituído pela versão nova. Assim o repositório não cresce a cada atualização.
-# Só faz commit e publica quando algum dado mudou de verdade.
+# Só faz commit e publica quando algum dado mudou de verdade, ou quando o próprio site muda (push em site/).
 name: Atualizar dados
 
 on:
   schedule:
     - cron: "*/15 * * * *"
     - cron: "30 6 * * *"
+  push:
+    branches: [main]
+    paths: ["site/**", "hc/site_build.py"]
   workflow_dispatch:
     inputs:
       completo:
         description: "Rodar também a parte diária (campeonatos, fichas e exportação)"
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: write
@@ -73,11 +76,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload banco data/hello_curling.sqlite --clobber
       - name: Montar site
-        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
         run: python -m hc build-site
       - uses: actions/upload-pages-artifact@v3
-        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
         with:
           path: _site
       - uses: actions/deploy-pages@v4
-        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
+        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
