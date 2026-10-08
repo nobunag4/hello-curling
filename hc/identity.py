@@ -174,8 +174,8 @@ def resolve(con: sqlite3.Connection, source: str, key: str, name: str, *, gender
 
     index = index or NameIndex(con)
     ranked = []
-    for pid in index.candidates(name):
-        pid = live_id(con, pid)
+    # fichas unificadas apontam para a mesma pessoa: cada pessoa entra uma vez só na disputa
+    for pid in {live_id(con, c) for c in index.candidates(name)}:
         cand = _context(con, pid)
         sc, why = score(con, cand, name, gender, nation, season, teammates)
         if sc > 0.3:
@@ -296,6 +296,8 @@ def apply_overrides(con: sqlite3.Connection, path: Path = OVERRIDES) -> int:
         if p:
             con.execute("INSERT OR REPLACE INTO link(source, kind, key, entity_id, method, confidence, note) "
                         "VALUES (?, 'person', ?, ?, 'override', 1.0, ?)", (l["source"], l["key"], p["id"], l.get("reason")))
+            con.execute("UPDATE review SET status='resolved' WHERE kind='person_link' AND status='open' AND subject LIKE ?",
+                        (f'%"key": {json.dumps(l["key"], ensure_ascii=False)}%',))
             n += 1
     for d in data.get("distinct", []):
         subject = json.dumps({"a": d["a_wcf"], "b": d["b_wcf"]}, sort_keys=True)

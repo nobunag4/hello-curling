@@ -19,3 +19,10 @@
 # [[distinct]]
 # a_wcf = 111
 # b_wcf = 222
+
+# ---- decisões tomadas na revisão de 08/10/2026 ----
+[[link]]
+source = "wcf-live"
+key = "wmdqe26:UKR:kononenko oleksandra"
+wcf = 9524
+reason = "Mesma atleta; a World Curling grafou 'Kononeko' numa ficha antiga"

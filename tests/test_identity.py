@@ -102,6 +102,11 @@ class TestIdentity(unittest.TestCase):
         self.assertEqual(identity.live_id(self.con, self.pid(702)), self.pid(602))
         self.assertEqual(identity.live_id(self.con, self.pid(800)), self.pid(800))
 
+    def test_merged_person_is_one_candidate(self):
+        identity.find_wcf_duplicates(self.con)  # funde Ole Hansen 400 e 401
+        p, _ = identity.resolve(self.con, "x", "ole", "Ole Hansen", nation="NOR", index=identity.NameIndex(self.con))
+        self.assertEqual(p, self.pid(400))
+
     def test_same_event_never_merges(self):
         add_event(self.con, 6, 2012, "Men", {"A": ("SWE", [(500, "Erik Larsson", "fourth")]),
                                              "B": ("SWE", [(501, "Erik Larsson", "fourth")])})
