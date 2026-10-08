@@ -46,7 +46,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release download banco --pattern hello_curling.sqlite --dir data
       - name: Calendário automático (torneios atuais e próximos)
-        run: python -m hc sync-schedule || echo "calendário: falhou, fica a versão anterior"
+        run: python -m hc sync-schedule || echo "calendário falhou, fica a versão anterior"
       - name: Placar ao vivo
         run: python -m hc sync-live
       - name: Campeonatos novos, fichas e exportação (diário)
