@@ -1,0 +1,72 @@
+# Mantém o site atualizado sozinho no GitHub Pages.
+#   - a cada 15 minutos: placar ao vivo dos eventos em andamento (poucas páginas)
+#   - uma vez por dia: campeonatos recém-encerrados da World Curling, fichas novas e exportação completa
+# O banco (data/hello_curling.sqlite) fica no repositório para não precisar baixar tudo de novo.
+# Só faz commit e publica quando algum dado mudou de verdade.
+name: Atualizar dados
+
+on:
+  # Agendamento ligado depois que o histórico completo for enviado ao repositório.
+  # schedule:
+  #   - cron: "*/15 * * * *"
+  #   - cron: "30 6 * * *"
+  workflow_dispatch:
+    inputs:
+      completo:
+        description: "Rodar também a parte diária (campeonatos, fichas e exportação)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: atualizar
+  cancel-in-progress: false
+
+jobs:
+  dados:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes
+        run: python -m unittest discover -s tests
+      - name: Placar ao vivo
+        run: python -m hc sync-live
+      - name: Campeonatos novos, fichas e exportação (diário)
+        if: github.event.schedule == '30 6 * * *' || (github.event_name == 'workflow_dispatch' && inputs.completo)
+        run: |
+          python -m hc sync-wcf --since 2026
+          python -m hc persons --since 2025-26
+          python -m hc dupes
+          python -m hc overrides
+          python -m hc export
+      - name: Guardar mudanças
+        id: commit
+        run: |
+          git config user.name "hello-curling-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data data/hello_curling.sqlite
+          if git diff --cached --quiet; then
+            echo "mudou=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Atualiza dados $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+            echo "mudou=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Montar site
+        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
+        run: python -m hc build-site
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        if: steps.commit.outputs.mudou == 'true' || github.event_name == 'workflow_dispatch'

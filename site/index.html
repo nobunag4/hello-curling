@@ -1,0 +1,1858 @@
+<title>Hello, Curling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter+Tight:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: no espírito do america.gov. Títulos serifados enormes e centralizados, texto em grotesca neutra,
+   faixas brancas e azul-gelo alternadas, cards com cantos de 24px e botões em pílula. */
+:root {
+  --bg: #ffffff;
+  --bg2: #f1f5fb;          /* azul-gelo */
+  --card: #ffffff;
+  --ink: #000c1f;          /* azul-marinho */
+  --ink2: #5a6273;
+  --line: #000c1f1a;
+  --line2: #000c1f2e;
+  --navy: #002664;
+  --blue: #0066c5;
+  --red: #d80007;
+  --green: #117a3d;
+  --gold: #9a6400;
+  --feature: #002664;      /* card em destaque */
+  --feature-ink: #ffffff;
+  --feature-ink2: #b7c6e0;
+  --glass: rgba(255,255,255,.82);
+  --serif: "Rhymes Text", "Newsreader", "Times New Roman", Times, serif;
+  --sans: "Helvetica Now Text", "Helvetica Neue", Helvetica, "Inter Tight", Arial, sans-serif;
+  --display: "Helvetica Now Display", "Helvetica Neue", Helvetica, "Inter Tight", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000c1f; --bg2: #04152f; --card: #08203f; --ink: #f1f5fb; --ink2: #a3b0c5;
+    --line: #ffffff1a; --line2: #ffffff2e; --navy: #9cc3ff; --blue: #5aa9ff; --red: #ff4d52;
+    --green: #3ddc84; --gold: #ffb648; --feature: #0b2f66; --feature-ink: #ffffff; --feature-ink2: #b7c6e0;
+    --glass: rgba(0,12,31,.82);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000c1f; --bg2: #04152f; --card: #08203f; --ink: #f1f5fb; --ink2: #a3b0c5;
+  --line: #ffffff1a; --line2: #ffffff2e; --navy: #9cc3ff; --blue: #5aa9ff; --red: #ff4d52;
+  --green: #3ddc84; --gold: #ffb648; --feature: #0b2f66; --feature-ink: #ffffff; --feature-ink2: #b7c6e0;
+  --glass: rgba(0,12,31,.82);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.5; letter-spacing: -0.015em; -webkit-font-smoothing: antialiased; }
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+button, select { font: inherit; color: inherit; letter-spacing: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 10px; }
+
+.in { max-width: 1120px; margin: 0 auto; padding-inline: 20px; }
+.narrow { max-width: 860px; }
+.band { padding-block: 96px; }
+.band.alt { background: var(--bg2); }
+
+/* Navegação */
+nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--glass); backdrop-filter: saturate(160%) blur(18px); -webkit-backdrop-filter: saturate(160%) blur(18px); border-bottom: 1px solid var(--line); }
+nav .in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: 60px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 24px; letter-spacing: -0.04em; color: var(--ink); }
+.logo:hover { text-decoration: none; }
+.navlinks { display: flex; gap: 28px; font-size: 15px; font-weight: 500; }
+.navlinks a { color: var(--ink); }
+.navright { justify-self: end; }
+.seg { display: inline-flex; background: var(--bg2); border-radius: 999px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.band.alt .seg { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--ink2); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* Tipografia */
+.eyebrow { font-size: 15px; font-weight: 500; color: var(--red); letter-spacing: -0.01em; }
+h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(56px, 10vw, 128px); line-height: .95; letter-spacing: -0.055em; margin: 0 auto 24px; text-wrap: balance; }
+h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 68px); line-height: 1; letter-spacing: -0.05em; margin: 10px auto 18px; text-wrap: balance; }
+.lede { font-family: var(--display); font-size: clamp(19px, 2vw, 24px); line-height: 1.4; color: var(--ink2); max-width: 36ch; margin: 0 auto; text-wrap: pretty; }
+.sub { font-size: 18px; color: var(--ink2); margin: 0 auto 44px; max-width: 52ch; text-wrap: pretty; }
+.head { text-align: center; }
+
+/* Botões */
+.cta { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 32px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 500; letter-spacing: -0.03em; padding: 12px 22px; border-radius: 999px; border: 1px solid var(--line2); color: var(--ink); background: transparent; cursor: pointer; }
+.btn:hover { text-decoration: none; border-color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.sm { font-size: 14px; padding: 8px 16px; }
+
+/* Hero */
+.hero { padding-block: 88px 96px; text-align: center; }
+.now { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 64px; text-align: left; }
+.tile { background: var(--bg2); border-radius: 24px; padding: 28px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.tile.feature { background: var(--feature); color: var(--feature-ink); }
+.tile .k { font-size: 14px; font-weight: 500; color: var(--ink2); }
+.tile.feature .k { color: var(--feature-ink2); }
+.tile .k.live { color: var(--green); }
+.tile.feature .k.live { color: #7cf0ad; }
+.tile h3 { font-family: var(--display); font-size: 24px; line-height: 1.15; letter-spacing: -0.035em; font-weight: 500; margin: 0; text-wrap: balance; }
+.tile .m { color: var(--ink2); font-size: 15px; }
+.tile.feature .m { color: var(--feature-ink2); }
+.tile .big { font-family: var(--serif); font-size: 64px; line-height: 1; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.tile .big small { font-family: var(--sans); font-size: 18px; letter-spacing: -0.02em; color: var(--ink2); margin-left: 6px; }
+.tile .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.tile.feature .btn { color: var(--feature-ink); border-color: #ffffff55; }
+.tile.feature .btn.primary { background: #fff; color: #002664; border-color: #fff; }
+
+/* Busca */
+.search { max-width: 680px; margin: 40px auto 0; text-align: left; }
+.sbox { position: relative; display: flex; align-items: center; gap: 12px; background: var(--card); color: var(--ink2); border-radius: 999px; padding: 8px 8px 8px 22px; box-shadow: 0 0 0 1px var(--line2), 0 16px 40px -16px rgba(0,12,31,.22); transition: box-shadow .2s; }
+.sbox:focus-within { box-shadow: 0 0 0 2px var(--blue), 0 16px 40px -16px rgba(0,12,31,.22); }
+#q { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 19px; padding: 10px 0; outline: none; }
+.qph { position: absolute; left: 56px; right: 64px; top: 50%; transform: translateY(-50%); font-size: 19px; color: var(--ink2); pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .35s ease, transform .35s ease; }
+.qph.out { opacity: 0; transform: translateY(-90%); }
+.qph.in { opacity: 0; transform: translateY(-10%); }
+.sbox.has .qph { display: none; }
+.sgo { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); font-size: 20px; cursor: pointer; }
+.scount { text-align: center; font-size: 13px; color: var(--ink2); margin-top: 12px; font-variant-numeric: tabular-nums; }
+.sres { margin-top: 16px; background: var(--card); border-radius: 24px; overflow: hidden; box-shadow: 0 0 0 1px var(--line), 0 24px 60px -28px rgba(0,12,31,.3); }
+.sres .sh { display: flex; justify-content: space-between; gap: 12px; padding: 14px 22px; font-size: 14px; color: var(--ink2); border-bottom: 1px solid var(--line); }
+.sres .sh button { border: 0; background: none; color: var(--blue); cursor: pointer; font-size: 14px; }
+.sres .sec { font-size: 12px; font-weight: 600; color: var(--ink2); padding: 14px 22px 4px; text-transform: uppercase; letter-spacing: .04em; }
+.sres .def { padding: 6px 22px 18px; }
+.sres .def b { font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -0.04em; }
+.sres .def p { margin: 4px 0 0; color: var(--ink2); }
+
+/* Faixa de próximos jogos */
+.marquee { margin-top: 56px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.track { display: flex; gap: 12px; width: max-content; }
+.mq { flex: none; display: grid; gap: 2px; text-align: left; background: var(--bg2); border: 0; border-radius: 18px; padding: 14px 18px; min-width: 230px; cursor: pointer; }
+.mq b { font-family: var(--serif); font-weight: 400; font-size: 26px; letter-spacing: -0.04em; line-height: 1; }
+.mq b small { font-family: var(--sans); font-size: 13px; color: var(--ink2); letter-spacing: 0; margin-left: 6px; }
+.mq .vs { font-weight: 500; font-size: 15px; margin-top: 6px; }
+.mq .ev { font-size: 13px; color: var(--ink2); }
+.mq.fol { box-shadow: inset 0 0 0 1.5px var(--green); }
+
+/* Movimento */
+@keyframes slide { to { transform: translateX(-50%); } }
+@keyframes load { from { opacity: 0; transform: translateY(18px); } }
+@keyframes rise { from { opacity: .15; transform: translateY(48px) scale(.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .track { animation: slide 90s linear infinite; }
+  .marquee:hover .track, .marquee:focus-within .track { animation-play-state: paused; }
+  .hero h1 { animation: load 1s cubic-bezier(.2,.7,.2,1) both; }
+  .hero .lede { animation: load 1s .15s cubic-bezier(.2,.7,.2,1) both; }
+  .hero .search { animation: load 1s .3s cubic-bezier(.2,.7,.2,1) both; }
+  .hero .marquee { animation: load 1s .45s cubic-bezier(.2,.7,.2,1) both; }
+
+  /* Revelar ao rolar, nos dois sentidos. As classes só entram via script, então sem script tudo fica visível. */
+  .rv, .stag > * { transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  html.rv-on .rv:not(.in) { opacity: 0; transform: translateY(60px) scale(.97); }
+  html.rv-on .rv.above:not(.in) { transform: translateY(-60px) scale(.97); }
+  html.rv-on .stag:not(.in) { opacity: 1; transform: none; }
+  html.rv-on .stag:not(.in) > * { opacity: 0; transform: translateY(48px) scale(.97); }
+  html.rv-on .stag.above:not(.in) > * { transform: translateY(-48px) scale(.97); }
+  .stag > :nth-child(2) { transition-delay: .07s; } .stag > :nth-child(3) { transition-delay: .14s; }
+  .stag > :nth-child(4) { transition-delay: .21s; } .stag > :nth-child(5) { transition-delay: .28s; }
+  .stag > :nth-child(6) { transition-delay: .35s; } .stag > :nth-child(7) { transition-delay: .42s; }
+  .stag > :nth-child(8) { transition-delay: .49s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+}
+
+/* Seus times */
+.follow-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; align-items: center; margin-bottom: 40px; }
+.fchip { display: inline-flex; align-items: center; gap: 8px; padding: 7px 8px 7px 16px; border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line2); font-size: 15px; font-weight: 500; }
+.fchip button[data-unfollow] { border: 0; background: var(--bg2); width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 14px; line-height: 1; color: var(--ink2); }
+.addsel { border: 1px dashed var(--line2); background: transparent; border-radius: 999px; padding: 8px 14px; font-size: 15px; color: var(--ink2); cursor: pointer; max-width: 100%; }
+.two { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; align-items: start; }
+.colh { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 0 0 12px 6px; }
+
+/* Listas */
+.list { background: var(--card); border-radius: 24px; box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; }
+.band.alt .list { box-shadow: none; }
+.li { display: grid; grid-template-columns: 112px 1fr auto; gap: 14px; align-items: center; padding: 16px 22px; border-top: 1px solid var(--line); }
+.li:first-child { border-top: 0; }
+.li .when { font-size: 14px; color: var(--ink2); line-height: 1.3; font-variant-numeric: tabular-nums; }
+.li .when b { display: block; color: var(--ink); font-size: 20px; font-weight: 500; letter-spacing: -0.03em; }
+.li .what { min-width: 0; }
+.li .what .vs { font-weight: 500; }
+.li .what .ev { font-size: 13px; color: var(--ink2); }
+.res { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.res.w { color: var(--green); }
+.res.l { color: var(--red); }
+.res.tbd { font-weight: 400; color: var(--ink2); font-size: 14px; }
+.cal { font-size: 13px; font-weight: 500; white-space: nowrap; }
+.msg { padding: 22px; color: var(--ink2); font-size: 15px; text-align: center; }
+
+/* Escala */
+.controls { display: grid; gap: 14px; margin-bottom: 36px; justify-items: center; }
+.days { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; max-width: 100%; scrollbar-width: thin; }
+.day { flex: none; border: 0; box-shadow: inset 0 0 0 1px var(--line2); background: var(--card); border-radius: 16px; padding: 9px 14px; cursor: pointer; text-align: center; min-width: 66px; }
+.day b { display: block; font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -0.04em; line-height: 1; margin: 2px 0; font-variant-numeric: tabular-nums; }
+.day span { font-size: 12px; color: var(--ink2); }
+.day[aria-pressed="true"] { background: var(--ink); box-shadow: none; color: var(--bg); }
+.day[aria-pressed="true"] span { color: var(--bg); opacity: .7; }
+.day .dot { display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--green); margin: 3px auto 0; }
+.day .dot.it { background: var(--blue); }
+.ctl-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px; align-items: center; }
+.tzline { font-size: 14px; color: var(--ink2); display: inline-flex; gap: 8px; align-items: center; }
+.evhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+.evhead .t { font-family: var(--display); font-size: 22px; font-weight: 500; letter-spacing: -0.035em; }
+.evhead .m { color: var(--ink2); font-size: 14px; }
+.draws { display: grid; gap: 28px; }
+.group-h { display: flex; align-items: baseline; gap: 12px; margin: 0 0 10px 6px; }
+.group-h b { font-family: var(--serif); font-weight: 400; font-size: 34px; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.group-h span { font-size: 14px; color: var(--ink2); }
+.group-h .ph { color: var(--red); font-weight: 500; }
+.game { display: grid; grid-template-columns: 1fr 76px 1fr 104px; gap: 12px; align-items: center; padding: 14px 22px; border-top: 1px solid var(--line); }
+.game:first-child { border-top: 0; }
+.game .a { text-align: right; min-width: 0; }
+.game .b { min-width: 0; }
+.team { font-weight: 500; }
+.team.win { font-weight: 700; }
+.team.lose { color: var(--ink2); font-weight: 400; }
+.cc { font-size: 11px; font-weight: 600; color: var(--ink2); background: var(--bg2); border-radius: 6px; padding: 2px 6px; margin-inline: 8px; letter-spacing: .02em; }
+.sc { text-align: center; font-family: var(--serif); font-size: 26px; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.sc.vs { font-family: var(--sans); font-size: 14px; color: var(--ink2); letter-spacing: 0; }
+.st { font-size: 13px; color: var(--ink2); text-align: right; display: grid; justify-items: end; gap: 2px; }
+.st.live { color: var(--green); font-weight: 600; }
+.game.fol { box-shadow: inset 4px 0 0 var(--green); }
+.game.fol.ita { box-shadow: inset 4px 0 0 var(--blue); }
+.gnote { grid-column: 1 / -1; text-align: center; font-size: 13px; font-weight: 500; color: var(--red); margin-bottom: -6px; }
+.legendline { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--ink2); margin-top: 24px; }
+.legendline i { display: inline-block; width: 4px; height: 14px; border-radius: 2px; vertical-align: -2px; margin-right: 6px; }
+
+/* Classificação */
+.tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.tbl-h { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 0 0 10px 6px; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 15px; }
+th { font-size: 12px; font-weight: 500; color: var(--ink2); text-align: right; padding: 12px 14px 8px; }
+th:nth-child(2), td:nth-child(2) { text-align: left; }
+td { padding: 11px 14px; border-top: 1px solid var(--line); text-align: right; }
+td:first-child, th:first-child { width: 36px; text-align: center; color: var(--ink2); padding-left: 18px; }
+tr.fol td:nth-child(2) { font-weight: 700; }
+tr.fol td:first-child { box-shadow: inset 4px 0 0 var(--green); }
+tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
+.q { display: inline-block; font-size: 11px; font-weight: 600; color: var(--green); margin-left: 8px; }
+
+/* Brasil */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.card { background: var(--card); border-radius: 24px; padding: 32px; box-shadow: inset 0 0 0 1px var(--line); display: grid; gap: 14px; align-content: start; min-width: 0; }
+.band.alt .card { box-shadow: none; }
+.card .k { font-size: 14px; font-weight: 500; color: var(--red); }
+.card h3 { font-family: var(--serif); font-weight: 400; font-size: 36px; letter-spacing: -0.045em; line-height: 1.05; margin: 0; }
+.card .m { color: var(--ink2); font-size: 15px; }
+.pips { display: flex; gap: 6px; flex-wrap: wrap; }
+.pip { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; background: var(--bg2); color: var(--ink2); }
+.pip.w { background: var(--green); color: #fff; }
+.pip.l { box-shadow: inset 0 0 0 2px var(--red); color: var(--red); background: transparent; }
+.rows { display: grid; }
+.r { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.r:first-child { border-top: 0; }
+.r .what { font-weight: 500; }
+.r .when { font-size: 13px; color: var(--ink2); }
+.r .res { grid-row: 1 / span 2; grid-column: 2; align-self: center; text-align: right; }
+.note { color: var(--ink2); font-size: 15px; max-width: 60ch; }
+
+/* Temporada */
+.ribbon-box { background: var(--card); border-radius: 24px; padding: 28px; overflow-x: auto; }
+.ribbon { position: relative; min-width: 720px; }
+.months { display: grid; grid-template-columns: repeat(8, 1fr); font-size: 13px; font-weight: 500; color: var(--ink2); padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.lanes { position: relative; display: grid; gap: 8px; padding-block: 16px 4px; }
+.lane { position: relative; height: 16px; }
+.bar { position: absolute; top: 0; height: 16px; border-radius: 8px; border: 0; padding: 0; cursor: pointer; min-width: 8px; }
+.bar.slam { background: var(--gold); }
+.bar.world { background: var(--red); }
+.bar.cont { background: var(--navy); }
+.bar.qual { background: transparent; box-shadow: inset 0 0 0 2px var(--navy); }
+.bar.other { background: var(--ink2); opacity: .3; }
+.bar.past { opacity: .25; }
+.today-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--green); border-radius: 1px; }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; font-size: 13px; color: var(--ink2); margin-top: 20px; }
+.legend i { display: inline-block; width: 16px; height: 8px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+
+/* Agenda */
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 44px; }
+.chip { border: 0; box-shadow: inset 0 0 0 1px var(--line2); background: transparent; border-radius: 999px; padding: 8px 16px; font-size: 15px; font-weight: 500; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); box-shadow: none; color: var(--bg); }
+.month { margin-bottom: 36px; }
+.month-t { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 0 0 12px 6px; }
+.ev { display: grid; grid-template-columns: 96px 1fr auto; gap: 20px; padding: 24px; border-top: 1px solid var(--line); align-items: start; scroll-margin-top: 90px; }
+.ev:first-child { border-top: 0; }
+.ev.is-past { opacity: .55; }
+.ev.flash { background: var(--bg2); }
+.date b { display: block; font-family: var(--serif); font-weight: 400; font-size: 34px; letter-spacing: -0.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.date span { display: block; font-size: 13px; color: var(--ink2); margin-top: 4px; }
+.catdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.ev h4 { margin: 0 0 2px; font-family: var(--display); font-size: 21px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.25; }
+.ev .off { font-size: 13px; color: var(--ink2); }
+.ev .pl { font-size: 15px; color: var(--ink2); margin-top: 2px; }
+.ev .body { min-width: 0; display: grid; gap: 10px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg2); color: var(--ink2); }
+.tag.live { background: var(--green); color: #fff; }
+.tag.soon { background: var(--red); color: #fff; }
+.tag.bra { background: transparent; box-shadow: inset 0 0 0 1px var(--green); color: var(--green); }
+.tag.ita { background: transparent; box-shadow: inset 0 0 0 1px var(--blue); color: var(--blue); }
+.links { display: flex; flex-wrap: wrap; gap: 18px; font-size: 15px; font-weight: 500; }
+.star { background: none; border: 0; cursor: pointer; font-size: 24px; line-height: 1; color: var(--ink2); padding: 2px 4px; }
+.star[aria-pressed="true"] { color: var(--gold); }
+
+/* Guia */
+.guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.term { background: var(--card); border-radius: 24px; padding: 26px; display: grid; gap: 8px; align-content: start; }
+.term h4 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 30px; letter-spacing: -0.045em; line-height: 1.05; }
+.term p { margin: 0; color: var(--ink2); font-size: 15px; }
+.house { display: block; margin: 0 auto 44px; }
+
+/* Perfis */
+.sheet { position: fixed; inset: 0; z-index: 50; display: grid; place-items: end center; }
+.sheet-bg { position: absolute; inset: 0; background: rgba(0,12,31,.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.sheet-panel { position: relative; width: min(880px, 100%); max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; background: var(--bg); border-radius: 28px 28px 0 0; padding: 40px 32px calc(40px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -20px 60px -20px rgba(0,0,0,.35); }
+@media (min-width: 900px) { .sheet { place-items: center; } .sheet-panel { border-radius: 28px; max-height: calc(100% - 64px); } }
+@media (prefers-reduced-motion: no-preference) { .sheet:not([hidden]) .sheet-panel { animation: load .45s cubic-bezier(.2,.7,.2,1) both; } }
+.sheet-x { position: sticky; top: 0; float: right; margin: -16px -12px 0 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg2); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 2; }
+.pf-head { text-align: center; margin-bottom: 28px; }
+.pf-k { font-size: 14px; font-weight: 500; color: var(--red); }
+.pf-name { font-size: clamp(40px, 6vw, 64px); margin: 6px auto 10px; }
+.pf-facts { color: var(--ink2); font-size: 15px; }
+.pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 32px; }
+.pf-stats div { background: var(--bg2); border-radius: 18px; padding: 16px; text-align: center; display: grid; gap: 2px; }
+.pf-stats b { font-family: var(--serif); font-weight: 400; font-size: 34px; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+.pf-stats span { font-size: 13px; color: var(--ink2); }
+.pf-h { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 28px 0 10px 4px; }
+.clist { background: var(--bg2); border-radius: 18px; overflow: hidden; }
+.crow { display: grid; grid-template-columns: 52px 1fr 64px 52px; gap: 10px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); font-size: 15px; font-variant-numeric: tabular-nums; }
+.crow:first-child { border-top: 0; }
+.crow .cy { color: var(--ink2); font-size: 14px; }
+.crow .cn { min-width: 0; display: grid; }
+.crow .cn b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crow .cn small { color: var(--ink2); font-size: 13px; }
+.crow .cr { text-align: right; font-weight: 600; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.crow .cw { text-align: right; color: var(--ink2); font-size: 14px; }
+.md { display: inline-block; width: 12px; height: 12px; border-radius: 50%; }
+.md.m1 { background: #d4a72c; } .md.m2 { background: #a3acb6; } .md.m3 { background: #b4703e; }
+.mates { display: flex; flex-wrap: wrap; gap: 8px; }
+.mate { display: grid; text-align: left; gap: 1px; border: 0; box-shadow: inset 0 0 0 1px var(--line2); background: transparent; border-radius: 14px; padding: 9px 14px; cursor: pointer; font-size: 15px; font-weight: 500; }
+.mate small { font-size: 12px; color: var(--ink2); font-weight: 400; }
+.mate:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+.lsl { display: grid; gap: 12px; }
+.lsw { background: var(--bg2); border-radius: 18px; padding: 12px 14px; overflow-x: auto; }
+.lsm { font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
+.ls { border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; width: 100%; }
+.ls th { font-size: 11px; color: var(--ink2); font-weight: 500; padding: 2px 6px; text-align: center; }
+.ls td { padding: 4px 6px; text-align: center; border-top: 0; }
+.ls td:first-child { text-align: left; white-space: nowrap; padding-left: 0; width: 40%; }
+.ls tr.win td:first-child, .ls tr.win .tot { font-weight: 700; }
+.ls .tot { font-weight: 600; }
+.pf-src { font-size: 13px; color: var(--ink2); text-align: center; margin-top: 28px; }
+.linkish { background: none; border: 0; padding: 0; color: var(--blue); cursor: pointer; font: inherit; }
+@media (max-width: 640px) {
+  .sheet-panel { padding: 32px 18px calc(32px + env(safe-area-inset-bottom, 0px)); }
+  .pf-stats { grid-template-columns: repeat(2, 1fr); }
+  .crow { grid-template-columns: 44px 1fr 52px; }
+  .crow .cw { display: none; }
+}
+
+/* Rodapé */
+footer { padding-block: 72px; background: var(--bg); border-top: 1px solid var(--line); text-align: center; }
+footer .logo { justify-content: center; font-size: 32px; margin-bottom: 18px; }
+footer h3 { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 32px 0 12px; }
+.srcs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; font-size: 14px; max-width: 760px; margin: 0 auto; }
+footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--ink2); }
+
+@media (max-width: 900px) {
+  .two { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  nav .in { grid-template-columns: 1fr auto; }
+  .navlinks { display: none; }
+  .qph, #q { font-size: 17px; }
+  .qph { left: 50px; }
+  .band { padding-block: 64px; }
+  .hero { padding-block: 56px 64px; }
+  .now { margin-top: 44px; }
+  .tile, .card { padding: 24px; border-radius: 22px; }
+  .li { grid-template-columns: 84px 1fr; padding: 14px 16px; }
+  .li .side { grid-column: 2; display: flex; gap: 12px; align-items: center; }
+  .game { grid-template-columns: 1fr 56px 1fr; padding: 13px 14px; gap: 8px; }
+  .game .st { grid-column: 1 / -1; display: flex; justify-content: center; gap: 12px; }
+  .game .st:empty { display: none; }
+  .cc { display: none; }
+  .ev { grid-template-columns: 64px 1fr; gap: 14px; position: relative; padding: 20px 16px; }
+  .ev .body { padding-right: 28px; }
+  .ev .star { position: absolute; top: 16px; right: 10px; }
+  .date b { font-size: 28px; }
+}
+</style>
+
+<nav>
+  <div class="in">
+    <a class="logo" href="#top" aria-label="Hello, Curling">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+        <circle cx="13" cy="13" r="12.5" fill="var(--navy)"/>
+        <circle cx="13" cy="13" r="9" fill="var(--bg)"/>
+        <circle cx="13" cy="13" r="6.2" fill="var(--red)"/>
+        <circle cx="13" cy="13" r="2.6" fill="var(--bg)"/>
+      </svg>
+      Hello, Curling
+    </a>
+    <div class="navlinks">
+      <a href="#jogos" data-i18n="navGames">Jogos</a>
+      <a href="#agenda" data-i18n="navAgenda">Agenda</a>
+      <a href="#seguir" data-i18n="navFollow">Seus times</a>
+      <a href="#brasil" data-i18n="navBra">Brasil</a>
+      <a href="#guia" data-i18n="navGuide">Guia</a>
+    </div>
+    <div class="navright">
+      <div class="seg" role="group" aria-label="Idioma">
+        <button id="lang-pt" data-lang="pt" aria-pressed="true">PT</button>
+        <button id="lang-en" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="in">
+    <h1>Hello, Curling</h1>
+    <p class="lede" data-i18n="heroLede">Um jeito fácil de acompanhar o curling.</p>
+    <div class="search" role="search">
+      <form class="sbox" id="qform">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="text" autocomplete="off" spellcheck="false" aria-label="Buscar">
+        <span class="qph" id="qph" aria-hidden="true"></span>
+        <button class="sgo" type="submit" aria-label="Buscar">→</button>
+      </form>
+      <div class="scount" id="qcount" aria-live="polite"></div>
+      <div class="sres" id="qres" hidden></div>
+    </div>
+    <div class="marquee" id="marquee" aria-label="Próximos jogos"><div class="track" id="track"></div></div>
+    <div class="now" id="now"></div>
+  </div>
+</header>
+
+<section class="band alt" id="jogos">
+  <div class="in">
+    <div class="head">
+      <h2 data-i18n="gamesTitle">Quem joga, e quando.</h2>
+      <p class="sub" data-i18n="gamesSub">Escolha o torneio e o dia. Os horários já estão convertidos.</p>
+    </div>
+    <div class="controls">
+      <div class="seg" id="evtabs" role="group" aria-label="Torneio"></div>
+      <div class="ctl-row">
+        <div class="seg" id="views" role="group"></div>
+        <div class="seg" id="divs" role="group"></div>
+      </div>
+      <div class="days" id="days"></div>
+      <div class="tzline"><span data-i18n="tzLabel">Horários:</span>
+        <div class="seg" role="group">
+          <button id="tz-br" data-tz="br" aria-pressed="true">Brasília</button>
+          <button id="tz-local" data-tz="local" aria-pressed="false" data-i18n="tzLocal">Meu fuso</button>
+        </div>
+      </div>
+    </div>
+    <div class="evhead" id="evhead"></div>
+    <div id="draws"></div>
+    <div class="legendline" id="glegend"></div>
+  </div>
+</section>
+
+<section class="band" id="agenda">
+  <div class="in">
+    <div class="head">
+      <h2 data-i18n="agendaTitle">De outubro a maio.</h2>
+      <p class="sub" data-i18n="agendaSub">Toque numa barra para ir direto ao torneio.</p>
+    </div>
+    <div class="ribbon-box" style="background:var(--bg2)"><div class="ribbon" id="ribbon"></div></div>
+    <div class="legend" id="legend"></div>
+    <div style="height:56px"></div>
+    <div class="chips" id="filters"></div>
+    <div class="narrow" style="margin:0 auto" id="list"></div>
+  </div>
+</section>
+
+<section class="band alt" id="seguir">
+  <div class="in">
+    <div class="head">
+      <h2 data-i18n="followTitle">Jogos de quem você segue.</h2>
+      <p class="sub" data-i18n="followSub">Siga seleções ou times do Grand Slam. Os próximos jogos aparecem aqui, e você pode colocar cada um no Google Agenda.</p>
+    </div>
+    <div class="follow-bar" id="followbar"></div>
+    <div class="two">
+      <div><div class="colh" data-i18n="upcoming">Próximos jogos</div><div class="list" id="fup"></div></div>
+      <div><div class="colh" data-i18n="recent">Últimos resultados</div><div class="list" id="frec"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="brasil">
+  <div class="in">
+    <div class="head">
+      <h2 data-i18n="braTitle">Brasileiros na temporada.</h2>
+      <p class="sub" data-i18n="braSub">Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.</p>
+    </div>
+    <div class="cards" id="bra"></div>
+  </div>
+</section>
+
+<section class="band alt" id="guia">
+  <div class="in">
+    <div class="head">
+      <h2 data-i18n="guideTitle">Primeira vez vendo curling?</h2>
+      <p class="sub" data-i18n="guideSub">Oito termos que você vai ouvir em toda transmissão.</p>
+    </div>
+    <svg class="house" width="220" height="220" viewBox="0 0 220 220" role="img" aria-labelledby="house-t">
+      <title id="house-t">A casa: anéis de 12, 8 e 4 pés e o botão no centro</title>
+      <line x1="0" y1="110" x2="220" y2="110" stroke="var(--line2)" stroke-width="1.5"/>
+      <line x1="110" y1="0" x2="110" y2="220" stroke="var(--line2)" stroke-width="1.5"/>
+      <circle cx="110" cy="110" r="96" fill="var(--navy)" opacity=".9"/>
+      <circle cx="110" cy="110" r="64" fill="var(--bg)"/>
+      <circle cx="110" cy="110" r="32" fill="var(--red)"/>
+      <circle cx="110" cy="110" r="10" fill="var(--bg)"/>
+      <circle cx="132" cy="96" r="11" fill="#e8c547" stroke="var(--ink)" stroke-width="1.5"/>
+      <circle cx="92" cy="128" r="11" fill="#d94b4b" stroke="var(--ink)" stroke-width="1.5"/>
+      <circle cx="160" cy="150" r="11" fill="#d94b4b" stroke="var(--ink)" stroke-width="1.5"/>
+    </svg>
+    <div class="guide" id="guide"></div>
+  </div>
+</section>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-bg" data-close="1"></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Perfil">
+    <button class="sheet-x" data-close="1" aria-label="Fechar">✕</button>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="in">
+    <div class="logo">
+      <svg width="30" height="30" viewBox="0 0 26 26" aria-hidden="true">
+        <circle cx="13" cy="13" r="12.5" fill="var(--navy)"/><circle cx="13" cy="13" r="9" fill="var(--bg2)"/>
+        <circle cx="13" cy="13" r="6.2" fill="var(--red)"/><circle cx="13" cy="13" r="2.6" fill="var(--bg2)"/>
+      </svg>Hello, Curling
+    </div>
+    <h3 data-i18n="sourcesTitle">Fontes</h3>
+    <div class="srcs" id="srcs"></div>
+    <p id="dbstats"></p>
+    <p data-i18n="foot1"></p>
+    <p data-i18n="foot2"></p>
+  </div>
+</footer>
+
+<script>
+const WCTV = "https://www.youtube.com/user/WorldCurlingTV";
+const LIVE = "https://livescores.worldcurling.org";
+const GSOC = "https://www.thegrandslamofcurling.com";
+const ROCK = "https://watch.rockchannel.com";
+const ROCKCREEK = "https://www.youtube.com/@rockcreekcurling8326";
+const DAZN = "https://www.dazn.com";
+
+// cat: slam | world | cont | qual | other   main: aparece em "Principais"
+// bra/ita: "yes" confirmado, "maybe" possível
+const EVENTS = [
+  { id: "wmdqe26", cat: "qual", main: true, start: "2026-10-02", end: "2026-10-08",
+    pt: "Qualificatório do Mundial de Duplas Mistas", en: "Mixed Doubles Worlds Qualifier", short: ["Qualif. Duplas Mistas", "MD Qualifier"],
+    official: "World Mixed Doubles Qualification Event 2026–2027",
+    city: "Lafayette, Colorado", country: "USA", bra: "yes",
+    notePt: "26 duplas brigam por 3 vagas no Mundial de janeiro.",
+    noteEn: "26 pairs fight for 3 spots at the January Worlds.",
+    links: [["watch", ROCKCREEK], ["scores", "https://livescores.worldcurling.org/wmdqe26/"]] },
+  { id: "gsoc-inv", cat: "slam", main: true, start: "2026-10-13", end: "2026-10-18",
+    pt: "GSOC Co-op Invitational", en: "GSOC Co-op Invitational", short: ["Grand Slam Victoria", "GSOC Victoria"],
+    official: "Grand Slam of Curling",
+    city: "Victoria, BC", country: "CAN", ita: "yes",
+    notePt: "16 times masculinos e 16 femininos. A italiana Zardini Lacedelli está no grupo B feminino. Fora da América do Norte, passa na DAZN e no Rock Channel.",
+    noteEn: "16 men's and 16 women's teams. Italy's Zardini Lacedelli is in women's pool B. Outside North America it streams on DAZN and Rock Channel.",
+    links: [["watch", ROCK], ["dazn", DAZN], ["site", GSOC + "/events/gsoc-invitational-7/draw-schedule-results"]] },
+  { id: "ecc26", cat: "cont", main: true, start: "2026-10-27", end: "2026-11-01",
+    pt: "Campeonato Europeu", en: "European Championships", short: ["Europeu", "Europeans"],
+    official: "Le Gruyère AOP European Curling Championships 2026",
+    city: "Ostrava", country: "CZE", ita: "yes",
+    notePt: "A Itália joga no masculino e no feminino, nos dois casos no Grupo A.",
+    noteEn: "Italy plays in both the men's and women's events, Group A in each.",
+    links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "gsoc-masters", cat: "slam", main: true, start: "2026-11-03", end: "2026-11-08",
+    pt: "GSOC Masters", en: "GSOC Masters", official: "Grand Slam of Curling",
+    city: "Medicine Hat, AB", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
+  { id: "wcq-men", cat: "qual", main: true, start: "2026-11-08", end: "2026-11-13",
+    pt: "Qualificatório do Mundial masculino", en: "Men's Worlds Qualifier",
+    official: "World Championship Qualifier Men 2026",
+    city: "Aberdeen", country: "SCO", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "gsoc-national", cat: "slam", main: true, start: "2026-11-17", end: "2026-11-22",
+    pt: "GSOC National", en: "GSOC National", official: "Grand Slam of Curling",
+    city: "Sydney, NS", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
+  { id: "wcq-women", cat: "qual", main: true, start: "2026-11-21", end: "2026-11-26",
+    pt: "Qualificatório do Mundial feminino", en: "Women's Worlds Qualifier",
+    official: "World Championship Qualifier Women 2026",
+    city: "Östersund", country: "SWE", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wwhb26", cat: "other", start: "2026-11-22", end: "2026-11-28",
+    pt: "Mundial em cadeira de rodas, Divisão B", en: "Wheelchair Worlds, B Division",
+    official: "World Wheelchair-B Curling Championship 2026",
+    city: "Lohja", country: "FIN", links: [["scores", LIVE]] },
+  { id: "gsoc-open", cat: "slam", main: true, start: "2026-12-01", end: "2026-12-06",
+    pt: "GSOC Open", en: "GSOC Open", official: "Grand Slam of Curling",
+    city: "Thunder Bay, ON", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
+  { id: "wjb26", cat: "other", start: "2026-12-08", end: "2026-12-21",
+    pt: "Mundial Júnior, Divisão B", en: "Junior Worlds, B Division",
+    official: "World Junior-B Curling Championships 2026",
+    city: "Lohja", country: "FIN", links: [["scores", LIVE]] },
+  { id: "gsoc-players", cat: "slam", main: true, start: "2026-12-15", end: "2026-12-20",
+    pt: "GSOC Players' Cup", en: "GSOC Players' Cup", official: "Grand Slam of Curling",
+    city: "Kingston, ON", country: "CAN",
+    notePt: "Fecha a temporada do Grand Slam, só com os 12 melhores times.",
+    noteEn: "Closes the Grand Slam season with the top 12 teams only.",
+    links: [["watch", ROCK], ["site", GSOC]] },
+  { id: "wmdcc27", cat: "world", main: true, start: "2027-01-04", end: "2027-01-10",
+    pt: "Mundial de Duplas Mistas", en: "World Mixed Doubles Championship",
+    official: "World Mixed Doubles Curling Championship 2027",
+    city: "Lohja", country: "FIN", ita: "maybe",
+    notePt: "A Itália foi ouro olímpico nas duplas mistas em 2022.",
+    noteEn: "Italy won Olympic mixed doubles gold in 2022.",
+    links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wjcc27", cat: "other", start: "2027-02-06", end: "2027-02-14",
+    pt: "Mundial Júnior", en: "World Junior Championships",
+    official: "World Junior Curling Championships 2027",
+    city: "Aberdeen", country: "SCO", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wwhcc27", cat: "other", start: "2027-02-20", end: "2027-02-27",
+    pt: "Mundial em cadeira de rodas", en: "World Wheelchair Championship",
+    official: "World Wheelchair Curling Championship 2027",
+    city: "Lohja", country: "FIN", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wwmdcc27", cat: "other", start: "2027-03-01", end: "2027-03-08",
+    pt: "Mundial de Duplas Mistas em cadeira de rodas", en: "World Wheelchair Mixed Doubles",
+    official: "World Wheelchair Mixed Doubles Curling Championship 2027",
+    city: "Lohja", country: "FIN", links: [["scores", LIVE]] },
+  { id: "wwcc27", cat: "world", main: true, start: "2027-03-13", end: "2027-03-21",
+    pt: "Mundial feminino", en: "World Women's Championship",
+    official: "World Women's Curling Championship 2027",
+    city: null, country: null, ita: "maybe", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wmcc27", cat: "world", main: true, start: "2027-03-26", end: "2027-04-04",
+    pt: "Mundial masculino", en: "World Men's Championship",
+    official: "BKT World Men's Curling Championship 2027",
+    city: "Saint John, NB", country: "CAN", ita: "maybe", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wmxcc27", cat: "world", start: "2027-04-03", end: "2027-04-10",
+    pt: "Mundial misto (4 jogadores)", en: "World Mixed Championship",
+    official: "World Mixed Curling Championship 2026–2027",
+    city: "Penticton, BC", country: "CAN", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wmdqe27", cat: "qual", main: true, start: "2027-04-10", end: "2027-04-17",
+    pt: "Qualificatório do Mundial de Duplas Mistas (abril)", en: "Mixed Doubles Worlds Qualifier (April)",
+    official: "World Mixed Doubles Qualification Event 2027",
+    city: "Winnipeg, MB", country: "CAN", bra: "maybe", links: [["watch", WCTV], ["scores", LIVE]] },
+  { id: "wscc27", cat: "other", start: "2027-04-24", end: "2027-05-01",
+    pt: "Mundial Sênior", en: "World Senior Championships",
+    official: "World Senior Curling Championships 2027",
+    city: null, country: null, links: [["scores", LIVE]] },
+  { id: "wcpq27", cat: "qual", main: true, start: "2027-05-03", end: "2027-05-10", approx: true,
+    pt: "Pré-qualificatórios do Mundial", en: "Worlds Pre-Qualifiers",
+    official: "World Championship Pre-Qualifiers",
+    city: null, country: null, bra: "maybe",
+    notePt: "Substituem o antigo Pan-Continental como porta de entrada para seleções como o Brasil. Datas exatas a definir (início de maio).",
+    noteEn: "They replace the old Pan Continental as the entry point for teams like Brazil. Exact dates TBD (early May).",
+    links: [["scores", LIVE]] },
+  { id: "wjmdcc27", cat: "other", start: "2027-05-04", end: "2027-05-10",
+    pt: "Mundial Júnior de Duplas Mistas", en: "World Junior Mixed Doubles",
+    official: "World Junior Mixed Doubles Curling Championships 2027",
+    city: null, country: null, bra: "maybe",
+    notePt: "O Brasil disputou a edição de 2026, em Edmonton.",
+    noteEn: "Brazil played the 2026 edition in Edmonton.",
+    links: [["scores", LIVE]] },
+];
+
+const TEAMS = {
+  AUT:["Áustria","Austria"], BEL:["Bélgica","Belgium"], BRA:["Brasil","Brazil"], CZE:["Tchéquia","Czechia"],
+  DEN:["Dinamarca","Denmark"], ENG:["Inglaterra","England"], ESP:["Espanha","Spain"], EST:["Estônia","Estonia"],
+  FRA:["França","France"], GER:["Alemanha","Germany"], GUY:["Guiana","Guyana"], HKG:["Hong Kong","Hong Kong"],
+  IND:["Índia","India"], IRL:["Irlanda","Ireland"], ITA:["Itália","Italy"], KEN:["Quênia","Kenya"],
+  LAT:["Letônia","Latvia"], LTU:["Lituânia","Lithuania"], MEX:["México","Mexico"], NED:["Holanda","Netherlands"],
+  NGR:["Nigéria","Nigeria"], NOR:["Noruega","Norway"], PAK:["Paquistão","Pakistan"], PHI:["Filipinas","Philippines"],
+  POL:["Polônia","Poland"], POR:["Portugal","Portugal"], PUR:["Porto Rico","Puerto Rico"], ROU:["Romênia","Romania"],
+  SCO:["Escócia","Scotland"], SLO:["Eslovênia","Slovenia"], SUI:["Suíça","Switzerland"], SVK:["Eslováquia","Slovakia"],
+  SWE:["Suécia","Sweden"], TPE:["Taipé Chinesa","Chinese Taipei"], TUR:["Turquia","Türkiye"], UKR:["Ucrânia","Ukraine"],
+  USA:["Estados Unidos","United States"],
+  WSF:["Vencedor semi","Semi winner"], LSF:["Perdedor semi","Semi loser"],
+  A1:["1º Grupo A","1st Group A"], A2:["2º Grupo A","2nd Group A"], B1:["1º Grupo B","1st Group B"], B2:["2º Grupo B","2nd Group B"],
+};
+// País dos times do Grand Slam (só os confirmados)
+const SKIP_CC = { "Zardini Lacedelli": "ITA", "Hösli": "SUI", "Yamaguchi": "JPN", "Miura": "JPN", "Gim": "KOR" };
+
+// Tabelas de jogos. t = horário local da sede; offset = fuso da sede.
+// Times: código de país (maiúsculo = masculino, minúsculo = feminino no Europeu) ou "m:/w:Nome do skip" no Grand Slam.
+const GAMES = {
+  wmdqe26: {
+    offset: "-06:00", len: 2, watch: ROCKCREEK, scores: "https://livescores.worldcurling.org/wmdqe26/",
+    src: "livescores.worldcurling.org",
+    draws: [
+      ["2026-10-02T09:00", 1, "FRA 12-1 BEL|IND 3-8 USA|HKG 8-2 PHI|GUY 5-11 LAT|NGR 2-11 SVK"],
+      ["2026-10-02T13:00", 2, "POL 7-4 AUT|IRL 4-9 TPE|KEN 3-10 BRA|ROU 3-11 ESP|MEX 12-2 PUR"],
+      ["2026-10-02T18:00", 3, "SVK 10-3 HKG|FRA 12-4 POR|IND 4-9 PAK|PHI 1-10 NGR|UKR 3-7 LAT|SLO 4-9 ENG"],
+      ["2026-10-03T09:00", 4, "USA 11-1 PAK|GUY 7-9 UKR|AUT 11-6 NGR|HKG 12-6 IND"],
+      ["2026-10-03T12:30", 5, "MEX 4-7 TPE|IRL 5-6 BEL|LAT 22-0 KEN|SVK 3-10 POL|POR 3-13 TUR"],
+      ["2026-10-03T16:00", 6, "GUY 6-5 ENG|ESP 12-2 BRA|AUT 7-5 PAK|SLO 9-5 UKR|IND 6-7 PHI"],
+      ["2026-10-03T19:30", 7, "LAT 14-1 ROU|POL 10-4 NGR|USA 11-1 HKG|TUR 3-12 FRA|BEL 3-8 TPE"],
+      ["2026-10-04T09:00", 8, "AUT 12-5 PHI|UKR 15-3 KEN|PAK 5-10 SVK|MEX 10-4 POR"],
+      ["2026-10-04T12:30", 9, "SLO 4-8 ESP|BEL 11-8 PUR|NGR 7-4 IND|HKG 3-8 POL|GUY 10-5 ROU|ENG 10-4 BRA"],
+      ["2026-10-04T16:00", 10, "TUR 3-7 IRL|FRA 8-2 MEX|SVK 4-11 AUT|PHI 2-7 PAK|TPE 7-4 POR"],
+      ["2026-10-04T19:30", 11, "KEN 1-16 GUY|ENG 6-9 LAT|UKR 4-9 ESP|ROU 1-8 SLO|POL 2-9 USA"],
+      ["2026-10-05T09:00", 12, "HKG 5-10 AUT|TPE 7-5 TUR|POR 9-1 PUR|FRA 8-5 IRL"],
+      ["2026-10-05T12:30", 13, "ESP 2-14 LAT|PHI 5-7 SVK|KEN 1-16 SLO|POL 13-2 IND|BRA 0-13 GUY|NGR 1-16 USA"],
+      ["2026-10-05T16:00", 14, "BEL 3-8 MEX|ENG 5-9 UKR|TPE 1-10 FRA|PAK 3-6 HKG"],
+      ["2026-10-05T19:30", 15, "IND 3-11 SVK|BRA 3-10 ROU|PHI 1-8 POL|PUR 1-7 IRL|USA 9-2 AUT|LAT 8-3 SLO"],
+      ["2026-10-06T09:00", 16, "TUR 6-9 MEX|ESP 3-10 GUY|POR 5-9 BEL|ENG 14-1 KEN"],
+      ["2026-10-06T12:30", 17, "PUR 0-13 FRA|PAK 4-6 POL|SVK 3-15 USA|NGR 7-6 HKG|LAT 7-0 BRA|UKR 14-2 ROU"],
+      ["2026-10-06T16:00", 18, "IRL 9-3 POR|SLO 8-3 GUY|TUR 9-2 BEL|ESP 5-6 ENG|AUT 8-2 IND"],
+      ["2026-10-06T19:30", 19, "ROU 14-0 KEN|PUR 3-7 TPE|BRA 1-7 UKR|USA 12-2 PHI|PAK 12-1 NGR"],
+      ["2026-10-07T10:00", 20, "BRA 2-10 SLO|ROU 4-8 ENG|IRL 6-9 MEX|PUR 2-14 TUR|KEN 1-12 ESP"],
+      ["2026-10-07T16:00", "qf", "POL 7-4 UKR|USA 9-2 MEX|ESP 6-8 LAT|TPE 2-15 FRA"],
+      ["2026-10-08T10:00", "sf", "FRA v LAT|USA v POL"],
+      ["2026-10-08T15:00", "fin", "WSF v WSF|LSF v LSF", { notes: ["final", "bronzeSpot"] }],
+    ],
+  },
+  "gsoc-inv": {
+    offset: "-07:00", len: 2.75, watch: ROCK, scores: GSOC + "/events/gsoc-invitational-7/draw-schedule-results",
+    src: "thegrandslamofcurling.com",
+    draws: [
+      ["2026-10-13T08:30", 1, "w:Hasselborg v Zardini Lacedelli|w:Fujisawa v Dupont|m:Casper v Yamaguchi|m:Eriksson v Bottcher"],
+      ["2026-10-13T12:00", 2, "w:Pätz v Reese-Hansen|w:Einarson v Nihira|m:Mouat v Hösli|m:Y. Schwaller v Epping"],
+      ["2026-10-13T15:30", 3, "w:X. Schwaller v Kang|m:Hardie v Koe|m:Dunstone v Maeda|w:Gim v Miura"],
+      ["2026-10-13T19:00", 4, "w:Wranå v Ueno|w:Homan v MacMillan|m:Waddell v Ramsfjell|m:Jacobs v Carson"],
+      ["2026-10-14T08:30", 5, "m:Hardie v Epping|m:Casper v Maeda|w:Fujisawa v Kang|w:X. Schwaller v Dupont"],
+      ["2026-10-14T12:00", 6, "m:Waddell v Hösli|w:Pätz v Zardini Lacedelli|w:Einarson v Ueno|m:Mouat v Ramsfjell"],
+      ["2026-10-14T15:30", 7, "m:Y. Schwaller v Koe|m:Eriksson v Carson|m:Jacobs v Bottcher|m:Dunstone v Yamaguchi"],
+      ["2026-10-14T19:00", 8, "w:Gim v MacMillan|w:Hasselborg v Reese-Hansen|w:Wranå v Miura|w:Homan v Nihira"],
+      ["2026-10-15T08:00", 9, "m:Bottcher v Carson|m:Y. Schwaller v Ramsfjell|m:Waddell v Epping|m:Hardie v Hösli"],
+      ["2026-10-15T11:30", 10, "w:Wranå v Nihira|m:Eriksson v Maeda|m:Dunstone v Casper|w:Gim v Ueno"],
+      ["2026-10-15T15:00", 11, "w:Homan v Miura|m:Jacobs v Yamaguchi|w:X. Schwaller v Pätz|w:Hasselborg v Fujisawa"],
+      ["2026-10-15T19:00", 12, "w:Reese-Hansen v Kang|w:Einarson v MacMillan|m:Mouat v Koe|w:Dupont v Zardini Lacedelli"],
+      ["2026-10-16T08:30", 13, "m:Mouat v Waddell|w:Pätz v Kang|w:Nihira v Miura|m:Yamaguchi v Maeda"],
+      ["2026-10-16T12:00", 14, "m:Ramsfjell v Hösli|w:Fujisawa v Zardini Lacedelli|m:Y. Schwaller v Hardie|m:Koe v Epping"],
+      ["2026-10-16T15:30", 15, "w:MacMillan v Ueno|w:Homan v Wranå|w:Einarson v Gim|m:Casper v Carson"],
+      ["2026-10-16T19:00", 16, "w:Hasselborg v Dupont|m:Dunstone v Bottcher|m:Jacobs v Eriksson|w:X. Schwaller v Reese-Hansen"],
+      ["2026-10-17T08:00", "tb", ""],
+      ["2026-10-17T12:00", "qfW", ""],
+      ["2026-10-17T16:00", "qfM", ""],
+      ["2026-10-17T19:30", "sfMW", ""],
+      ["2026-10-18T12:00", "finW", ""],
+      ["2026-10-18T16:00", "finM", ""],
+    ],
+  },
+  ecc26: {
+    offset: "+01:00", len: 2.75, watch: WCTV, scores: LIVE,
+    src: "curling.cz (versão de 22/07/2026)",
+    draws: [
+      ["2026-10-27T19:00", 1, "den v sco|swe v est|tur v ltu|sui v cze|nor v ita"],
+      ["2026-10-28T08:30", 2, "AUT v BEL|ITA v GER|lat v ger|SWE v NOR|SCO v NED"],
+      ["2026-10-28T12:00", 3, "POL v CZE|tur v sco|ESP v SUI|ltu v est|swe v den"],
+      ["2026-10-28T15:30", 4, "lat v nor|ger v sui|ita v cze|BEL v SCO|AUT v ITA"],
+      ["2026-10-28T19:00", 5, "est v tur|SWE v ESP|GER v NED|CZE v SUI|NOR v POL"],
+      ["2026-10-29T09:30", 6, "sui v ita|ltu v den|sco v swe|ger v nor|cze v lat"],
+      ["2026-10-29T14:00", 7, "GER v SCO|NED v AUT|ITA v BEL|POL v ESP|SUI v SWE"],
+      ["2026-10-29T18:30", 8, "swe v ltu|NOR v CZE|nor v sui|den v tur|est v sco"],
+      ["2026-10-30T09:30", 9, "cze v ger|ita v lat|SCO v AUT|NED v ITA|BEL v GER"],
+      ["2026-10-30T14:00", 10, "ESP v NOR|POL v SUI|CZE v SWE|sco v ltu|tur v swe"],
+      ["2026-10-30T18:30", 11, "BEL v NED|nor v cze|den v est|lat v sui|ita v ger"],
+      ["2026-10-31T09:30", 12, "SWE v POL|SCO v ITA|SUI v NOR|AUT v GER|ESP v CZE"],
+      ["2026-10-31T14:00", "sfW", "A1 v B2|A2 v B1", { div: "w" }],
+      ["2026-10-31T18:30", "sfM", "A1 v B2|A2 v B1", { div: "m" }],
+      ["2026-11-01T10:00", "medW", "LSF v LSF|WSF v WSF", { div: "w", notes: ["bronze", "gold"] }],
+      ["2026-11-01T14:00", "medM", "LSF v LSF|WSF v WSF", { div: "m", notes: ["bronze", "gold"] }],
+    ],
+  },
+};
+
+const BRAZIL = [
+  { event: "wmdqe26", who: "Elen Sumi & Sergio Vilela",
+    catPt: "Duplas mistas", catEn: "Mixed doubles",
+    outcomePt: "Eliminados na fase de grupos, em 8º do Grupo C. A vitória sobre o Quênia foi a única da campanha.",
+    outcomeEn: "Out in the round robin, 8th in Group C. The win over Kenya was their only one." },
+];
+
+
+// Grupos para a classificação. DSC = Draw Shot Challenge (desempate, menor é melhor).
+const GROUPS = {
+  wmdqe26: {
+    groups: [
+      ["A", null, ["USA","POL","AUT","SVK","PAK","HKG","NGR","PHI","IND"]],
+      ["B", null, ["FRA","TPE","MEX","TUR","IRL","BEL","POR","PUR"]],
+      ["C", null, ["LAT","UKR","ESP","ENG","SLO","GUY","ROU","BRA","KEN"]],
+    ],
+    dsc: { USA:18.008, POL:18.708, AUT:73.550, SVK:58.783, PAK:43.900, HKG:78.325, NGR:94.133, PHI:54.325, IND:88.300,
+           FRA:40.450, TPE:68.808, MEX:52.383, TUR:52.333, IRL:60.142, BEL:74.208, POR:95.583, PUR:145.367,
+           LAT:38.950, UKR:27.950, ESP:36.308, ENG:39.250, SLO:49.833, GUY:103.817, ROU:110.792, BRA:108.283, KEN:160.475 },
+    note: ["Os 2 primeiros de cada grupo e os 2 melhores terceiros (pelo DSC) vão às quartas.", "Top 2 in each group plus the 2 best third-placed teams (by DSC) reach the quarter-finals."],
+  },
+  ecc26: {
+    groups: [
+      ["A", "m", ["AUT","BEL","GER","ITA","NED","SCO"]], ["B", "m", ["CZE","ESP","NOR","POL","SUI","SWE"]],
+      ["A", "w", ["CZE","GER","ITA","LAT","NOR","SUI"]], ["B", "w", ["DEN","EST","LTU","SCO","SWE","TUR"]],
+    ],
+    note: ["Os 2 primeiros de cada grupo vão às semifinais (1º A x 2º B e 2º A x 1º B).", "Top 2 in each group reach the semi-finals (A1 v B2, A2 v B1)."],
+  },
+  "gsoc-inv": {
+    groups: [
+      ["A", "m", ["Mouat","Ramsfjell","Waddell","Hösli"]], ["B", "m", ["Jacobs","Eriksson","Bottcher","Carson"]],
+      ["C", "m", ["Dunstone","Casper","Yamaguchi","Maeda"]], ["D", "m", ["Y. Schwaller","Hardie","Koe","Epping"]],
+      ["A", "w", ["Homan","Wranå","Nihira","Miura"]], ["B", "w", ["Hasselborg","Fujisawa","Dupont","Zardini Lacedelli"]],
+      ["C", "w", ["X. Schwaller","Pätz","Reese-Hansen","Kang"]], ["D", "w", ["Einarson","Gim","MacMillan","Ueno"]],
+    ],
+    note: ["Cada time faz 4 jogos, inclusive contra outros grupos. Os 8 melhores de cada divisão vão às quartas.", "Each team plays 4 games, including cross-pool games. The top 8 in each division reach the quarter-finals."],
+  },
+};
+
+const SOURCES = [
+  ["World Curling · calendário 2026–27", "https://worldcurling.org/2026/09/2026-2027-calendar/"],
+  ["World Curling · placares ao vivo", "https://livescores.worldcurling.org"],
+  ["Grand Slam of Curling · temporada 2026–27", "https://www.thegrandslamofcurling.com/media/grand-slam-of-curling-unveils-2026-27-season-schedule"],
+  ["Grand Slam · tabela de Victoria", "https://www.thegrandslamofcurling.com/news/hoesli-miura-complete-gsoc-co-op-invitational-field"],
+  ["Grand Slam · onde assistir", "https://www.thegrandslamofcurling.com/news/how-to-watch-the-2026-gsoc-co-op-invitational-on-tv-streaming"],
+  ["Europeu 2026 · tabela oficial (PDF)", "https://www.curling.cz/wp-content/uploads/2026/07/ECC-2026-Playing-Schedule_20260722.pdf"],
+  ["Qualificatório de Duplas Mistas · Wikipedia", "https://en.wikipedia.org/wiki/2026_World_Mixed_Doubles_Qualification_Event_(October)"],
+  ["Brasil no Pan-Continental 2025 · Olympics.com", "https://www.olympics.com/pt/milano-cortina-2026/noticias/brasil-vitoria-arabia-saudita-pan-continental-curling-2025/"],
+];
+
+const T = {
+  pt: {
+    navFollow: "Seus times", navGames: "Jogos", navBra: "Brasil", navAgenda: "Agenda", navGuide: "Guia",
+    heroEyebrow: "Temporada 2026/27",
+    heroTitle: "Curling, no horário de Brasília.",
+    heroLede: "Um jeito fácil de acompanhar o curling.",
+    ctaGames: "Ver a escala de jogos", ctaFollow: "Escolher meus times",
+    followEyebrow: "Seus times", followTitle: "Jogos de quem você segue.",
+    followSub: "Siga seleções ou times do Grand Slam. Os próximos jogos aparecem aqui, e você pode colocar cada um no Google Agenda.",
+    upcoming: "Próximos jogos", recent: "Últimos resultados", addTeam: "+ Seguir time", unfollow: "Deixar de seguir",
+    countries: "Seleções", skips: "Times do Grand Slam",
+    noFollow: "Siga um time para ver os jogos dele aqui.", noUpcoming: "Nenhum jogo marcado nas tabelas publicadas.", noRecent: "Nenhum resultado ainda.",
+    gamesEyebrow: "Escala de jogos", gamesTitle: "Quem joga, e quando.",
+    gamesSub: "Escolha o torneio e o dia. Os horários já estão convertidos.",
+    viewGames: "Jogos", viewTable: "Classificação",
+    braEyebrow: "Brasil", braTitle: "Brasileiros na temporada.",
+    braSub: "Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.",
+    agendaEyebrow: "Agenda", agendaTitle: "De outubro a maio.", agendaSub: "Toque numa barra para ir direto ao torneio.",
+    guideEyebrow: "Guia rápido", guideTitle: "Primeira vez vendo curling?", guideSub: "Oito termos que você vai ouvir em toda transmissão.",
+    sourcesTitle: "Fontes",
+    searchLabel: "Buscar times, torneios ou termos",
+    examples: ["Quando a Itália joga?", "Jogos de hoje", "Hasselborg", "Europeu feminino", "Grand Slam de Victoria", "O que é hammer?", "Brasil", "Jogos de amanhã"],
+    exampleN: (i, n) => `Exemplo ${i} de ${n} · aperte Enter para buscar`,
+    results: n => n === 1 ? "1 resultado" : `${n} resultados`, clear: "Limpar",
+    secGames: "Jogos", secEvents: "Torneios", secTerms: "No guia",
+    noResults: "Nada encontrado. Tente o nome de um país, de um skip ou de um torneio.",
+    liveAt: d => `Placar atualizado em ${dayLabel(dayKey(d))}, ${hm(d)}`,
+    loading: "Carregando…", noProfile: "Perfil indisponível no momento.", athlete: "Atleta", years: "anos",
+    male: "Masculino", female: "Feminino", rightHand: "lança com a direita", leftHand: "lança com a esquerda",
+    champs: "Campeonatos", champsLower: "campeonatos", champ1: "campeonato", gamesPlayed: "Jogos", gamesLower: "jogos", winPct: "Vitórias",
+    medalsGSB: "Ouro · prata · bronze", career: "Carreira", asCoach: "Como técnico ou dirigente", mates: "Companheiros mais frequentes",
+    profileSrc: "Dados oficiais da", nationK: "Seleção", participations: "participações", athletes: "Atletas",
+    silver: "Prata", bestResults: "Melhores resultados", topAthletes: "Quem mais jogou", recentGames: "Jogos recentes, end a end",
+    allChamps: "Todos os campeonatos", showAll: "Mostrar todos",
+    secPeople: "Atletas", lastSeen: "último ano", medalsWord: "medalhas", secNations: "Seleções", seeProfile: "Ver perfil →",
+    histTitle: "Histórico completo", histNote: "Todos os campeonatos oficiais, com escalações e placares end a end.",
+    dbStats: (e, g, p) => `Banco de dados: ${e.toLocaleString("pt-BR")} campeonatos, ${g.toLocaleString("pt-BR")} jogos e ${p.toLocaleString("pt-BR")} atletas, desde 1959.`,
+    seeGames: "Ver jogos", emptyDay: "Nenhum jogo nesse dia.", nextGames: "Próximos jogos",
+    live: "Ao vivo", next: "Próximo torneio", nextForYou: "Próximo jogo dos seus times", inDays: d => d === 1 ? "amanhã" : `em ${d} dias`,
+    days: "dias", day: "dia", endsToday: "termina hoje", today: "hoje", ended: "Encerrado",
+    nothingLive: "Nenhum torneio hoje", firstGame: "Primeiro jogo",
+    tbc: "Sede a confirmar", approx: "data aproximada",
+    watch: "Assistir", scores: "Placar ao vivo", site: "Tabela oficial", dazn: "DAZN",
+    bra: "Brasil", ita: "Itália", maybe: "possível",
+    fMain: "Principais", fAll: "Todos", fSlam: "Grand Slam", fWorld: "Mundiais", fQual: "Qualificatórios",
+    fBra: "Brasil", fIta: "Itália", fStar: "★ Favoritos", fPast: "Mostrar encerrados",
+    empty: "Nenhum torneio com esses filtros.",
+    legSlam: "Grand Slam", legWorld: "Mundial", legCont: "Continental", legQual: "Qualificatório", legOther: "Júnior, sênior, cadeira de rodas",
+    star: "Favoritar", unstar: "Remover dos favoritos",
+    months: ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],
+    monthsLong: ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],
+    wd: ["dom","seg","ter","qua","qui","sex","sáb"],
+    tzLabel: "Horários:", tzLocal: "Meu fuso", tzNow: z => `fuso ${z}`,
+    divAll: "Todos", divM: "Masculino", divW: "Feminino",
+    draw: "Rodada", qf: "Quartas de final", sf: "Semifinais", fin: "Final e 3º lugar",
+    tb: "Desempates", qfW: "Quartas femininas", qfM: "Quartas masculinas", sfMW: "Semifinais", finW: "Final feminina", finM: "Final masculina",
+    sfW: "Semifinais femininas", sfM: "Semifinais masculinas", medW: "Medalhas · feminino", medM: "Medalhas · masculino",
+    tbNote: "Só acontece se houver empate na classificação.", playoffNote: "Confrontos definidos após a fase de grupos.",
+    final: "Final", bronze: "Bronze", gold: "Ouro", bronzeSpot: "3º lugar · vale a última vaga",
+    done: "Final", liveG: "● Ao vivo", checkScore: "Ver placar", addCal: "+ Agenda",
+    noGames: "Sem jogos nesta seleção.", divShort: { m: "Masc.", w: "Fem." },
+    legFol: "Time que você segue", legIta: "Itália", src: s => `Fonte: ${s}`,
+    group: "Grupo", pool: "Grupo", pos: "#", teamH: "Time", gp: "J", wH: "V", lH: "D", dscH: "DSC", qual: "classif.",
+    record: "Campanha", chances: "Próximas chances", tableTbd: "Tabela a definir",
+    chancesNote: "Participação do Brasil ainda não confirmada. Datas exatas e horários entram aqui quando a tabela sair.",
+    win: "V", loss: "D", vs: "x",
+    calDetails: "Horário convertido pelo Hello, Curling. Confira a tabela oficial antes do jogo.",
+    guide: [
+      ["Casa", "O alvo pintado no gelo, com 12 pés (3,66 m) de diâmetro. O centro se chama botão."],
+      ["End", "É como uma entrada no beisebol. Cada time lança suas pedras e, no fim, conta-se quem pontuou. Grand Slam e Europeu usam 8 ends."],
+      ["Pontuação", "Só um time pontua por end: ganha 1 ponto por pedra mais perto do botão que a melhor pedra do adversário."],
+      ["Hammer", "A vantagem de lançar a última pedra do end. Quem pontua passa o hammer para o adversário."],
+      ["Blank end", "End sem pontos. O time com hammer costuma fazer isso de propósito para manter a vantagem."],
+      ["Skip", "O capitão. Fica na casa indicando a jogada e geralmente lança as últimas pedras. Os times do Grand Slam levam o nome do skip."],
+      ["Duplas mistas", "Um homem e uma mulher, 5 pedras cada por end e uma pedra já posicionada antes de começar. Jogo rápido, com muitos pontos."],
+      ["DSC", "Draw Shot Challenge: antes dos jogos, cada time lança pedras no botão e mede a distância. É usado como desempate (menor é melhor)."],
+    ],
+    foot1: "Datas e tabelas da World Curling, do Grand Slam of Curling e da federação tcheca, consultadas em outubro de 2026. Sedes e participantes marcados como \"a confirmar\" ou \"possível\" ainda podem mudar.",
+    foot2: "Os placares não atualizam sozinhos nesta versão. Times seguidos, favoritos e preferências ficam salvos só neste navegador.",
+  },
+  en: {
+    navFollow: "Your teams", navGames: "Games", navBra: "Brazil", navAgenda: "Schedule", navGuide: "Guide",
+    heroEyebrow: "2026/27 season",
+    heroTitle: "Curling, on Brasília time.",
+    heroLede: "An easy way to follow curling.",
+    ctaGames: "See the draw schedule", ctaFollow: "Pick my teams",
+    followEyebrow: "Your teams", followTitle: "Games for the teams you follow.",
+    followSub: "Follow national teams or Grand Slam teams. Their next games show up here, and you can add each one to Google Calendar.",
+    upcoming: "Upcoming games", recent: "Latest results", addTeam: "+ Follow a team", unfollow: "Unfollow",
+    countries: "National teams", skips: "Grand Slam teams",
+    noFollow: "Follow a team to see its games here.", noUpcoming: "No games in the published draws.", noRecent: "No results yet.",
+    gamesEyebrow: "Draw schedule", gamesTitle: "Who plays, and when.",
+    gamesSub: "Pick an event and a day. Times are already converted.",
+    viewGames: "Games", viewTable: "Standings",
+    braEyebrow: "Brazil", braTitle: "Brazilians this season.",
+    braSub: "Results so far and the next events Brazil could enter.",
+    agendaEyebrow: "Schedule", agendaTitle: "October to May.", agendaSub: "Tap a bar to jump to the event.",
+    guideEyebrow: "Quick guide", guideTitle: "New to curling?", guideSub: "Eight terms you'll hear in every broadcast.",
+    sourcesTitle: "Sources",
+    searchLabel: "Search teams, events or terms",
+    examples: ["When does Italy play?", "Today's games", "Hasselborg", "Europeans women", "Grand Slam Victoria", "What is the hammer?", "Brazil", "Tomorrow's games"],
+    exampleN: (i, n) => `Example ${i} of ${n} · press Enter to search`,
+    results: n => n === 1 ? "1 result" : `${n} results`, clear: "Clear",
+    secGames: "Games", secEvents: "Events", secTerms: "In the guide",
+    noResults: "Nothing found. Try a country, a skip or an event name.",
+    liveAt: d => `Scores updated ${dayLabel(dayKey(d))}, ${hm(d)}`,
+    loading: "Loading…", noProfile: "Profile unavailable right now.", athlete: "Athlete", years: "years old",
+    male: "Male", female: "Female", rightHand: "right-handed delivery", leftHand: "left-handed delivery",
+    champs: "Championships", champsLower: "championships", champ1: "championship", gamesPlayed: "Games", gamesLower: "games", winPct: "Wins",
+    medalsGSB: "Gold · silver · bronze", career: "Career", asCoach: "As coach or official", mates: "Most frequent teammates",
+    profileSrc: "Official data from", nationK: "National team", participations: "appearances", athletes: "Athletes",
+    silver: "Silver", bestResults: "Best results", topAthletes: "Most games played", recentGames: "Recent games, end by end",
+    allChamps: "All championships", showAll: "Show all",
+    secPeople: "Athletes", lastSeen: "last seen", medalsWord: "medals", secNations: "National teams", seeProfile: "See profile →",
+    histTitle: "Full history", histNote: "Every official championship, with lineups and end-by-end scores.",
+    dbStats: (e, g, p) => `Database: ${e.toLocaleString("en")} championships, ${g.toLocaleString("en")} games and ${p.toLocaleString("en")} athletes since 1959.`,
+    seeGames: "See games", emptyDay: "No games on that day.", nextGames: "Next games",
+    live: "Live now", next: "Next event", nextForYou: "Your teams' next game", inDays: d => d === 1 ? "tomorrow" : `in ${d} days`,
+    days: "days", day: "day", endsToday: "ends today", today: "today", ended: "Finished",
+    nothingLive: "No event today", firstGame: "First game",
+    tbc: "Venue TBC", approx: "approximate dates",
+    watch: "Watch", scores: "Live scores", site: "Official draw", dazn: "DAZN",
+    bra: "Brazil", ita: "Italy", maybe: "possible",
+    fMain: "Main events", fAll: "All", fSlam: "Grand Slam", fWorld: "Worlds", fQual: "Qualifiers",
+    fBra: "Brazil", fIta: "Italy", fStar: "★ Starred", fPast: "Show finished",
+    empty: "No events match these filters.",
+    legSlam: "Grand Slam", legWorld: "World Championship", legCont: "Continental", legQual: "Qualifier", legOther: "Junior, senior, wheelchair",
+    star: "Star", unstar: "Unstar",
+    months: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    monthsLong: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    wd: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    tzLabel: "Times:", tzLocal: "My time zone", tzNow: z => `${z} time`,
+    divAll: "All", divM: "Men", divW: "Women",
+    draw: "Draw", qf: "Quarter-finals", sf: "Semi-finals", fin: "Final & bronze",
+    tb: "Tiebreakers", qfW: "Women's quarter-finals", qfM: "Men's quarter-finals", sfMW: "Semi-finals", finW: "Women's final", finM: "Men's final",
+    sfW: "Women's semi-finals", sfM: "Men's semi-finals", medW: "Medal games · women", medM: "Medal games · men",
+    tbNote: "Only played if there's a tie in the standings.", playoffNote: "Matchups set after the round robin.",
+    final: "Final", bronze: "Bronze", gold: "Gold", bronzeSpot: "Bronze · last spot at stake",
+    done: "Final", liveG: "● Live", checkScore: "See score", addCal: "+ Calendar",
+    noGames: "No games for this selection.", divShort: { m: "Men", w: "Women" },
+    legFol: "Team you follow", legIta: "Italy", src: s => `Source: ${s}`,
+    group: "Group", pool: "Pool", pos: "#", teamH: "Team", gp: "GP", wH: "W", lH: "L", dscH: "DSC", qual: "qualified",
+    record: "Record", chances: "Next chances", tableTbd: "Draw TBD",
+    chancesNote: "Brazil's entry is not confirmed yet. Exact dates and times go here once the draw is out.",
+    win: "W", loss: "L", vs: "v",
+    calDetails: "Time converted by Hello, Curling. Check the official draw before the game.",
+    guide: [
+      ["House", "The target painted on the ice, 12 feet (3.66 m) across. The centre is called the button."],
+      ["End", "Like an inning in baseball. Each team throws its stones, then the end is scored. The Grand Slam and the Europeans play 8 ends."],
+      ["Scoring", "Only one team scores per end: one point for each stone closer to the button than the opponent's best stone."],
+      ["Hammer", "The advantage of throwing the last stone of the end. The team that scores hands the hammer to its opponent."],
+      ["Blank end", "An end with no score. The team with hammer often does this on purpose to keep the advantage."],
+      ["Skip", "The captain. Stands in the house calling the shot and usually throws the last stones. Grand Slam teams go by the skip's name."],
+      ["Mixed doubles", "One man and one woman, 5 stones each per end plus one stone placed before the end starts. Fast games with lots of scoring."],
+      ["DSC", "Draw Shot Challenge: before games, each team throws stones to the button and the distance is measured. Used as a tiebreaker (lower is better)."],
+    ],
+    foot1: "Dates and draws from World Curling, the Grand Slam of Curling and the Czech federation, checked in October 2026. Venues and entries marked \"TBC\" or \"possible\" may still change.",
+    foot2: "Scores don't update automatically in this version. Followed teams, stars and preferences are saved in this browser only.",
+  }
+};
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const state = {
+  lang: store.get("nc-lang", "pt"),
+  scope: store.get("nc-scope", "main"),
+  bra: false, ita: false, star: false, past: false,
+  stars: new Set(store.get("nc-stars", [])),
+  follow: store.get("nc-follow", ["BRA", "ITA"]),
+  tz: store.get("nc-tz", "br"),
+  gev: null, day: null, div: "all", view: "games",
+};
+
+const pd = s => { const [y, m, dd] = s.split("-").map(Number); return new Date(y, m - 1, dd); };
+const DAY = 86400000;
+const today = (() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); })();
+EVENTS.forEach(e => { e.s = pd(e.start); e.e = pd(e.end); });
+const evById = id => EVENTS.find(e => e.id === id);
+const status = e => today > e.e ? "past" : today >= e.s ? "live" : "future";
+const t = () => T[state.lang];
+const LI = () => state.lang === "pt" ? 0 : 1;
+const name = e => state.lang === "pt" ? e.pt : e.en;
+const shortName = e => e.short ? e.short[LI()] : name(e);
+const note = e => state.lang === "pt" ? e.notePt : e.noteEn;
+function fmtRange(e) {
+  const M = t().months;
+  if (e.s.getMonth() === e.e.getMonth()) return `${e.s.getDate()}–${e.e.getDate()} ${M[e.s.getMonth()]}`;
+  return `${e.s.getDate()} ${M[e.s.getMonth()]} – ${e.e.getDate()} ${M[e.e.getMonth()]}`;
+}
+const place = e => e.city ? `${e.city}, ${e.country}` : t().tbc;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const ext = (url, label, cls = "") => `<a class="${cls}" href="${url}" target="_blank" rel="noopener">${label}</a>`;
+
+// ---------- Fuso ----------
+const BR_TZ = "America/Sao_Paulo";
+const LOCAL_TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || BR_TZ; } catch { return BR_TZ; } })();
+const tz = () => state.tz === "br" ? BR_TZ : LOCAL_TZ;
+const dayKey = dt => new Intl.DateTimeFormat("en-CA", { timeZone: tz(), year: "numeric", month: "2-digit", day: "2-digit" }).format(dt);
+const hm = dt => new Intl.DateTimeFormat("pt-BR", { timeZone: tz(), hour: "2-digit", minute: "2-digit", hour12: false }).format(dt);
+function dayParts(k) {
+  const [y, m, dd] = k.split("-").map(Number);
+  return { wd: t().wd[new Date(Date.UTC(y, m - 1, dd, 12)).getUTCDay()], d: dd, m: t().months[m - 1] };
+}
+const dayLabel = k => { const p = dayParts(k); return `${p.wd}, ${p.d} ${p.m}`; };
+
+// ---------- Jogos ----------
+Object.entries(GAMES).forEach(([id, g]) => {
+  g.id = id;
+  g.list = g.draws.map(([t0, label, str, opt = {}]) => ({
+    t: new Date(t0 + ":00" + g.offset), label, notes: opt.notes,
+    games: str ? str.split("|").map(x => {
+      const m = x.match(/^(?:([mw]):)?(.+?) (?:(\d+)-(\d+)|v) (.+)$/);
+      const a = m[2], b = m[5];
+      let div = m[1] || opt.div || null;
+      if (!div && id === "ecc26") div = /^[a-z]{3}$/.test(a) ? "w" : "m";
+      const up = x => /^[a-z]{3}$/.test(x) ? x.toUpperCase() : x;
+      return { a: up(a), b: up(b), sa: m[3] != null ? +m[3] : null, sb: m[4] != null ? +m[4] : null, div };
+    }) : [],
+  }));
+});
+const PLACEHOLDER = new Set(["WSF", "LSF", "A1", "A2", "B1", "B2"]);
+const isCountry = x => !!TEAMS[x] && !PLACEHOLDER.has(x);
+const teamCC = x => isCountry(x) ? x : SKIP_CC[x] || null;
+const teamName = x => TEAMS[x] ? TEAMS[x][LI()] : x;
+const hasTeam = (gm, id) => gm.a === id || gm.b === id || teamCC(gm.a) === id || teamCC(gm.b) === id;
+const followed = gm => state.follow.some(id => hasTeam(gm, id));
+const isIta = gm => hasTeam(gm, "ITA");
+
+function allGames() {
+  const out = [];
+  Object.values(GAMES).forEach(g => g.list.forEach(d => d.games.forEach(gm => {
+    if (PLACEHOLDER.has(gm.a)) return;
+    out.push({ ...gm, t: d.t, ev: g.id, len: g.len, draw: d.label });
+  })));
+  return out.sort((a, b) => a.t - b.t);
+}
+
+function gcal(gm) {
+  const e = evById(gm.ev);
+  const f = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const end = new Date(gm.t.getTime() + gm.len * 3600000);
+  const title = `${teamName(gm.a)} ${t().vs} ${teamName(gm.b)} · ${shortName(e)}`;
+  const q = new URLSearchParams({ action: "TEMPLATE", text: title, dates: `${f(gm.t)}/${f(end)}`,
+    details: `${name(e)}\n${t().watch}: ${GAMES[gm.ev].watch}\n${t().calDetails}`, location: place(e) });
+  return `https://calendar.google.com/calendar/render?${q}`;
+}
+
+function gameStatus(gm, start, len) {
+  if (gm.sa != null) return { cls: "", txt: t().done };
+  const now = Date.now();
+  if (now < start.getTime()) return { cls: "", txt: "" };
+  if (now < start.getTime() + len * 3600000) return { cls: "live", txt: t().liveG };
+  return { cls: "", txt: t().checkScore };
+}
+
+// ---------- Topo ----------
+function renderNow() {
+  const live = EVENTS.filter(e => status(e) === "live" && (e.main || state.stars.has(e.id)));
+  const next = EVENTS.filter(e => status(e) === "future" && e.main).sort((a, b) => a.s - b.s)[0];
+  const mine = allGames().find(gm => followed(gm) && gm.sa == null && gm.t.getTime() + gm.len * 3600000 > Date.now());
+  let html = "";
+  live.forEach(e => {
+    const left = Math.round((e.e - today) / DAY);
+    html += `<div class="tile feature">
+      <div class="k live">● ${t().live}${left === 0 ? " · " + t().endsToday : ""}</div>
+      <h3>${esc(name(e))}</h3>
+      <div class="m">${fmtRange(e)} · ${esc(place(e))}</div>
+      <div class="acts">${ext(e.links[0][1], t()[e.links[0][0]], "btn sm primary")}${GAMES[e.id] ? `<a class="btn sm" href="#jogos" data-gev-go="${e.id}">${t().navGames}</a>` : ""}</div>
+    </div>`;
+  });
+  if (!live.length) html += `<div class="tile feature"><div class="k">${t().live}</div><h3>${t().nothingLive}</h3></div>`;
+  if (mine) {
+    const e = evById(mine.ev), dleft = Math.round((pd(dayKey(mine.t)) - pd(dayKey(new Date()))) / DAY);
+    html += `<div class="tile">
+      <div class="k">${t().nextForYou}</div>
+      <div class="big">${hm(mine.t)}<small>${dleft === 0 ? t().today : dayLabel(dayKey(mine.t))}</small></div>
+      <h3>${esc(teamName(mine.a))} ${t().vs} ${esc(teamName(mine.b))}</h3>
+      <div class="m">${esc(name(e))}</div>
+      <div class="acts">${ext(gcal(mine), t().addCal, "btn sm")}</div>
+    </div>`;
+  }
+  if (next) {
+    const n = Math.round((next.s - today) / DAY), g = GAMES[next.id];
+    html += `<div class="tile">
+      <div class="k">${t().next}</div>
+      <div class="big">${n}<small>${n === 1 ? t().day : t().days}</small></div>
+      <h3>${esc(name(next))}</h3>
+      <div class="m">${fmtRange(next)} · ${esc(place(next))}${g ? `<br>${t().firstGame}: ${dayLabel(dayKey(g.list[0].t))}, ${hm(g.list[0].t)}` : ""}</div>
+    </div>`;
+  }
+  document.getElementById("now").innerHTML = html;
+}
+
+// ---------- Seus times ----------
+function renderFollow() {
+  const countries = new Set(), skips = new Set();
+  allGames().forEach(gm => [gm.a, gm.b].forEach(x => isCountry(x) ? countries.add(x) : skips.add(x)));
+  const opt = (id) => `<option value="${esc(id)}">${esc(teamName(id))}${SKIP_CC[id] ? " (" + SKIP_CC[id] + ")" : ""}</option>`;
+  const cs = [...countries].filter(x => !state.follow.includes(x)).sort((a, b) => teamName(a).localeCompare(teamName(b)));
+  const ss = [...skips].filter(x => !state.follow.includes(x)).sort((a, b) => a.localeCompare(b));
+  document.getElementById("followbar").innerHTML =
+    state.follow.map(id => `<span class="fchip">${isCountry(id) ? `<button class="linkish" style="color:inherit" data-nation="${id}">${esc(teamName(id))}</button>` : esc(teamName(id))}<button data-unfollow="${esc(id)}" aria-label="${t().unfollow} ${esc(teamName(id))}" title="${t().unfollow}">✕</button></span>`).join("") +
+    `<select class="addsel" id="addteam" aria-label="${t().addTeam}"><option value="">${t().addTeam}</option>
+      <optgroup label="${t().countries}">${cs.map(opt).join("")}</optgroup>
+      <optgroup label="${t().skips}">${ss.map(opt).join("")}</optgroup></select>`;
+
+  const games = allGames().filter(followed);
+  const now = Date.now();
+  const up = games.filter(gm => gm.sa == null && gm.t.getTime() + gm.len * 3600000 > now).slice(0, 8);
+  const rec = games.filter(gm => gm.sa != null).slice(-6).reverse();
+  const row = (gm, right) => {
+    const e = evById(gm.ev), k = dayKey(gm.t), p = dayParts(k);
+    return `<div class="li"><div class="when"><b>${hm(gm.t)}</b>${p.wd}, ${p.d} ${p.m}</div>
+      <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
+      <div class="side">${right}</div></div>`;
+  };
+  const none = msg => `<div class="msg">${msg}</div>`;
+  document.getElementById("fup").innerHTML = !state.follow.length ? none(t().noFollow) :
+    up.length ? up.map(gm => {
+      const st = gameStatus(gm, gm.t, gm.len);
+      return row(gm, st.cls === "live" ? `<span class="res w">${st.txt}</span>` : ext(gcal(gm), t().addCal, "cal"));
+    }).join("") : none(t().noUpcoming);
+  document.getElementById("frec").innerHTML = !state.follow.length ? none(t().noFollow) :
+    rec.length ? rec.map(gm => {
+      const fa = state.follow.some(id => gm.a === id || teamCC(gm.a) === id);
+      const us = fa ? gm.sa : gm.sb, them = fa ? gm.sb : gm.sa;
+      return row(gm, `<span class="res ${us > them ? "w" : "l"}">${gm.sa}–${gm.sb}</span>`);
+    }).join("") : none(t().noRecent);
+}
+
+// ---------- Escala ----------
+function defaultGamesEvent() {
+  const evs = Object.keys(GAMES).map(evById);
+  return (evs.find(e => status(e) === "live") || evs.find(e => status(e) === "future") || evs[evs.length - 1]).id;
+}
+
+function renderGames() {
+  if (!state.gev) state.gev = defaultGamesEvent();
+  const e = evById(state.gev), g = GAMES[e.id];
+  const hasDiv = g.list.some(d => d.games.some(x => x.div));
+
+  document.getElementById("evtabs").innerHTML = Object.keys(GAMES).map(id =>
+    `<button data-gev="${id}" aria-pressed="${id === state.gev}">${esc(shortName(evById(id)))}</button>`).join("");
+  document.getElementById("views").innerHTML = [["games", t().viewGames], ["table", t().viewTable]]
+    .map(([k, l]) => `<button data-view="${k}" aria-pressed="${state.view === k}">${l}</button>`).join("");
+  const divEl = document.getElementById("divs");
+  divEl.hidden = !hasDiv;
+  if (!hasDiv) state.div = "all";
+  divEl.innerHTML = [["all", t().divAll], ["m", t().divM], ["w", t().divW]]
+    .map(([k, l]) => `<button data-div="${k}" aria-pressed="${state.div === k}">${l}</button>`).join("");
+  document.querySelectorAll("[data-tz]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tz === state.tz));
+
+  document.getElementById("evhead").innerHTML = `
+    <div><div class="t">${esc(name(e))}</div><div class="m">${esc(place(e))} · ${fmtRange(e)} · ${t().tzNow(tz().split("/").pop().replace(/_/g, " "))}</div></div>
+    <div class="cta" style="margin:0">${ext(g.watch, t().watch, "btn sm primary")}${ext(g.scores, e.cat === "slam" ? t().site : t().scores, "btn sm")}</div>`;
+
+  const daysEl = document.getElementById("days");
+  daysEl.hidden = state.view === "table";
+  if (state.view === "table") { renderTable(e, g); return; }
+
+  const keys = [...new Set(g.list.map(d => dayKey(d.t)))];
+  const todayK = dayKey(new Date());
+  if (!state.day || !keys.includes(state.day))
+    state.day = keys.includes(todayK) ? todayK : (todayK > keys[keys.length - 1] ? keys[keys.length - 1] : keys[0]);
+  daysEl.innerHTML = keys.map(k => {
+    const p = dayParts(k);
+    const dg = g.list.filter(d => dayKey(d.t) === k).flatMap(d => d.games);
+    const dot = dg.some(x => followed(x) && !isIta(x)) ? '<i class="dot"></i>' : dg.some(isIta) && state.follow.includes("ITA") ? '<i class="dot it"></i>' : "";
+    return `<button class="day" data-day="${k}" aria-pressed="${k === state.day}"><span>${k === todayK ? t().today : p.wd}</span><b>${p.d}</b><span>${p.m}</span>${dot}</button>`;
+  }).join("");
+
+  const divOk = (d, gm) => {
+    if (state.div === "all") return true;
+    if (gm) return gm.div === state.div;
+    const l = String(d.label);
+    if (l.endsWith("W")) return state.div === "w";
+    if (l.endsWith("M")) return state.div === "m";
+    return true;
+  };
+  const draws = g.list.filter(d => dayKey(d.t) === state.day)
+    .map(d => ({ ...d, shown: d.games.filter(gm => divOk(d, gm)) }))
+    .filter(d => d.games.length ? d.shown.length : divOk(d));
+
+  document.getElementById("draws").innerHTML = `<div class="draws">${draws.length ? draws.map(d => {
+    const label = typeof d.label === "number" ? `${t().draw} ${d.label}` : `<span class="ph">${t()[d.label]}</span>`;
+    const body = !d.games.length ? `<div class="msg">${d.label === "tb" ? t().tbNote : t().playoffNote}</div>` :
+      d.shown.map(gm => {
+        const i = d.games.indexOf(gm), st = gameStatus(gm, d.t, g.len);
+        const done = gm.sa != null, aw = done && gm.sa > gm.sb, bw = done && gm.sb > gm.sa;
+        const cls = followed(gm) ? (isIta(gm) && !hasTeam(gm, "BRA") ? "fol ita" : "fol") : "";
+        const tag = x => { const cc = teamCC(x); return cc ? `<span class="cc">${cc}</span>` : ""; };
+        const nt = d.notes ? `<div class="gnote">${t()[d.notes[i]]}</div>` : "";
+        const dv = gm.div && state.div === "all" ? `<span>${t().divShort[gm.div]}</span>` : "";
+        const cal = !done && !PLACEHOLDER.has(gm.a) && Date.now() < d.t.getTime()
+          ? ext(gcal({ ...gm, t: d.t, ev: g.id, len: g.len }), t().addCal, "cal") : "";
+        return `<div class="game ${cls}">${nt}
+          <span class="a"><span class="team ${aw ? "win" : bw ? "lose" : ""}">${esc(teamName(gm.a))}</span>${tag(gm.a)}</span>
+          <span class="sc ${done ? "" : "vs"}">${done ? `${gm.sa}–${gm.sb}` : "vs"}</span>
+          <span class="b">${tag(gm.b)}<span class="team ${bw ? "win" : aw ? "lose" : ""}">${esc(teamName(gm.b))}</span></span>
+          <span class="st ${st.cls}">${st.txt ? `<span>${st.txt}</span>` : dv}${cal}</span>
+        </div>`;
+      }).join("");
+    return `<div><div class="group-h"><b>${hm(d.t)}</b><span>${label}</span></div><div class="list">${body}</div></div>`;
+  }).join("") : `<div class="list"><div class="msg">${t().noGames}</div></div>`}</div>`;
+
+  document.getElementById("glegend").innerHTML =
+    `<span><i style="background:var(--green)"></i>${t().legFol}</span><span><i style="background:var(--blue)"></i>${t().legIta}</span><span>${t().src(g.src)}</span>` +
+    (g.liveUpdated ? `<span>${t().liveAt(new Date(g.liveUpdated))}</span>` : "");
+}
+
+function renderTable(e, g) {
+  const G = GROUPS[e.id];
+  const qualified = new Set();
+  g.list.filter(d => d.label === "qf").forEach(d => d.games.forEach(x => { qualified.add(x.a); qualified.add(x.b); }));
+  const groups = G.groups.filter(([, div]) => state.div === "all" || !div || div === state.div);
+  const html = groups.map(([letter, div, teams]) => {
+    const rows = teams.map(id => {
+      let w = 0, l = 0;
+      g.list.filter(d => typeof d.label === "number").forEach(d => d.games.forEach(gm => {
+        if (gm.sa == null || (div && gm.div !== div)) return;
+        if (gm.a === id) gm.sa > gm.sb ? w++ : l++;
+        else if (gm.b === id) gm.sb > gm.sa ? w++ : l++;
+      }));
+      return { id, w, l, dsc: G.dsc ? G.dsc[id] : null };
+    }).sort((a, b) => b.w - a.w || a.l - b.l || (a.dsc ?? 0) - (b.dsc ?? 0) || teamName(a.id).localeCompare(teamName(b.id)));
+    const title = `${div ? t().divShort[div] + " · " : ""}${e.cat === "slam" ? t().pool : t().group} ${letter}`;
+    return `<div><div class="tbl-h">${title}</div><div class="list tbl-wrap"><table>
+      <thead><tr><th>${t().pos}</th><th>${t().teamH}</th><th>${t().gp}</th><th>${t().wH}</th><th>${t().lH}</th>${G.dsc ? `<th>${t().dscH}</th>` : ""}</tr></thead>
+      <tbody>${rows.map((r, i) => {
+        const fol = state.follow.some(f => f === r.id || teamCC(r.id) === f);
+        const ita = teamCC(r.id) === "ITA";
+        return `<tr class="${fol ? "fol" : ""} ${fol && ita ? "ita" : ""}"><td>${i + 1}</td>
+          <td>${esc(teamName(r.id))}${qualified.has(r.id) ? `<span class="q">${t().qual}</span>` : ""}</td>
+          <td>${r.w + r.l}</td><td>${r.w}</td><td>${r.l}</td>${G.dsc ? `<td>${r.dsc.toFixed(1)}</td>` : ""}</tr>`;
+      }).join("")}</tbody></table></div></div>`;
+  }).join("");
+  document.getElementById("draws").innerHTML = `<div class="tables">${html}</div><p class="note" style="text-align:center;margin:24px auto 0">${G.note[LI()]}</p>`;
+  document.getElementById("glegend").innerHTML = `<span>${t().src(g.src)}</span>`;
+}
+
+// ---------- Brasil ----------
+function renderBrazil() {
+  const cards = BRAZIL.map(b => {
+    const e = evById(b.event);
+    const mine = allGames().filter(gm => gm.ev === b.event && hasTeam(gm, "BRA")).map(gm => {
+      const home = gm.a === "BRA";
+      return { t: gm.t, opp: home ? gm.b : gm.a, us: home ? gm.sa : gm.sb, them: home ? gm.sb : gm.sa };
+    });
+    const w = mine.filter(m => m.us != null && m.us > m.them).length, l = mine.filter(m => m.us != null && m.us < m.them).length;
+    return `<div class="card">
+      <div class="k">${state.lang === "pt" ? b.catPt : b.catEn} · ${esc(shortName(e))}</div>
+      <h3>${esc(b.who)}</h3>
+      <div class="m">${t().record} ${w}–${l} · ${esc(place(e))}</div>
+      <div class="pips">${mine.map(m => m.us == null ? `<span class="pip">–</span>` :
+        `<span class="pip ${m.us > m.them ? "w" : "l"}" title="${esc(teamName(m.opp))} ${m.us}–${m.them}">${m.us > m.them ? t().win : t().loss}</span>`).join("")}</div>
+      <div class="rows">${mine.map(m => {
+        const res = m.us == null ? `<span class="res tbd">${hm(m.t)}</span>`
+          : `<span class="res ${m.us > m.them ? "w" : "l"}">${m.us > m.them ? t().win : t().loss} ${m.us}–${m.them}</span>`;
+        return `<div class="r"><span class="what">${esc(teamName(m.opp))}</span>${res}<span class="when">${dayLabel(dayKey(m.t))} · ${hm(m.t)}</span></div>`;
+      }).join("")}</div>
+      <div class="note">${esc(state.lang === "pt" ? b.outcomePt : b.outcomeEn)}</div>
+    </div>`;
+  });
+  const next = EVENTS.filter(e => e.bra && status(e) !== "past" && !BRAZIL.some(b => b.event === e.id)).sort((a, b) => a.s - b.s);
+  cards.push(`<div class="card">
+    <div class="k">${t().chances}</div>
+    <div class="rows">${next.map(e => {
+      const first = allGames().find(gm => gm.ev === e.id && hasTeam(gm, "BRA"));
+      const right = first ? `<span class="res">${dayLabel(dayKey(first.t))} · ${hm(first.t)}</span>` : `<span class="res tbd">${t().tableTbd}</span>`;
+      return `<div class="r"><span class="what">${esc(name(e))}</span>${right}<span class="when">${e.approx ? t().approx : fmtRange(e)} · ${esc(place(e))}</span></div>`;
+    }).join("")}</div>
+    <div class="note">${t().chancesNote}</div>
+  </div>`);
+  cards.push(`<div class="card">
+    <div class="k">${t().histTitle}</div>
+    <div class="note">${t().histNote}</div>
+    <div class="mates">${["BRA", "ITA"].map(c => `<button class="mate" data-nation="${c}">${esc(nationName(c))}<small>${t().seeProfile}</small></button>`).join("")}</div>
+  </div>`);
+  document.getElementById("bra").innerHTML = cards.join("");
+}
+
+// ---------- Temporada e agenda ----------
+const R0 = new Date(2026, 9, 1), R1 = new Date(2027, 5, 1);
+const pct = dt => Math.max(0, Math.min(100, (dt - R0) / (R1 - R0) * 100));
+const CATCOL = { slam: "var(--gold)", world: "var(--red)", cont: "var(--navy)", qual: "var(--navy)", other: "var(--ink2)" };
+function visible(e) {
+  if (!state.past && status(e) === "past") return false;
+  if (state.star && !state.stars.has(e.id)) return false;
+  if (state.bra && !e.bra) return false;
+  if (state.ita && !e.ita) return false;
+  switch (state.scope) {
+    case "main": return e.main || state.stars.has(e.id);
+    case "slam": return e.cat === "slam";
+    case "world": return e.cat === "world" || e.cat === "cont";
+    case "qual": return e.cat === "qual";
+    default: return true;
+  }
+}
+function renderRibbon() {
+  const lanes = [];
+  EVENTS.filter(visible).slice().sort((a, b) => a.s - b.s).forEach(e => {
+    let i = lanes.findIndex(l => l[l.length - 1].e < new Date(e.s.getTime() - 2 * DAY));
+    if (i === -1) { lanes.push([]); i = lanes.length - 1; }
+    lanes[i].push(e);
+  });
+  document.getElementById("ribbon").innerHTML = `
+    <div class="months">${[9, 10, 11, 0, 1, 2, 3, 4].map(m => `<span>${t().monthsLong[m]}</span>`).join("")}</div>
+    <div class="lanes">
+      ${lanes.map(l => `<div class="lane">${l.map(e => {
+        const left = pct(e.s), w = Math.max(pct(new Date(e.e.getTime() + DAY)) - left, 0.8);
+        return `<button class="bar ${e.cat} ${status(e) === "past" ? "past" : ""}" style="left:${left}%;width:${w}%"
+          title="${esc(name(e))} · ${fmtRange(e)}" aria-label="${esc(name(e))}, ${fmtRange(e)}" data-jump="${e.id}"></button>`;
+      }).join("")}</div>`).join("") || `<div class="lane"></div>`}
+      ${today >= R0 && today < R1 ? `<div class="today-line" style="left:${pct(today)}%" title="${t().today}"></div>` : ""}
+    </div>`;
+  document.getElementById("legend").innerHTML = [
+    ["var(--gold)", t().legSlam], ["var(--red)", t().legWorld], ["var(--navy)", t().legCont],
+    ["transparent;box-shadow:inset 0 0 0 2px var(--navy)", t().legQual], ["var(--ink2);opacity:.3", t().legOther],
+    ["var(--green);width:3px", t().today],
+  ].map(([c, l]) => `<span><i style="background:${c}"></i>${l}</span>`).join("");
+}
+function renderFilters() {
+  const scopes = [["main", t().fMain], ["all", t().fAll], ["slam", t().fSlam], ["world", t().fWorld], ["qual", t().fQual]];
+  const toggles = [["bra", t().fBra], ["ita", t().fIta], ["star", t().fStar], ["past", t().fPast]];
+  document.getElementById("filters").innerHTML =
+    scopes.map(([k, l]) => `<button class="chip" id="f-${k}" data-scope="${k}" aria-pressed="${state.scope === k}">${l}</button>`).join("") +
+    toggles.map(([k, l]) => `<button class="chip" id="t-${k}" data-toggle="${k}" aria-pressed="${state[k]}">${l}</button>`).join("");
+}
+function tagsHtml(e) {
+  const tags = [], st = status(e);
+  if (st === "live") tags.push(`<span class="tag live">${t().live}</span>`);
+  else if (st === "future") { const n = Math.round((e.s - today) / DAY); if (n <= 14) tags.push(`<span class="tag soon">${t().inDays(n)}</span>`); }
+  else tags.push(`<span class="tag">${t().ended}</span>`);
+  if (e.bra) tags.push(`<span class="tag bra">${t().bra}${e.bra === "maybe" ? " · " + t().maybe : ""}</span>`);
+  if (e.ita) tags.push(`<span class="tag ita">${t().ita}${e.ita === "maybe" ? " · " + t().maybe : ""}</span>`);
+  if (e.approx) tags.push(`<span class="tag">${t().approx}</span>`);
+  return `<div class="tags">${tags.join("")}</div>`;
+}
+function renderList() {
+  const evs = EVENTS.filter(visible).slice().sort((a, b) => a.s - b.s);
+  if (!evs.length) { document.getElementById("list").innerHTML = `<div class="list"><div class="msg">${t().empty}</div></div>`; return; }
+  const groups = new Map();
+  evs.forEach(e => { const k = `${e.s.getFullYear()}-${e.s.getMonth()}`; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(e); });
+  let html = "";
+  groups.forEach((list, k) => {
+    const [y, m] = k.split("-").map(Number), M = t().months;
+    html += `<div class="month"><div class="month-t">${t().monthsLong[m]} ${y}</div><div class="list" style="background:var(--bg2);box-shadow:none">`;
+    list.forEach(e => {
+      const starred = state.stars.has(e.id), same = e.s.getMonth() === e.e.getMonth();
+      html += `<article class="ev ${status(e) === "past" ? "is-past" : ""}" id="ev-${e.id}">
+        <div class="date"><b>${e.s.getDate()}${same ? "–" + e.e.getDate() : ""}</b>
+          <span><i class="catdot" style="background:${CATCOL[e.cat]}"></i>${same ? M[e.s.getMonth()] : M[e.s.getMonth()] + " → " + e.e.getDate() + " " + M[e.e.getMonth()]}</span></div>
+        <div class="body">
+          <div><h4>${esc(name(e))}</h4><div class="off">${esc(e.official)}</div><div class="pl">${esc(place(e))}</div></div>
+          ${tagsHtml(e)}
+          ${note(e) ? `<div class="note">${esc(note(e))}</div>` : ""}
+          <div class="links">${e.links.map(([k, u]) => ext(u, t()[k] + " ↗")).join("")}${GAMES[e.id] ? `<a href="#jogos" data-gev-go="${e.id}">${t().navGames} →</a>` : ""}</div>
+        </div>
+        <button class="star" data-star="${e.id}" aria-pressed="${starred}" aria-label="${starred ? t().unstar : t().star}" title="${starred ? t().unstar : t().star}">${starred ? "★" : "☆"}</button>
+      </article>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById("list").innerHTML = html;
+}
+
+// ---------- Guia e rodapé ----------
+function renderGuide() {
+  document.getElementById("guide").innerHTML = t().guide.map(([h, p]) => `<div class="term"><h4>${h}</h4><p>${p}</p></div>`).join("");
+  document.getElementById("srcs").innerHTML = SOURCES.map(([l, u]) => ext(u, esc(l))).join("");
+}
+
+// ---------- Busca ----------
+const norm = x => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const words = x => norm(x).split(/[^a-z0-9.]+/).filter(Boolean);
+let exIdx = 0;
+
+function teamIndex() {
+  const ids = new Set();
+  allGames().forEach(gm => { ids.add(gm.a); ids.add(gm.b); });
+  return [...ids].map(id => ({ id, keys: isCountry(id) ? [norm(TEAMS[id][0]), norm(TEAMS[id][1])] : [norm(id)], code: isCountry(id) ? id.toLowerCase() : null }));
+}
+
+function searchRun(q) {
+  const nq = norm(q), ws = words(q);
+  const teams = teamIndex().filter(x => x.keys.some(k => k.length >= 3 && nq.includes(k)) || (x.code && ws.includes(x.code))).map(x => x.id);
+  const has = (...ks) => ks.some(k => nq.includes(k));
+  let evs = [];
+  if (has("grand slam", "gsoc", "slam")) evs.push(...EVENTS.filter(e => e.cat === "slam"));
+  if (has("europeu", "europe")) evs.push(evById("ecc26"));
+  if (has("mundia", "world champ", "worlds")) evs.push(...EVENTS.filter(e => e.cat === "world"));
+  if (has("duplas", "mixed doubles")) evs.push(...EVENTS.filter(e => /Duplas Mistas/.test(e.pt)));
+  if (has("qualif")) evs.push(...EVENTS.filter(e => e.cat === "qual"));
+  if (has("junior", "júnior")) evs.push(...EVENTS.filter(e => /Júnior/.test(e.pt)));
+  EVENTS.forEach(e => { if (e.city && nq.includes(norm(e.city.split(",")[0]))) evs.push(e); });
+  evs = [...new Set(evs)];
+  const cities = EVENTS.filter(e => e.city && nq.includes(norm(e.city.split(",")[0])));
+  if (cities.length) evs = evs.filter(e => cities.includes(e));
+  let day = null;
+  const k0 = dayKey(new Date());
+  if (has("hoje", "today")) day = k0;
+  if (has("amanha", "tomorrow")) day = dayKey(new Date(Date.now() + DAY));
+  let div = null;
+  if (has("feminin", "women", "fem.", "mulher")) div = "w";
+  else if (has("masculin", "homens") || ws.includes("men") || ws.includes("mens")) div = "m";
+  const terms = t().guide.filter(([h]) => { const hn = norm(h); return hn.length <= 4 ? ws.includes(hn) : nq.includes(hn); });
+
+  let games = [];
+  const evIds = new Set(evs.map(e => e.id));
+  if (teams.length || day || (evs.length && evs.some(e => GAMES[e.id]))) {
+    games = allGames().filter(gm =>
+      (!teams.length || teams.some(id => hasTeam(gm, id))) &&
+      (!evs.length || evIds.has(gm.ev)) &&
+      (!day || dayKey(gm.t) === day) &&
+      (!div || gm.div === div));
+    const now = Date.now();
+    const up = games.filter(gm => gm.sa == null && gm.t.getTime() + gm.len * 3600000 > now);
+    const past = games.filter(gm => !up.includes(gm)).reverse();
+    games = day ? games : [...up.slice(0, 6), ...past.slice(0, 3)];
+  }
+  let emptyDay = false;
+  if (day && !games.length) {
+    emptyDay = true;
+    games = allGames().filter(gm => dayKey(gm.t) > day && !PLACEHOLDER.has(gm.a) && (!teams.length || teams.some(id => hasTeam(gm, id)))).slice(0, 6);
+  }
+  const sp = searchPeople(q);
+  return { games, events: teams.length || day ? [] : evs, terms, emptyDay, people: sp.people, nations: sp.nations };
+}
+
+function renderSearch() {
+  const q = document.getElementById("q").value.trim();
+  const box = document.getElementById("qres");
+  document.getElementById("qform").classList.toggle("has", !!q);
+  if (!q) { box.hidden = true; return; }
+  const r = searchRun(q);
+  const n = r.games.length + r.events.length + r.terms.length + r.people.length + r.nations.length;
+  let html = `<div class="sh"><span>${t().results(n)}</span><button type="button" data-clear="1">${t().clear}</button></div>`;
+  if (!n) html += `<div class="msg">${t().noResults}</div>`;
+  if (r.nations.length) html += `<div class="sec">${t().secNations}</div>` + r.nations.map(nt => `<div class="li">
+      <div class="when"><b>${nt.gold + nt.silver + nt.bronze}</b>${t().medalsWord}</div>
+      <div class="what"><div class="vs">${esc(nationName(nt.code))}</div><div class="ev">${nt.entries} ${t().participations} · ${nt.first}–${nt.last} · ${nt.gold}/${nt.silver}/${nt.bronze}</div></div>
+      <div class="side"><button class="linkish cal" data-nation="${nt.code}">${t().seeProfile}</button></div></div>`).join("");
+  if (r.people.length) html += `<div class="sec">${t().secPeople}</div>` + r.people.map(pp => `<div class="li">
+      <div class="when"><b>${pp[3]}</b>${t().lastSeen}</div>
+      <div class="what"><div class="vs">${esc(pp[1])}</div><div class="ev">${pp[2].map(nationName).join(" · ")}</div></div>
+      <div class="side"><button class="linkish cal" data-person="${pp[0]}">${t().seeProfile}</button></div></div>`).join("");
+  if (r.terms.length) html += `<div class="sec">${t().secTerms}</div>` + r.terms.map(([h, p]) => `<div class="def"><b>${h}</b><p>${p}</p></div>`).join("");
+  if (r.emptyDay) html += `<div class="msg">${t().emptyDay}</div>`;
+  if (r.games.length) html += `<div class="sec">${r.emptyDay ? t().nextGames : t().secGames}</div>` + r.games.map(gm => {
+    const st = gameStatus(gm, gm.t, gm.len);
+    const right = gm.sa != null ? `<span class="res">${gm.sa}–${gm.sb}</span>` :
+      st.cls === "live" ? `<span class="res w">${st.txt}</span>` :
+      Date.now() < gm.t.getTime() ? ext(gcal(gm), t().addCal, "cal") : `<span class="res tbd">${st.txt}</span>`;
+    return gameRow(gm, right);
+  }).join("");
+  if (r.events.length) html += `<div class="sec">${t().secEvents}</div>` + r.events.map(e => `<div class="li">
+      <div class="when"><b>${e.s.getDate()}${e.s.getMonth() === e.e.getMonth() ? "–" + e.e.getDate() : ""}</b>${t().months[e.s.getMonth()]}</div>
+      <div class="what"><div class="vs">${esc(name(e))}</div><div class="ev">${esc(place(e))}</div></div>
+      <div class="side">${GAMES[e.id] ? `<a class="cal" href="#jogos" data-gev-go="${e.id}">${t().seeGames} →</a>` : ext(e.links[0][1], t()[e.links[0][0]], "cal")}</div></div>`).join("");
+  box.innerHTML = html;
+  box.hidden = false;
+}
+
+function gameRow(gm, right) {
+  const e = evById(gm.ev), p = dayParts(dayKey(gm.t));
+  return `<div class="li"><div class="when"><b>${hm(gm.t)}</b>${p.wd}, ${p.d} ${p.m}</div>
+    <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
+    <div class="side">${right}</div></div>`;
+}
+
+function renderExample(animate) {
+  const ex = t().examples, ph = document.getElementById("qph");
+  const show = () => {
+    ph.textContent = ex[exIdx % ex.length];
+    document.getElementById("qcount").textContent = t().exampleN(exIdx % ex.length + 1, ex.length);
+  };
+  if (!animate || !ph.classList) { show(); return; }
+  ph.classList.add("out");
+  setTimeout(() => { show(); ph.classList.remove("out"); ph.classList.add("in"); requestAnimationFrame(() => requestAnimationFrame(() => ph.classList.remove("in"))); }, 350);
+}
+
+function renderMarquee() {
+  const now = Date.now();
+  const list = allGames().filter(gm => gm.sa == null && gm.t.getTime() + gm.len * 3600000 > now).slice(0, 16);
+  const card = (gm, hidden) => {
+    const e = evById(gm.ev), k = dayKey(gm.t), p = dayParts(k);
+    return `<button class="mq ${followed(gm) ? "fol" : ""}" data-gev-go="${gm.ev}" data-day-go="${k}" ${hidden ? 'tabindex="-1" aria-hidden="true"' : ""}>
+      <b>${hm(gm.t)}<small>${k === dayKey(new Date()) ? t().today : `${p.wd}, ${p.d} ${p.m}`}</small></b>
+      <span class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</span>
+      <span class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</span></button>`;
+  };
+  document.getElementById("track").innerHTML = list.map(g => card(g, false)).join("") + list.map(g => card(g, true)).join("");
+}
+
+// ---------- Perfis: atletas e seleções (dados do banco, em data/*.json) ----------
+const DATA = { index: null, nations: {}, people: new Map() };
+const NATION_PT = {
+  AND:"Andorra", ARG:"Argentina", ARM:"Armênia", AUS:"Austrália", AUT:"Áustria", AZE:"Azerbaijão", BEL:"Bélgica", BLR:"Bielorrússia",
+  BRA:"Brasil", BUL:"Bulgária", CAN:"Canadá", CHI:"Chile", CHN:"China", CRO:"Croácia", CZE:"Tchéquia", DEN:"Dinamarca",
+  ENG:"Inglaterra", ESP:"Espanha", EST:"Estônia", FIN:"Finlândia", FRA:"França", GER:"Alemanha", GBR:"Grã-Bretanha",
+  GRE:"Grécia", GUY:"Guiana", HKG:"Hong Kong", HUN:"Hungria", IND:"Índia", IRL:"Irlanda", ISL:"Islândia", ISR:"Israel",
+  ITA:"Itália", JAM:"Jamaica", JPN:"Japão", KAZ:"Cazaquistão", KEN:"Quênia", KOR:"Coreia do Sul", KSA:"Arábia Saudita",
+  LAT:"Letônia", LIE:"Liechtenstein", LTU:"Lituânia", LUX:"Luxemburgo", MEX:"México", MGL:"Mongólia", NED:"Holanda",
+  NGR:"Nigéria", NOR:"Noruega", NZL:"Nova Zelândia", PAK:"Paquistão", PHI:"Filipinas", POL:"Polônia", POR:"Portugal",
+  PUR:"Porto Rico", QAT:"Catar", ROU:"Romênia", RUS:"Rússia", SCO:"Escócia", SLO:"Eslovênia", SRB:"Sérvia",
+  SUI:"Suíça", SVK:"Eslováquia", SWE:"Suécia", THA:"Tailândia", TPE:"Taipé Chinesa", TUR:"Turquia", UKR:"Ucrânia",
+  USA:"Estados Unidos", WAL:"País de Gales", ROC:"Comitê Olímpico Russo", RCF:"Federação Russa de Curling", NZE:"Nova Zelândia",
+};
+const ROLE_L = {
+  pt: { fourth: "Quarto", third: "Terceiro", second: "Segundo", lead: "Lead", alternate: "Reserva", player: "Atleta", coach: "Técnico", official: "Dirigente" },
+  en: { fourth: "Fourth", third: "Third", second: "Second", lead: "Lead", alternate: "Alternate", player: "Player", coach: "Coach", official: "Official" },
+};
+const DIV_L = { pt: { "Men": "Masculino", "Women": "Feminino", "Mixed Doubles": "Duplas mistas", "Mixed": "Misto" }, en: {} };
+const PT_TYPES = {
+  1: "Mundial", 2: "Europeu", 4: "Jogos Olímpicos", 5: "Mundial Júnior", 8: "Mundial Sênior", 11: "Mundial Júnior B",
+  22: "Mundial de Duplas Mistas", 24: "Europeu Divisão C", 26: "Qualificatório Olímpico", 27: "Mundial Misto",
+  32: "Qualificatório de Duplas Mistas", 33: "Europeu Divisão B", 34: "Pré-qualificatório Olímpico", 36: "Pan-Continental",
+  37: "Pan-Continental Divisão B", 38: "Mundial Júnior de Duplas Mistas", 39: "Pré-qualificatório do Mundial",
+  40: "Qualificatório do Mundial", 7: "Mundial em cadeira de rodas", 35: "Mundial de Duplas Mistas em cadeira de rodas", 16: "Paralimpíadas",
+};
+
+function nationName(code) {
+  if (!code) return "";
+  if (state.lang === "pt" && NATION_PT[code]) return NATION_PT[code];
+  const n = DATA.index && DATA.index.nations.find(x => x.code === code);
+  return n ? n.name : (TEAMS[code] ? TEAMS[code][LI()] : code);
+}
+const divName = d => (DIV_L[state.lang] && DIV_L[state.lang][d]) || d;
+const typeLabel = h => state.lang === "pt" && PT_TYPES[h.type] ? PT_TYPES[h.type] : (h.typeName || h.name);
+
+async function loadIndex() {
+  try {
+    const r = await fetch("data/index.json");
+    if (!r.ok) throw new Error(r.status);
+    DATA.index = await r.json();
+    DATA.index.people.forEach(p => DATA.people.set(p[0], p));
+    renderSearch(); renderDataStats();
+  } catch { DATA.index = null; }
+}
+async function loadNation(code) {
+  if (DATA.nations[code]) return DATA.nations[code];
+  const r = await fetch(`data/nation/${code}.json`);
+  if (!r.ok) throw new Error(r.status);
+  return (DATA.nations[code] = await r.json());
+}
+
+const STOP = new Set(["quando", "joga", "jogam", "o", "a", "os", "as", "que", "e", "de", "da", "do", "jogos", "perfil", "historico", "history", "when", "does", "play", "the", "of"]);
+function searchPeople(q) {
+  if (!DATA.index) return { people: [], nations: [] };
+  const ws = words(q).filter(w => !STOP.has(w) && w.length >= 2);
+  if (!ws.length) return { people: [], nations: [] };
+  const nations = DATA.index.nations.filter(n => {
+    const keys = [norm(n.name), norm(NATION_PT[n.code] || ""), n.code.toLowerCase()].filter(Boolean);
+    return keys.some(k => ws.join(" ").includes(k) || (k.length > 3 && k.startsWith(ws.join(" "))));
+  }).slice(0, 3);
+  const nq = ws.join(" ");
+  const people = [];
+  for (const p of DATA.index.people) {
+    const names = [p[1], ...(p[4] || [])].map(norm);
+    if (names.some(n => ws.every(w => n.split(/\s+/).some(tok => tok.startsWith(w))))) {
+      people.push(p);
+      if (people.length >= 8) break;
+    }
+  }
+  if (nations.length && people.length && ws.length === 1 && nations.some(n => norm(NATION_PT[n.code] || n.name) === nq)) return { people: [], nations };
+  return { people, nations };
+}
+
+function flagChip(code) { return code ? `<span class="cc">${code}</span>` : ""; }
+function medalDot(m) { return m ? `<i class="md m${m}" title="${[null, t().gold, t().silver, t().bronze][m]}"></i>` : ""; }
+function ordinal(n) { return n == null ? "–" : state.lang === "pt" ? `${n}º` : `${n}${[, "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] || "th"}`; }
+function ageOf(born) {
+  if (!born) return null;
+  const b = new Date(born + "T12:00:00"), n = new Date();
+  return n.getFullYear() - b.getFullYear() - ((n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) ? 1 : 0);
+}
+
+function openSheet(html) {
+  const sh = document.getElementById("sheet");
+  document.getElementById("sheet-body").innerHTML = html;
+  sh.hidden = false;
+  document.body.style.overflow = "hidden";
+  sh.querySelector(".sheet-panel").scrollTop = 0;
+  sh.querySelector(".sheet-x").focus();
+}
+function closeSheet() {
+  document.getElementById("sheet").hidden = true;
+  document.body.style.overflow = "";
+}
+
+async function openPerson(id) {
+  const ix = DATA.people.get(id);
+  const codes = ix ? [...ix[2]].reverse() : [];
+  openSheet(`<div class="msg">${t().loading}</div>`);
+  let p = null;
+  for (const c of codes) {
+    try { const n = await loadNation(c); p = n.people[String(id)]; if (p) break; } catch {}
+  }
+  if (!p) { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
+  const players = p.career.filter(c => !["coach", "official"].includes(c.role));
+  const coach = p.career.filter(c => ["coach", "official"].includes(c.role));
+  const medals = [1, 2, 3].map(m => players.filter(c => c.medal === m).length);
+  const pct = p.games ? Math.round(100 * p.wins / p.games) : null;
+  const age = ageOf(p.born);
+  const facts = [
+    p.nations.map(c => `${flagChip(c)}${esc(nationName(c))}`).join(" · "),
+    age != null ? `${age} ${t().years}` : null,
+    p.gender ? (p.gender === "M" ? t().male : t().female) : null,
+    p.delivery ? (p.delivery === "right" ? t().rightHand : t().leftHand) : null,
+  ].filter(Boolean).join(" · ");
+  const row = c => `<div class="crow">
+      <span class="cy">${c.year || ""}</span>
+      <span class="cn"><b>${esc(c.name)}</b><small>${esc(divName(c.division) || "")}${c.nation && p.nations.length > 1 ? " · " + esc(nationName(c.nation)) : ""} · ${ROLE_L[state.lang][c.role] || c.role}${c.skip ? " · skip" : ""}</small></span>
+      <span class="cr">${medalDot(c.medal)}${ordinal(c.rank)}</span>
+      <span class="cw">${c.w}–${c.l}</span></div>`;
+  openSheet(`
+    <div class="pf-head">
+      <div class="pf-k">${t().athlete}</div>
+      <h2 class="pf-name">${esc(p.name)}</h2>
+      <div class="pf-facts">${facts}</div>
+    </div>
+    <div class="pf-stats">
+      <div><b>${players.length}</b><span>${t().champs}</span></div>
+      <div><b>${p.games}</b><span>${t().gamesPlayed}</span></div>
+      <div><b>${pct != null ? pct + "%" : "–"}</b><span>${t().winPct}</span></div>
+      <div><b>${medals[0]}·${medals[1]}·${medals[2]}</b><span>${t().medalsGSB}</span></div>
+    </div>
+    <h3 class="pf-h">${t().career}</h3>
+    <div class="clist">${players.map(row).join("") || `<div class="msg">–</div>`}</div>
+    ${coach.length ? `<h3 class="pf-h">${t().asCoach}</h3><div class="clist">${coach.map(row).join("")}</div>` : ""}
+    ${p.mates.length ? `<h3 class="pf-h">${t().mates}</h3><div class="mates">${p.mates.map(([q, n, nm]) =>
+      `<button class="mate" data-person="${q}">${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></button>`).join("")}</div>` : ""}
+    <p class="pf-src">${t().profileSrc} ${p.wcf ? ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗") : ""}</p>`);
+}
+
+function drawLabel(d) {
+  if (!d) return "";
+  if (state.lang !== "pt") return d;
+  const m = d.match(/^Draw #?(\d+)$/i);
+  if (m) return `Rodada ${m[1]}`;
+  const map = [[/semi-?finals?/i, "Semifinal"], [/quarter-?finals?/i, "Quartas de final"], [/bronze/i, "Disputa do bronze"],
+    [/gold|^finals?$|^final/i, "Final"], [/silver/i, "Final"], [/tie-?break/i, "Desempate"], [/qualification/i, "Classificatória"],
+    [/page.*1.*2|1 ?v ?2/i, "Playoff 1x2"], [/page.*3.*4|3 ?v ?4/i, "Playoff 3x4"]];
+  const hit = map.find(([re]) => re.test(d));
+  return hit ? hit[1] : d;
+}
+
+function linescore(g) {
+  const n = Math.max(g.ends.length, g.endsOpp.length, 8);
+  const cells = (arr) => Array.from({ length: n }, (_, i) => `<td>${arr[i] == null ? "" : arr[i]}</td>`).join("");
+  return `<table class="ls"><thead><tr><th></th>${Array.from({ length: n }, (_, i) => `<th>${i + 1}</th>`).join("")}<th>T</th></tr></thead><tbody>
+    <tr class="${g.for > g.against ? "win" : ""}"><td>${esc(g.team)}${g.hammer ? " ●" : ""}</td>${cells(g.ends)}<td class="tot">${g.for}</td></tr>
+    <tr class="${g.against > g.for ? "win" : ""}"><td>${esc(g.opp || "")}${g.hammer === false ? " ●" : ""}</td>${cells(g.endsOpp)}<td class="tot">${g.against}</td></tr>
+  </tbody></table>`;
+}
+
+async function openNation(code) {
+  openSheet(`<div class="msg">${t().loading}</div>`);
+  let n;
+  try { n = await loadNation(code); } catch { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
+  // melhores resultados por campeonato e naipe
+  const best = new Map();
+  n.history.forEach(h => {
+    const k = `${typeLabel(h)}|${h.division}`;
+    const b = best.get(k);
+    if (h.rank && (!b || h.rank < b.rank || (h.rank === b.rank && h.year > b.year))) best.set(k, { ...h, times: 0 });
+  });
+  n.history.forEach(h => { const k = `${typeLabel(h)}|${h.division}`; const b = best.get(k); if (b && h.rank === b.rank) b.times++; });
+  const bestList = [...best.values()].sort((a, b) => (a.medal ? 0 : 1) - (b.medal ? 0 : 1) || a.rank - b.rank || b.year - a.year).slice(0, 8);
+  const people = Object.values(n.people).filter(p => p.career.some(c => c.nation === code && !["coach", "official"].includes(c.role)))
+    .sort((a, b) => b.games - a.games).slice(0, 12);
+  const showAll = n.history.length > 25;
+  openSheet(`
+    <div class="pf-head">
+      <div class="pf-k">${t().nationK}</div>
+      <h2 class="pf-name">${esc(nationName(code))}</h2>
+      <div class="pf-facts">${flagChip(code)} ${n.history.length} ${t().participations}${n.history.length ? ` · ${n.history[n.history.length - 1].year}–${n.history[0].year}` : ""}</div>
+    </div>
+    <div class="pf-stats">
+      <div><b>${n.medals.gold}</b><span>${t().gold}</span></div>
+      <div><b>${n.medals.silver}</b><span>${t().silver}</span></div>
+      <div><b>${n.medals.bronze}</b><span>${t().bronze}</span></div>
+      <div><b>${Object.keys(n.people).length}</b><span>${t().athletes}</span></div>
+    </div>
+    ${bestList.length ? `<h3 class="pf-h">${t().bestResults}</h3><div class="clist">${bestList.map(b => `<div class="crow">
+      <span class="cy">${b.year}</span><span class="cn"><b>${esc(typeLabel(b))}</b><small>${esc(divName(b.division))}${b.times > 1 ? ` · ${b.times}×` : ""}</small></span>
+      <span class="cr">${medalDot(b.medal)}${ordinal(b.rank)}</span><span class="cw"></span></div>`).join("")}</div>` : ""}
+    ${people.length ? `<h3 class="pf-h">${t().topAthletes}</h3><div class="mates">${people.map(p =>
+      `<button class="mate" data-person="${p.id}">${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></button>`).join("")}</div>` : ""}
+    ${n.recent.length ? `<h3 class="pf-h">${t().recentGames}</h3><div class="lsl">${n.recent.slice(0, 10).map(g =>
+      `<div class="lsw"><div class="lsm">${esc(g.when ? g.when.slice(0, 10).split("-").reverse().join("/") : "")} · ${esc(drawLabel(g.draw))}</div>${linescore(g)}</div>`).join("")}</div>` : ""}
+    <h3 class="pf-h">${t().allChamps}</h3>
+    <div class="clist" id="nat-hist">${n.history.slice(0, showAll ? 25 : 999).map(h => `<div class="crow">
+      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}</small></span>
+      <span class="cr">${medalDot(h.medal)}${ordinal(h.rank)}</span><span class="cw">${h.w}–${h.l}</span></div>`).join("")}</div>
+    ${showAll ? `<button class="btn sm" data-nat-all="${code}" style="margin-top:12px">${t().showAll} (${n.history.length})</button>` : ""}
+    <p class="pf-src">${t().profileSrc} World Curling.</p>`);
+}
+
+// Placar ao vivo: data/live.json (gerado por `python3 -m hc sync-live`) completa os jogos e placares
+async function loadLive() {
+  try {
+    const r = await fetch("data/live.json");
+    if (!r.ok) return;
+    const live = await r.json();
+    DATA.liveUpdated = live.updated;
+    Object.entries(live.events).forEach(([evId, le]) => {
+      const g = GAMES[evId];
+      if (!g) return;
+      g.liveUpdated = live.updated;
+      le.games.forEach(lg => {
+        const t0 = new Date(lg.t).getTime();
+        const d = g.list.find(d => Math.abs(d.t.getTime() - t0) < 90 * 60000);
+        if (!d) return;
+        let gm = d.games.find(x => (x.a === lg.a && x.b === lg.b) || (x.a === lg.b && x.b === lg.a));
+        if (!gm) {
+          // jogo da fase final que ainda estava como "vencedor da semi": troca pelos times reais
+          gm = d.games.find(x => PLACEHOLDER.has(x.a) && !x.filled);
+          if (!gm || PLACEHOLDER.has(lg.a)) return;
+          gm.a = lg.a; gm.b = lg.b; gm.filled = true;
+        }
+        if (lg.sa == null) return;
+        const swap = gm.a !== lg.a;
+        gm.sa = swap ? lg.sb : lg.sa;
+        gm.sb = swap ? lg.sa : lg.sb;
+      });
+    });
+    render();
+  } catch {}
+}
+
+function renderDataStats() {
+  const el = document.getElementById("dbstats");
+  if (!el || !DATA.index) return;
+  el.textContent = t().dbStats(DATA.index.events, DATA.index.games, DATA.index.people.length);
+}
+
+function applyLang() {
+  document.documentElement.lang = state.lang === "pt" ? "pt-BR" : "en";
+  const qi = document.getElementById("q"); if (qi.setAttribute) qi.setAttribute("aria-label", t().searchLabel);
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t()[el.dataset.i18n]; });
+  document.querySelectorAll("[data-lang]").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === state.lang));
+}
+function render() {
+  applyLang(); renderExample(false); renderSearch(); renderMarquee(); renderNow(); renderFollow(); renderGames(); renderBrazil();
+  renderRibbon(); renderFilters(); renderList(); renderGuide();
+}
+
+let qTimer;
+document.addEventListener("input", ev => {
+  if (ev.target.id === "q") { clearTimeout(qTimer); qTimer = setTimeout(renderSearch, 120); }
+});
+document.addEventListener("submit", ev => {
+  if (ev.target.id !== "qform") return;
+  ev.preventDefault();
+  const qi = document.getElementById("q");
+  if (!qi.value.trim()) qi.value = t().examples[exIdx % t().examples.length];
+  renderSearch();
+});
+setInterval(() => {
+  const qi = document.getElementById("q");
+  if (qi.value || document.hidden) return;
+  exIdx++; renderExample(true);
+}, 3400);
+
+document.addEventListener("change", ev => {
+  if (ev.target.id === "addteam" && ev.target.value) {
+    state.follow = [...state.follow, ev.target.value];
+    store.set("nc-follow", state.follow);
+    renderNow(); renderFollow(); renderGames();
+  }
+});
+document.addEventListener("click", ev => {
+  const go = ev.target.closest("[data-gev-go]");
+  if (go) {
+    state.gev = go.dataset.gevGo; state.day = go.dataset.dayGo || null; state.div = "all"; state.view = "games"; renderGames();
+    if (go.tagName === "BUTTON") document.getElementById("jogos").scrollIntoView();
+    return;
+  }
+  const b = ev.target.closest("button, [data-close]");
+  if (!b) return;
+  const ds = b.dataset;
+  if (ds.close) { closeSheet(); return; }
+  if (ds.person) { openPerson(+ds.person); return; }
+  if (ds.nation) { openNation(ds.nation); return; }
+  if (ds.natAll) {
+    const n = DATA.nations[ds.natAll];
+    document.getElementById("nat-hist").innerHTML = n.history.map(h => `<div class="crow">
+      <span class="cy">${h.year}</span><span class="cn"><b>${esc(h.name)}</b><small>${esc(divName(h.division))}${h.city ? " · " + esc(h.city) : ""}</small></span>
+      <span class="cr">${medalDot(h.medal)}${ordinal(h.rank)}</span><span class="cw">${h.w}–${h.l}</span></div>`).join("");
+    b.remove(); return;
+  }
+  if (ds.clear) { document.getElementById("q").value = ""; renderSearch(); document.getElementById("q").focus(); }
+  else if (ds.lang) { state.lang = ds.lang; store.set("nc-lang", state.lang); render(); }
+  else if (ds.unfollow) {
+    state.follow = state.follow.filter(x => x !== ds.unfollow);
+    store.set("nc-follow", state.follow); renderNow(); renderFollow(); renderGames();
+  }
+  else if (ds.tz) { state.tz = ds.tz; store.set("nc-tz", state.tz); state.day = null; render(); }
+  else if (ds.gev) { state.gev = ds.gev; state.day = null; state.div = "all"; renderGames(); }
+  else if (ds.view) { state.view = ds.view; renderGames(); }
+  else if (ds.day) { state.day = ds.day; renderGames(); }
+  else if (ds.div) { state.div = ds.div; renderGames(); }
+  else if (ds.scope) { state.scope = ds.scope; store.set("nc-scope", state.scope); renderRibbon(); renderFilters(); renderList(); }
+  else if (ds.toggle) { state[ds.toggle] = !state[ds.toggle]; renderRibbon(); renderFilters(); renderList(); }
+  else if (ds.star) {
+    state.stars.has(ds.star) ? state.stars.delete(ds.star) : state.stars.add(ds.star);
+    store.set("nc-stars", [...state.stars]); renderNow(); renderRibbon(); renderList();
+  }
+  else if (ds.jump) {
+    const el = document.getElementById("ev-" + ds.jump);
+    if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1400); }
+  }
+});
+
+render();
+loadIndex();
+loadLive();
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !document.getElementById("sheet").hidden) closeSheet(); });
+
+// Revelar ao rolar: observa o que aparece de fato na tela (funciona mesmo com a página dentro de um quadro).
+(function setupReveal() {
+  if (!("IntersectionObserver" in window)) return;
+  const single = [".band .head", ".band .controls", "#evhead", "#draws", "#glegend", ".follow-bar", ".two > div",
+    ".ribbon-box", "#legend", "#filters", "#list", ".house", ".hero h1", ".hero .lede", ".hero .search"];
+  const staggered = ["#now", "#bra", "#guide"];
+  const els = [];
+  single.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add("rv"); els.push(el); }));
+  staggered.forEach(sel => document.querySelectorAll(sel).forEach(el => { el.classList.add("rv", "stag"); els.push(el); }));
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    const el = en.target;
+    if (en.isIntersecting) { el.classList.add("in"); el.classList.remove("above"); }
+    else {
+      el.classList.remove("in");
+      const top = en.rootBounds ? en.rootBounds.top : 0;
+      el.classList.toggle("above", en.boundingClientRect.bottom <= top + 1);
+    }
+  }), { threshold: 0, rootMargin: "0px 0px -8% 0px" });
+  els.forEach(el => io.observe(el));
+  document.documentElement.classList.add("rv-on");
+})();
+</script>

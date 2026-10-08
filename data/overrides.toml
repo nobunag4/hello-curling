@@ -1,0 +1,21 @@
+# Decisões manuais sobre identidade. Sempre vencem o cálculo automático.
+# Depois de editar, rode:  python3 -m hc overrides
+#
+# Mesma pessoa com dois códigos na World Curling: fica o primeiro, o segundo passa a apontar para ele.
+# [[merge]]
+# keep_wcf = 1234
+# drop_wcf = 5678
+# reason = "Mesmo atleta; o código 5678 é de um cadastro antigo"
+#
+# Ligar um nome de outra fonte (Grand Slam, placar ao vivo) a um atleta da World Curling.
+# A chave é a mesma que aparece em `python3 -m hc review`.
+# [[link]]
+# source = "gsoc"
+# key = "w:Zardini Lacedelli"
+# wcf = 9999
+# reason = "Skip italiana, confirmada pela escalação do time"
+#
+# Duas pessoas com o mesmo nome que NÃO são a mesma pessoa (tira da fila de revisão).
+# [[distinct]]
+# a_wcf = 111
+# b_wcf = 222
