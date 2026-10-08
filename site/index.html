@@ -81,9 +81,9 @@ nav .navbar { display: flex; justify-content: space-between; align-items: center
 .pop-q input { width: 100%; box-sizing: border-box; border: 0; border-radius: 999px; padding: 11px 16px 11px 40px; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg2); box-shadow: inset 0 0 0 1px var(--line); outline: none; }
 .pop-q input:focus { box-shadow: inset 0 0 0 2px var(--ink2); }
 .pop-q svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink2); pointer-events: none; }
-.pop-links { display: grid; padding: 6px 10px 4px; }
-.pop-links a { font-family: var(--serif); font-size: 26px; letter-spacing: -0.035em; line-height: 1.32; color: var(--ink); }
-.pop-links a:hover { text-decoration: none; color: var(--red); }
+.pop-links { display: grid; justify-items: center; gap: 2px; padding: 10px 10px 6px; }
+.pop-links a { font-family: var(--sans); font-size: 17px; font-weight: 400; letter-spacing: -0.01em; line-height: 1; padding: 11px 22px; border-radius: 999px; color: var(--ink); opacity: .86; transition: background .2s ease, opacity .2s ease; }
+.pop-links a:hover { text-decoration: none; opacity: 1; background: var(--bg2); }
 .pop-res { max-height: min(56vh, 460px); overflow-y: auto; display: grid; gap: 2px; padding-top: 4px; }
 .pop-res .ps { font-size: 11px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; padding: 10px 10px 4px; }
 .pop-res .pr { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; width: 100%; border: 0; background: none; color: var(--ink); font: inherit; font-size: 15px; text-align: left; padding: 9px 10px; border-radius: 12px; cursor: pointer; }
