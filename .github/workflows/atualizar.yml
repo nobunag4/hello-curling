@@ -49,6 +49,7 @@ jobs:
         if: github.event.schedule == '30 6 * * *' || (github.event_name == 'workflow_dispatch' && inputs.completo)
         run: |
           python -m hc sync-wcf --since 2026
+          python -m hc persons --limit 600   # fichas que faltam, das mais recentes para as antigas
           python -m hc persons --since 2025-26
           python -m hc dupes
           python -m hc overrides
