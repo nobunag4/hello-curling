@@ -10,6 +10,8 @@ Usa só a biblioteca padrão do Python (3.11 ou mais novo). Não há nada para i
 ```bash
 python3 -m hc sync-wcf                      # baixa todos os campeonatos da World Curling (1959 até hoje)
 python3 -m hc sync-wcf --types 1,22 --since 2020   # só alguns tipos/anos
+python3 -m hc sync-schedule                 # calendário automático: torneios atuais e próximos, com tabelas e placares
+python3 -m hc photos                        # fotos livres dos atletas (Wikidata + Wikimedia Commons)
 python3 -m hc persons --nations BRA,ITA     # lê as páginas pessoais (nascimento, gênero, seleções)
 python3 -m hc dupes                         # procura a mesma pessoa cadastrada com dois códigos
 python3 -m hc review                        # mostra os casos duvidosos que precisam de um humano
@@ -66,6 +68,7 @@ Toda ligação fica registrada na tabela `link`, com método e confiança, e pod
 | Fonte | Situação |
 |---|---|
 | World Curling, resultados históricos | lida: campeonatos, escalações, jogos com placar por end, fichas pessoais |
-| World Curling, placar ao vivo | próximo passo |
+| World Curling, placar ao vivo (CURLIT) | lida: calendário de todos os torneios atuais e próximos; o site lê o placar ao vivo direto da API oficial |
+| Wikidata + Wikimedia Commons | fotos com licença livre, ligadas pelo código oficial do atleta |
 | Grand Slam of Curling | próximo passo (usa a ligação automática pelo nome do skip) |
 | CurlingZone | só com autorização |

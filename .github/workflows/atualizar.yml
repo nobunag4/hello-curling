@@ -1,5 +1,5 @@
 # Mantém o site atualizado sozinho no GitHub Pages.
-#   - a cada 15 minutos: placar ao vivo dos eventos em andamento (poucas páginas)
+#   - a cada 15 minutos: calendário automático (tabelas e placares do sistema oficial) e placar ao vivo
 #   - uma vez por dia: campeonatos recém-encerrados da World Curling, fichas novas e exportação completa
 # O banco (data/hello_curling.sqlite) fica anexado à release "banco" do GitHub: é baixado no começo,
 # e na parte diária é substituído pela versão nova. Assim o repositório não cresce a cada atualização.
@@ -45,6 +45,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release download banco --pattern hello_curling.sqlite --dir data
+      - name: Calendário automático (torneios atuais e próximos)
+        run: python -m hc sync-schedule || echo "calendário: falhou, fica a versão anterior"
       - name: Placar ao vivo
         run: python -m hc sync-live
       - name: Campeonatos novos, fichas e exportação (diário)

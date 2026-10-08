@@ -1,6 +1,7 @@
 """Linha de comando.
 
   python3 -m hc sync-wcf [--types 1,22] [--since 2010]   baixa e grava campeonatos da World Curling
+  python3 -m hc sync-schedule                             calendário automático (torneios atuais e próximos) -> site/data/schedule.json
   python3 -m hc sync-live                                 placar ao vivo da temporada atual -> site/data/live.json
   python3 -m hc persons [--nations BRA,ITA] [--since 2018-19] [--limit N]   lê páginas pessoais
   python3 -m hc reingest                                  regrava tudo a partir das cópias locais
@@ -161,6 +162,44 @@ def cmd_stats(a):
     print("fundidas:", con.execute("SELECT COUNT(*) FROM person WHERE merged_into IS NOT NULL").fetchone()[0])
 
 
+def cmd_sync_schedule(a):
+    """Torneios em andamento e próximos do placar oficial, com todas as sessões, confrontos e placares."""
+    from .sources import curlit
+    from datetime import datetime, timezone, timedelta
+    from pathlib import Path
+    path = Path(__file__).resolve().parent.parent / "site" / "data" / "schedule.json"
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"events": {}}
+    events = {}
+    today = date.today()
+    for c in curlit.competitions(max_age=a.max_age):
+        if c["section"] not in ("current", "upcoming") or not c["start"]:
+            continue
+        # em andamento: placar fresco; próximos: a tabela muda pouco
+        live_now = c["start"] - timedelta(days=1) <= today <= c["end"] + timedelta(days=1)
+        try:
+            ev = curlit.fetch_competition(c, max_age=a.max_age if live_now else 6 * 3600)
+        except Exception as e:  # um torneio com página quebrada não derruba os outros
+            print(f"{c['slug']}: falhou ({e})")
+            continue
+        if not ev:
+            print(f"{c['slug']}: sem fuso conhecido para '{c['place']}', ignorado")
+            continue
+        events[ev["id"]] = ev
+        print(f"{ev['id']}: {len(ev['draws'])} sessões, {sum(len(d['games']) for d in ev['draws'])} jogos, "
+              f"{sum(g['sa'] is not None for d in ev['draws'] for g in d['games'])} com placar")
+    # torneios que saíram da lista continuam por duas semanas depois do fim (resultados recentes)
+    for k, ev in old.get("events", {}).items():
+        if k not in events and date.fromisoformat(ev["end"]) >= today - timedelta(days=14):
+            events[k] = ev
+    if events == old.get("events"):
+        print("Nada mudou no calendário.")
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"updated": datetime.now(timezone.utc).isoformat(timespec="seconds"), "events": events},
+                               ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"gravado {path}")
+
+
 def cmd_sync_live(a):
     """Lê o placar ao vivo, liga os atletas ao banco e grava site/data/live.json."""
     from .sources import live
@@ -240,6 +279,7 @@ def main(argv=None):
     s.add_argument("--refresh", action="store_true")
     s.add_argument("--review", action="store_true", help="só os atletas da fila de duplicatas")
     s.set_defaults(f=cmd_persons)
+    s = sub.add_parser("sync-schedule"); s.add_argument("--max-age", type=float, default=120); s.set_defaults(f=cmd_sync_schedule)
     s = sub.add_parser("sync-live"); s.add_argument("--slugs"); s.add_argument("--max-age", type=float, default=120)
     s.set_defaults(f=cmd_sync_live)
     sub.add_parser("reingest").set_defaults(f=cmd_reingest)

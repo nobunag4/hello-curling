@@ -676,25 +676,25 @@ const EVENTS = [
   { id: "gsoc-masters", cat: "slam", main: true, start: "2026-11-03", end: "2026-11-08",
     pt: "GSOC Masters", en: "GSOC Masters", official: "Grand Slam of Curling",
     city: "Medicine Hat, AB", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
-  { id: "wcq-men", cat: "qual", main: true, start: "2026-11-08", end: "2026-11-13",
+  { id: "wcqm26", cat: "qual", main: true, start: "2026-11-08", end: "2026-11-13",
     pt: "Qualificatório do Mundial masculino", en: "Men's Worlds Qualifier",
     official: "World Championship Qualifier Men 2026",
     city: "Aberdeen", country: "SCO", links: [["watch", WCTV], ["scores", LIVE]] },
   { id: "gsoc-national", cat: "slam", main: true, start: "2026-11-17", end: "2026-11-22",
     pt: "GSOC National", en: "GSOC National", official: "Grand Slam of Curling",
     city: "Sydney, NS", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
-  { id: "wcq-women", cat: "qual", main: true, start: "2026-11-21", end: "2026-11-26",
+  { id: "wcqw26", cat: "qual", main: true, start: "2026-11-21", end: "2026-11-26",
     pt: "Qualificatório do Mundial feminino", en: "Women's Worlds Qualifier",
     official: "World Championship Qualifier Women 2026",
     city: "Östersund", country: "SWE", links: [["watch", WCTV], ["scores", LIVE]] },
-  { id: "wwhb26", cat: "other", start: "2026-11-22", end: "2026-11-28",
+  { id: "wwhbcc26", cat: "other", start: "2026-11-22", end: "2026-11-28",
     pt: "Mundial em cadeira de rodas, Divisão B", en: "Wheelchair Worlds, B Division",
     official: "World Wheelchair-B Curling Championship 2026",
     city: "Lohja", country: "FIN", links: [["scores", LIVE]] },
   { id: "gsoc-open", cat: "slam", main: true, start: "2026-12-01", end: "2026-12-06",
     pt: "GSOC Open", en: "GSOC Open", official: "Grand Slam of Curling",
     city: "Thunder Bay, ON", country: "CAN", links: [["watch", ROCK], ["site", GSOC]] },
-  { id: "wjb26", cat: "other", start: "2026-12-08", end: "2026-12-21",
+  { id: "wjbcc26", cat: "other", start: "2026-12-08", end: "2026-12-21",
     pt: "Mundial Júnior, Divisão B", en: "Junior Worlds, B Division",
     official: "World Junior-B Curling Championships 2026",
     city: "Lohja", country: "FIN", links: [["scores", LIVE]] },
@@ -972,6 +972,8 @@ const T = {
     tzLabel: "Horários:", tzLocal: "Meu fuso", tzNow: z => `fuso ${z}`,
     divAll: "Todos", divM: "Masculino", divW: "Feminino",
     draw: "Rodada", qf: "Quartas de final", sf: "Semifinais", fin: "Final e 3º lugar",
+    po: "Playoffs", poM: "Playoffs masculinos", poW: "Playoffs femininos", bronze: "Disputa do bronze", bronzeM: "Bronze masculino",
+    bronzeW: "Bronze feminino", finMW: "Finais", qfMW: "Quartas de final", sfMW2: "Semifinais", tbM: "Desempate masculino", tbW: "Desempate feminino",
     tb: "Desempates", qfW: "Quartas femininas", qfM: "Quartas masculinas", sfMW: "Semifinais", finW: "Final feminina", finM: "Final masculina",
     sfW: "Semifinais femininas", sfM: "Semifinais masculinas", medW: "Medalhas · feminino", medM: "Medalhas · masculino",
     tbNote: "Só acontece se houver empate na classificação.", playoffNote: "Confrontos definidos após a fase de grupos.",
@@ -1058,6 +1060,8 @@ const T = {
     tzLabel: "Times:", tzLocal: "My time zone", tzNow: z => `${z} time`,
     divAll: "All", divM: "Men", divW: "Women",
     draw: "Draw", qf: "Quarter-finals", sf: "Semi-finals", fin: "Final & bronze",
+    po: "Playoffs", poM: "Men's playoffs", poW: "Women's playoffs", bronze: "Bronze medal game", bronzeM: "Men's bronze",
+    bronzeW: "Women's bronze", finMW: "Finals", qfMW: "Quarter-finals", sfMW2: "Semi-finals", tbM: "Men's tiebreaker", tbW: "Women's tiebreaker",
     tb: "Tiebreakers", qfW: "Women's quarter-finals", qfM: "Men's quarter-finals", sfMW: "Semi-finals", finW: "Women's final", finM: "Men's final",
     sfW: "Women's semi-finals", sfM: "Men's semi-finals", medW: "Medal games · women", medM: "Medal games · men",
     tbNote: "Only played if there's a tie in the standings.", playoffNote: "Matchups set after the round robin.",
@@ -1147,9 +1151,9 @@ Object.entries(GAMES).forEach(([id, g]) => {
   }));
 });
 const PLACEHOLDER = new Set(["WSF", "LSF", "A1", "A2", "B1", "B2"]);
-const isCountry = x => !!TEAMS[x] && !PLACEHOLDER.has(x);
+const isCountry = x => (!!TEAMS[x] || /^[A-Z]{3}$/.test(x)) && !PLACEHOLDER.has(x);
 const teamCC = x => isCountry(x) ? x : SKIP_CC[x] || null;
-const teamName = x => TEAMS[x] ? TEAMS[x][LI()] : x;
+const teamName = x => TEAMS[x] ? TEAMS[x][LI()] : (typeof NATION_PT !== "undefined" && NATION_PT[x] && state.lang === "pt") ? NATION_PT[x] : (DATA.natEn && DATA.natEn[x]) || x;
 const hasTeam = (gm, id) => gm.a === id || gm.b === id || teamCC(gm.a) === id || teamCC(gm.b) === id;
 const followed = gm => state.follow.some(id => hasTeam(gm, id));
 const isIta = gm => hasTeam(gm, "ITA");
@@ -1258,8 +1262,16 @@ function renderFollow() {
 }
 
 // ---------- Escala ----------
+// Abas da escala: o torneio em andamento, os recentes e os próximos (no máximo 5)
+function gamesTabs() {
+  const now = Date.now();
+  const ids = Object.keys(GAMES).filter(id => evById(id)).sort((a, b) => evById(a).s - evById(b).s);
+  const near = ids.filter(id => { const e = evById(id); return e.e.getTime() + 4 * DAY >= now && e.s.getTime() - 50 * DAY <= now; }).slice(0, 5);
+  if (state.gev && !near.includes(state.gev) && GAMES[state.gev]) near.push(state.gev);
+  return near.length ? near : ids.slice(-3);
+}
 function defaultGamesEvent() {
-  const evs = Object.keys(GAMES).map(evById);
+  const evs = gamesTabs().map(evById);
   return (evs.find(e => status(e) === "live") || evs.find(e => status(e) === "future") || evs[evs.length - 1]).id;
 }
 
@@ -1268,7 +1280,7 @@ function renderGames() {
   const e = evById(state.gev), g = GAMES[e.id];
   const hasDiv = g.list.some(d => d.games.some(x => x.div));
 
-  document.getElementById("evtabs").innerHTML = Object.keys(GAMES).map(id =>
+  document.getElementById("evtabs").innerHTML = gamesTabs().map(id =>
     `<button data-gev="${id}" aria-pressed="${id === state.gev}">${esc(shortName(evById(id)))}</button>`).join("");
   document.getElementById("views").innerHTML = [["games", t().viewGames], ["table", t().viewTable]]
     .map(([k, l]) => `<button data-view="${k}" aria-pressed="${state.view === k}">${l}</button>`).join("");
@@ -1311,7 +1323,7 @@ function renderGames() {
     .filter(d => d.games.length ? d.shown.length : divOk(d));
 
   document.getElementById("draws").innerHTML = `<div class="draws">${draws.length ? draws.map(d => {
-    const label = typeof d.label === "number" ? `${t().draw} ${d.label}` : `<span class="ph">${t()[d.label]}</span>`;
+    const label = typeof d.label === "number" ? `${t().draw} ${d.label}${d.group ? ` · ${t().group} ${d.group}` : ""}` : `<span class="ph">${t()[d.label] || esc(d.raw || d.label)}</span>`;
     const body = !d.games.length ? `<div class="msg">${d.label === "tb" ? t().tbNote : t().playoffNote}</div>` :
       d.shown.map(gm => {
         const i = d.games.indexOf(gm), st = gameStatus(gm, d.t, g.len);
@@ -1668,6 +1680,7 @@ async function loadIndex() {
     if (!r.ok) throw new Error(r.status);
     DATA.index = await r.json();
     DATA.index.people.forEach(p => DATA.people.set(p[0], p));
+    DATA.natEn = Object.fromEntries(DATA.index.nations.map(n => [n.code, n.name]));
     renderSearch(); renderDataStats(); renderArchive();
   } catch { DATA.index = null; }
 }
@@ -1899,6 +1912,69 @@ function render() {
   renderRibbon(); renderFilters(); renderList(); renderGuide(); renderArchive();
 }
 
+// ---------- Calendário automático ----------
+// data/schedule.json é gerado pelo robô (python3 -m hc sync-schedule) a partir do placar oficial da World Curling:
+// todos os torneios em andamento e os próximos, com sessões, confrontos e placares. Quando um torneio está nele,
+// a tabela vem de lá; os torneios que não estão (Grand Slam, por exemplo) continuam com a tabela escrita aqui.
+const SLUG_NAMES = {
+  ecc: ["Europeu", "European Championships"], wcqm: ["Qualificatório do Mundial masculino", "Men's Worlds Qualifier"],
+  wcqw: ["Qualificatório do Mundial feminino", "Women's Worlds Qualifier"], wmcc: ["Mundial masculino", "Men's Worlds"],
+  wwcc: ["Mundial feminino", "Women's Worlds"], wmdcc: ["Mundial de duplas mistas", "Mixed Doubles Worlds"],
+  wmdqe: ["Qualificatório do Mundial de Duplas Mistas", "Mixed Doubles Worlds Qualifier"], wjcc: ["Mundial júnior", "Junior Worlds"],
+  wjbcc: ["Mundial júnior, Divisão B", "Junior Worlds, B Division"], wscc: ["Mundial sênior", "Senior Worlds"],
+  wmxcc: ["Mundial misto", "Mixed Worlds"], wwhcc: ["Mundial em cadeira de rodas", "Wheelchair Worlds"],
+  wwhbcc: ["Mundial em cadeira de rodas, Divisão B", "Wheelchair Worlds, B Division"], pcc: ["Pan-Continental", "Pan Continental Championships"],
+  og: ["Jogos Olímpicos de Inverno", "Winter Olympics"], pg: ["Jogos Paralímpicos de Inverno", "Winter Paralympics"],
+};
+const SLUG_CAT = { ecc: "cont", pcc: "cont", wcqm: "qual", wcqw: "qual", wmdqe: "qual", wcpqe: "qual", wcpqpc: "qual",
+  wmcc: "world", wwcc: "world", wmdcc: "world", wmxcc: "world", og: "world" };
+const COUNTRY_CODE = { Czechia: "CZE", Scotland: "SCO", Sweden: "SWE", Finland: "FIN", Canada: "CAN", USA: "USA", Italy: "ITA",
+  Switzerland: "SUI", Denmark: "DEN", Norway: "NOR", Germany: "GER", Japan: "JPN", Korea: "KOR", China: "CHN", Slovenia: "SLO",
+  Austria: "AUT", Netherlands: "NED", England: "ENG", Ireland: "IRL", Estonia: "EST", Latvia: "LAT", Poland: "POL", Turkey: "TUR",
+  "New Zealand": "NZL", Kazakhstan: "KAZ", Spain: "ESP", France: "FRA" };
+
+function drawKey(d, split) {
+  if (typeof d.key === "number") return d.key;
+  if (!split || !d.divs || !d.divs.length) return d.key;
+  return d.key + (d.divs.length > 1 ? "MW" : d.divs[0].toUpperCase());
+}
+
+function applySchedule(sch) {
+  Object.values(sch.events || {}).forEach(se => {
+    const base = se.slug.replace(/\d+$/, "");
+    let e = evById(se.id);
+    if (!e) {
+      const nm = SLUG_NAMES[base] || [se.name, se.name];
+      const parts = se.place.split(",").map(x => x.trim());
+      e = { id: se.id, cat: SLUG_CAT[base] || "other", main: !!SLUG_CAT[base], start: se.start, end: se.end, pt: nm[0], en: nm[1],
+        official: se.name, city: parts.slice(0, -1).join(", ") || parts[0], country: COUNTRY_CODE[parts[parts.length - 1]] || parts[parts.length - 1],
+        links: [["watch", WCTV], ["scores", `${LIVE}/${se.slug}/`]], auto: true };
+      e.s = pd(e.start); e.e = pd(e.end);
+      EVENTS.push(e);
+    }
+    const old = GAMES[se.id] || {};
+    const watch = old.watch || ((e.links || []).find(l => l[0] === "watch") || [])[1] || WCTV;
+    GAMES[se.id] = {
+      id: se.id, len: old.len || (se.md ? 2 : 2.75), watch, scores: `${LIVE}/${se.slug}/`, src: "livescores.worldcurling.org",
+      curlit: se.curlit && se.curlit.season ? { season: se.curlit.season, comp: se.curlit.comp, events: se.curlit.events } : old.curlit,
+      md: se.md, auto: true,
+      list: se.draws.map(d => ({ t: new Date(d.t), label: drawKey(d, se.split), raw: d.label, group: d.group,
+        games: d.games.map(g => ({ a: g.a, b: g.b, sa: g.sa, sb: g.sb, div: g.div || null })) })),
+    };
+    if (se.groups && se.groups.length)
+      GROUPS[se.id] = { groups: se.groups.map(g => [g.group, g.div || null, g.teams]), note: (GROUPS[se.id] || {}).note || ["", ""], dsc: (GROUPS[se.id] || {}).dsc };
+  });
+}
+
+async function loadSchedule() {
+  try {
+    const r = await fetch("data/schedule.json", { cache: "no-cache" });
+    if (!r.ok) return;
+    applySchedule(await r.json());
+    render();
+  } catch {}
+}
+
 // ---------- Placar ao vivo ----------
 // A World Curling publica o placar oficial (sistema CURLIT) numa API aberta a qualquer site. O navegador lê
 // direto dela a cada 30 segundos enquanto há jogo acontecendo, sem robô no meio. data/live.json continua
@@ -1939,7 +2015,7 @@ function fromCurlit(rg, md, lower) {
   // mostra os ends já jogados e, ao vivo, a coluna do end em andamento
   const ends = on ? [...played, { n: String(nextEnd), a: null, b: null }] : played;
   return {
-    a: fix(rg.homeTeam.noc), b: fix(rg.awayTeam.noc), title: rg.gamesTitle,
+    a: fix(rg.homeTeam.noc), b: fix(rg.awayTeam.noc), title: rg.gamesTitle, div: /women/i.test(rg.event || "") ? "w" : /men/i.test(rg.event || "") ? "m" : null,
     sa: played.length || official ? num(rg.homeTeam.total) ?? 0 : null, sb: played.length || official ? num(rg.awayTeam.total) ?? 0 : null,
     live: { on, end: rg.cEnd || nextEnd, hammer: ham, ends, status: rg.status },
   };
@@ -1949,8 +2025,12 @@ function mergeCurlit(g, lg) {
   const now = Date.now();
   const near = g.list.filter(d => Math.abs(d.t.getTime() - now) < (g.len + 6) * 3600000).sort((x, y) => Math.abs(x.t - now) - Math.abs(y.t - now));
   for (const d of near) {
-    let gm = d.games.find(x => (x.a === lg.a && x.b === lg.b) || (x.a === lg.b && x.b === lg.a));
+    let gm = d.games.find(x => ((x.a === lg.a && x.b === lg.b) || (x.a === lg.b && x.b === lg.a)) && (!lg.div || !x.div || x.div === lg.div));
     if (!gm) { gm = placeholderFor(d, lg.title); if (gm) { gm.a = lg.a; gm.b = lg.b; gm.filled = true; } }
+    if (!gm && typeof d.label !== "number" && !d.games.some(x => !PLACEHOLDER.has(x.a)) && Math.abs(d.t.getTime() - now) < (g.len + 1) * 3600000) {
+      gm = { a: lg.a, b: lg.b, sa: null, sb: null, div: lg.div || null };
+      d.games = d.games.filter(x => !PLACEHOLDER.has(x.a)).concat(gm);
+    }
     if (!gm) continue;
     const swap = gm.a !== lg.a;
     gm.sa = swap ? lg.sb : lg.sa; gm.sb = swap ? lg.sa : lg.sb;
@@ -2175,7 +2255,7 @@ document.addEventListener("click", ev => {
 
 render();
 loadIndex();
-loadLive().then(() => pollLive(true));
+loadSchedule().then(loadLive).then(() => pollLive(true));
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !document.getElementById("sheet").hidden) closeSheet(); });
 
 // Revelar ao rolar: observa o que aparece de fato na tela (funciona mesmo com a página dentro de um quadro).

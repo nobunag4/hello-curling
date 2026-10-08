@@ -1,0 +1,934 @@
+
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head><meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1.0" /><title>
+	World Curling
+</title>
+
+    <!-- World Curling Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZYZP9T0G48"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-ZYZP9T0G48');
+    </script>
+     <script>
+         (function () {
+             const cookieName = 'ThemePreference';
+             const themePreference = document.cookie.split('; ').find(row => row.startsWith(cookieName + '='));
+
+             if (!themePreference) {
+                 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                 const theme = prefersDark ? 'dark' : 'light';
+                 document.cookie = `${cookieName}=${theme}; path=/; max-age=31536000`; // Expires in 1 year
+                 window.location.reload();
+             }
+         })();
+    </script>
+    <link id="Stylesheet" rel="stylesheet" type="text/css" href="/CSS/curlit.css" /><link id="Stylesheet2" rel="stylesheet" type="text/css" href="/CSS/theme.css" /><link rel="shortcut icon" href="WCF_CURLIT.ico" /><link rel="icon" href="WCF_CURLIT_32.png" sizes="32x32" type="image/png" /><link rel="icon" href="WCF_CURLIT_128.png" sizes="128x128" type="image/png" /><link rel="icon" href="WCF_CURLIT_180.png" sizes="180x180" type="image/png" /><link rel="icon" href="WCF_CURLIT_192.png" sizes="192x192" type="image/png" />
+<style type="text/css">
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+input {
+    padding: 1px 1px 1px 1px;
+}
+table {
+    table-layout: fixed;
+}
+</style>
+</head>
+<body>
+    <form method="post" action="./" id="form1">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="VlKccjMVpdFOC8oSKgsGauxm3RDrff4lOZvTS8Kui5SnprUgJVBh4tG3biguNRG4z5RKdWxoKJI4vOjGak8l5f8bV5GsJC3/NIvDYHPfJj5XcU2b1NyI7zjJaq3bIXQhcMRuBjtuvmUtnyRawC4nZ7PgJC/j7OzlxWmN17gFphAAenb2DKiFA7R/ZWSnOPfH7h0s2uJYBWLj3mTcdhKhVomRYTTODy/e66943zYFB82OQqfrZEdA4zliIXRMeVr1q1OxIBKGmOnI0bhoIqO/1ZnFwxNdbvh7ikYzRR5SHac=" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="202EA31B" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="saAuCBqLp0dcTFhVOjV4Yf7aVaybDefRgzxdONnM03FUrMUXJByW8Cx3zeV+vZLEm0EafaE7OpU3LjwePD9MF9cEO06dzK/+4O24JSRQ7NbP8dLLUeUK6F4OhBSCBgv5PisLNw5THjPM9WN8/HpON4Q1N8K5YLLcT5hS39l82HxoTKNz63+T27w62pu9obXDfEgL9pRF98NYCCjH3dvpJoc+aS4ZZHxgO08tfW2/ipDeOHYUGDQNVqAlcKzfDv1ZBBwvgSTRqjcv/oE851yf1BqlmDU9EE8i1efSPJ0sM3Y=" />
+    <input type="hidden" name="ctl00$ThemePreference" id="ThemePreference" />
+    <div style="width:100%;">
+        
+    <table style="width: 100%" border="0">
+        <tr>
+            <td  valign="middle" style="width: 33%">
+                <img id="ImgPicto" class="imgLogoXSmall" src="general/WorldCurling.png" alt="World Curling and CURLIT" />
+            </td>
+            <td  valign="middle" align="center" style="width: 33%">
+               
+                    <span id="LabelEvent" class="lcb">World Curling</span>
+
+            </td>
+            <td valign="middle" style="white-space: nowrap;width: 33%" align="right">
+                <input type="submit" name="ctl00$bfbblue" value="BW" id="bfbblue" title="Set color scheme to blue background with white font color" class="xsbtnBlue" />
+                <input type="submit" name="ctl00$bfbwhite" value="WB" id="bfbwhite" title="Set color scheme to white background with dark blue font color" class="xsbtnWhite" />
+                <input type="submit" name="ctl00$bfbbig" value="BIG" id="bfbbig" title="Set color scheme to white background, using big black fonts (improving accessibility for people with low Vision)" class="xsbtnBig" />&nbsp;
+                <select name="ctl00$drpLanguage" id="drpLanguage" class="sdrp">
+	<option selected="selected" value="1">EN</option>
+	<option value="2">DE</option>
+	<option value="3">FR</option>
+	<option value="4">IT</option>
+	<option value="5">RU</option>
+
+</select>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" style="width: 100%; overflow-x: hidden;" valign="top">
+                
+    <style>
+        .main-content-wrapper {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .season-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .season-header {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--text_color);
+            width: 100%;
+        }
+
+        .section-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 30px 0 15px 0;
+            text-align: center;
+            color: var(--text_color);
+        }
+
+        .event-carousel-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            padding: 0 50px; /* Space for arrows */
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .event-tiles-container {
+            display: flex;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            gap: 20px;
+            padding: 10px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            flex-wrap: nowrap;
+        }
+
+        /* Center single tile on all screen sizes */
+        .event-tiles-container:not(:has(.event-tile:nth-child(2))) {
+            justify-content: center;
+        }
+
+        .event-tiles-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+        }
+
+        .event-tile {
+            flex: 0 0 auto;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            scroll-snap-align: start;
+            box-sizing: border-box;
+        }
+
+        .event-tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .event-tile a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
+            color: var(--text_color);
+            box-sizing: border-box;
+        }
+
+        .event-tile-background {
+            position: absolute;
+            top: 43%;
+            left: 0;
+            width: 100%;
+            height: 57%;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .event-tile-content {
+            position: relative;
+            z-index: 1;
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-sizing: border-box;
+        }
+
+        .event-tile-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            hyphens: auto;
+            width: 100%;
+            max-width: 100%;
+            overflow: visible;
+        }
+
+        .event-tile-dates {
+            opacity: 0.95;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        /* Carousel Navigation Arrows */
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(128, 128, 128, 0.7);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-arrow:hover:not(:disabled) {
+            background: rgba(100, 100, 100, 0.9);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-arrow:disabled {
+            background: transparent;
+            border-color: rgba(200, 200, 200, 0.3);
+            color: rgba(180, 180, 180, 0.4);
+            cursor: not-allowed;
+        }
+
+        .carousel-arrow.left {
+            left: 5px;
+        }
+
+        .carousel-arrow.right {
+            right: 5px;
+        }
+
+        /* Mobile Small: 1.5 tiles visible */
+        @media (max-width: 480px) {
+            .event-carousel-wrapper {
+                padding: 0 40px;
+            }
+
+            .carousel-arrow {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+
+            .event-tile {
+                width: 220px;
+                aspect-ratio: 3 / 2;
+            }
+
+            .event-tile-content {
+                padding: 10px;
+            }
+
+            .event-tile-title {
+                font-size: 1em;
+                margin-bottom: 5px;
+            }
+
+            .event-tile-dates {
+                font-size: 0.85em;
+            }
+
+            .season-header {
+                margin: 15px 0;
+                font-size: 1.3em;
+            }
+
+            .section-header {
+                margin: 20px 0 10px 0;
+                font-size: 1.3em;
+            }
+        }
+
+        /* Mobile Large / Small Tablet: 481px - 768px */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .event-carousel-wrapper {
+                padding: 0 45px;
+            }
+
+            .event-tile {
+                width: 260px;
+                aspect-ratio: 3 / 2;
+            }
+
+            .event-tile-title {
+                font-size: 1.05em;
+            }
+
+            .event-tile-dates {
+                font-size: 0.9em;
+            }
+
+            .section-header {
+                font-size: 1.3em;
+            }
+        }
+
+        /* Tablet: 2-2.5 tiles visible */
+        @media (min-width: 769px) and (max-width: 1200px) {
+            .event-tile {
+                width: 300px;
+                aspect-ratio: 3 / 2;
+            }
+
+            .event-tile-title {
+                font-size: 1.05em;
+            }
+
+            .event-tile-dates {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Desktop: 3 tiles visible */
+        @media (min-width: 1201px) {
+            .event-tile {
+                width: 320px;
+                aspect-ratio: 3 / 2;
+            }
+
+            .event-tile-title {
+                font-size: 1.1em;
+            }
+
+            .event-tile-dates {
+                font-size: 0.85em;
+            }
+
+            /* Center tiles only on desktop when 3 or fewer tiles */
+            .event-tiles-container:not(:has(.event-tile:nth-child(4))) {
+                justify-content: center;
+            }
+        }
+
+        /* View toggle switch */
+        .view-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @media (max-width: 480px) {
+            .view-toggle-btn {
+                width: 26px;
+                height: 26px;
+            }
+
+            .view-toggle-btn svg {
+                width: 15px;
+                height: 15px;
+            }
+
+            .view-toggle {
+                gap: 6px;
+            }
+        }
+
+        .view-toggle-btn {
+            background: transparent;
+            border: 2px solid rgba(150, 150, 150, 0.4);
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text_color);
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .view-toggle-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor !important;
+        }
+
+        .view-toggle-btn svg path {
+            fill: currentColor !important;
+            stroke: none !important;
+        }
+
+        .view-toggle-btn:hover {
+            background: rgba(150, 150, 150, 0.15);
+        }
+
+        .view-toggle-btn.active {
+            background: var(--text_color, #333);
+            color: var(--bg_color, #fff);
+            border-color: var(--text_color, #333);
+        }
+
+        /* List view layout (applied to all sections except Current/Next Event) */
+        .main-content-wrapper.list-mode .listable-section .event-carousel-wrapper {
+            padding: 0;
+            overflow: visible;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .carousel-arrow {
+            display: none;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tiles-container {
+            display: block;
+            overflow: visible;
+            gap: 0;
+            padding: 0;
+            width: fit-content;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile {
+            display: list-item;
+            list-style-type: disc;
+            list-style-position: outside;
+            width: auto !important;
+            aspect-ratio: unset !important;
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+            margin: 0 0 12px 20px;
+            text-align: left;
+            transition: none;
+        }
+
+        @media (min-width: 769px) {
+            .main-content-wrapper.list-mode .listable-section .event-tile {
+                white-space: nowrap;
+            }
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile-background {
+            display: none;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile-content {
+            position: static;
+            padding: 0;
+            display: block;
+            height: auto;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile-title {
+            display: inline;
+            margin-bottom: 0;
+            text-shadow: none;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile-dates {
+            display: inline;
+            text-shadow: none;
+            margin-left: 8px;
+            opacity: 0.85;
+        }
+
+        .main-content-wrapper.list-mode .listable-section .event-tile-dates::before {
+            content: "\2013";
+            margin-right: 8px;
+        }
+    </style>
+
+    <script>
+        function initCarousel(containerId) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+
+            var leftBtn = document.getElementById(containerId + '-left');
+            var rightBtn = document.getElementById(containerId + '-right');
+
+            if (!leftBtn || !rightBtn) return;
+
+            function updateButtons() {
+                var scrollLeft = container.scrollLeft;
+                var maxScroll = container.scrollWidth - container.clientWidth;
+
+                leftBtn.disabled = scrollLeft <= 0;
+                rightBtn.disabled = scrollLeft >= maxScroll - 5; // 5px tolerance
+            }
+
+            function scroll(direction) {
+                var tileWidth = container.querySelector('.event-tile').offsetWidth;
+                var gap = 20;
+                var scrollAmount = (tileWidth + gap) * (window.innerWidth <= 768 ? 1 : 1);
+
+                container.scrollBy({
+                    left: direction * scrollAmount,
+                    behavior: 'smooth'
+                });
+
+                setTimeout(updateButtons, 300);
+            }
+
+            leftBtn.onclick = function(e) { 
+                e.preventDefault(); 
+                scroll(-1); 
+                return false;
+            };
+            rightBtn.onclick = function(e) { 
+                e.preventDefault(); 
+                scroll(1); 
+                return false;
+            };
+            container.addEventListener('scroll', updateButtons);
+
+            updateButtons();
+        }
+
+        window.addEventListener('load', function() {
+            initCarousel('current-events-carousel');
+            initCarousel('upcoming-events-carousel');
+            initCarousel('completed-events-carousel');
+            initCarousel('lastseason-events-carousel');
+        });
+
+        window.addEventListener('resize', function() {
+            setTimeout(function() {
+                initCarousel('current-events-carousel');
+                initCarousel('upcoming-events-carousel');
+                initCarousel('completed-events-carousel');
+                initCarousel('lastseason-events-carousel');
+            }, 300);
+        });
+
+        function getCookie(name) {
+            var match = document.cookie.split('; ').find(function (row) { return row.startsWith(name + '='); });
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        function setCookie(name, value) {
+            document.cookie = name + '=' + encodeURIComponent(value) + '; path=/; max-age=31536000';
+        }
+
+        function initViewToggle() {
+            var wrapper = document.querySelector('.main-content-wrapper');
+            var iconBtn = document.getElementById('view-icon-btn');
+            var listBtn = document.getElementById('view-list-btn');
+            if (!wrapper || !iconBtn || !listBtn) return;
+
+            function alignListWidths() {
+                var containers = wrapper.querySelectorAll('.listable-section .event-tiles-container');
+                if (!containers.length) return;
+
+                containers.forEach(function (c) { c.style.width = 'fit-content'; });
+
+                var maxWidth = 0;
+                containers.forEach(function (c) {
+                    maxWidth = Math.max(maxWidth, c.getBoundingClientRect().width);
+                });
+
+                containers.forEach(function (c) { c.style.width = maxWidth + 'px'; });
+            }
+
+            function resetListWidths() {
+                var containers = wrapper.querySelectorAll('.listable-section .event-tiles-container');
+                containers.forEach(function (c) { c.style.width = ''; });
+            }
+
+            function setMode(mode) {
+                if (mode === 'list') {
+                    wrapper.classList.add('list-mode');
+                    listBtn.classList.add('active');
+                    iconBtn.classList.remove('active');
+                    alignListWidths();
+                } else {
+                    wrapper.classList.remove('list-mode');
+                    iconBtn.classList.add('active');
+                    listBtn.classList.remove('active');
+                    resetListWidths();
+                }
+                try { setCookie('ViewModePreference', mode); } catch (e) { }
+            }
+
+            window.addEventListener('resize', function () {
+                if (wrapper.classList.contains('list-mode')) {
+                    setTimeout(alignListWidths, 200);
+                }
+            });
+
+            iconBtn.addEventListener('click', function () { setMode('icon'); });
+            listBtn.addEventListener('click', function () { setMode('list'); });
+
+            var saved = null;
+            try { saved = getCookie('ViewModePreference'); } catch (e) { }
+            setMode(saved === 'list' ? 'list' : 'icon');
+        }
+
+        document.addEventListener('DOMContentLoaded', initViewToggle);
+    </script>
+
+    <div class="main-content-wrapper">
+        <div class="season-header-row">
+            <div class="season-header">
+                Season 2026-2027
+            </div>
+
+            <div class="view-toggle">
+                <button type="button" class="view-toggle-btn" id="view-icon-btn" title="Icon view" aria-label="Icon view">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>
+                </button>
+                <button type="button" class="view-toggle-btn" id="view-list-btn" title="List view" aria-label="List view">
+                    <svg viewBox="0 0 24 24"><path d="M4 5h2v2H4V5zm4 0h12v2H8V5zM4 11h2v2H4v-2zm4 0h12v2H8v-2zM4 17h2v2H4v-2zm4 0h12v2H8v-2z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        
+        <div class="section-header">
+            Current
+        </div>
+        <div class="event-carousel-wrapper">
+            <button type="button" class="carousel-arrow left" id="current-events-carousel-left">‹</button>
+            <div class="event-tiles-container" id="current-events-carousel">
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wmdqe26">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wmdqe26/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Mixed Doubles Qualification Event
+                                </div>
+                                <div class="event-tile-dates">
+                                    Lafayette, CO, USA | Oct 2 - Oct 8, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+            </div>
+            <button type="button" class="carousel-arrow right" id="current-events-carousel-right">›</button>
+        </div>
+    
+        <div class="listable-section">
+        <div class="section-header">Upcoming</div>
+        <div class="event-carousel-wrapper">
+            <button type="button" class="carousel-arrow left" id="upcoming-events-carousel-left">‹</button>
+            <div class="event-tiles-container" id="upcoming-events-carousel">
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/ecc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/ecc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    European Curling Championships
+                                </div>
+                                <div class="event-tile-dates">
+                                    Ostrava, Czechia | Oct 27 - Nov 1, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wcqm">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wcqm/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Championship Qualifier Men
+                                </div>
+                                <div class="event-tile-dates">
+                                    Aberdeen, Scotland | Nov 8 - Nov 13, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wcqw">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wcqw/images/Logo.png?4');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Championship Qualifier Women
+                                </div>
+                                <div class="event-tile-dates">
+                                    Östersund, Sweden | Nov 21 - Nov 26, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wwhbcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wwhbcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Wheelchair-B Curling Championship
+                                </div>
+                                <div class="event-tile-dates">
+                                    Lohja, Finland | Nov 23 - Nov 28, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wjbcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wjbcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Junior-B Curling Championships
+                                </div>
+                                <div class="event-tile-dates">
+                                    Lohja, Finland | Dec 8 - Dec 21, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+            </div>
+            <button type="button" class="carousel-arrow right" id="upcoming-events-carousel-right">›</button>
+        </div>
+        </div>
+    
+        <div class="listable-section">
+        <div class="section-header">Previous Season</div>
+        <div class="event-carousel-wrapper">
+            <button type="button" class="carousel-arrow left" id="lastseason-events-carousel-left">‹</button>
+            <div class="event-tiles-container" id="lastseason-events-carousel">
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wcpqe">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wcpqe/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Championship Pre-Qualifier (Europe)
+                                </div>
+                                <div class="event-tile-dates">
+                                    Ljubljana, Slovenia | May 5 - May 11, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wjmdcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wjmdcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Junior Mixed Doubles Curling Championship
+                                </div>
+                                <div class="event-tile-dates">
+                                    Edmonton, Canada | May 5 - May 10, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wmdcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wmdcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Mixed Doubles Curling Championship
+                                </div>
+                                <div class="event-tile-dates">
+                                    Geneva, Switzerland | Apr 25 - May 2, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wscc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wscc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Senior Curling Championships
+                                </div>
+                                <div class="event-tile-dates">
+                                    Geneva, Switzerland | Apr 25 - May 2, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wcpqpc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wcpqpc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Championship Pre-Qualifier (Pan Continental)
+                                </div>
+                                <div class="event-tile-dates">
+                                    Dumfries, Scotland | Apr 13 - Apr 16, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wmcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wmcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Men&#39;s Curling Championship
+                                </div>
+                                <div class="event-tile-dates">
+                                    Ogden, USA | Mar 27 - Apr 4, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wwcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wwcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Women&#39;s Curling Championship
+                                </div>
+                                <div class="event-tile-dates">
+                                    Calgary, Canada | Mar 14 - Mar 22, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/pg">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/pg/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    Paralympic Winter Games
+                                </div>
+                                <div class="event-tile-dates">
+                                    Cortina, Italy | Mar 6 - Mar 14, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wjcc">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wjcc/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Junior Curling Championships
+                                </div>
+                                <div class="event-tile-dates">
+                                    Copenhagen, Denmark | Feb 24 - Mar 3, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/og">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/og/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    Olympic Winter Games
+                                </div>
+                                <div class="event-tile-dates">
+                                    Cortina, Italy | Feb 6 - Feb 22, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+                    <div class="event-tile">
+                        <a href="https://livescores.worldcurling.org/wmdqe">
+                            <div class="event-tile-background" style="background-image: url('https://livescores.worldcurling.org/wmdqe/images/Logo.png');"></div>
+                            <div class="event-tile-content">
+                                <div class="event-tile-title">
+                                    World Mixed Doubles Qualification Event
+                                </div>
+                                <div class="event-tile-dates">
+                                    Dumfries, Scotland | Jan 4 - Jan 10, 2026
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                
+            </div>
+            <button type="button" class="carousel-arrow right" id="lastseason-events-carousel-right">›</button>
+        </div>
+        </div>
+    
+
+    </div><!-- end main-content-wrapper -->
+
+
+           <p class="sl">&nbsp;</p>
+       </td>
+        </tr>
+        <tr>
+            <td colspan="3" valign="top" class="xxsc" >
+                <hr /><p class="xxsc">&nbsp;</p>
+                <img id="ImageWCFCURLIT" class="imgWCFCURLIT" src="general/WCF_CURLIT.png" alt="World Curling and CURLIT" /><br />&nbsp;<br />
+                &copy; 2026
+                <span id="lCopyright">World Curling and CURLIT Ltd., all rights reserved</span>
+            </td>
+        </tr>
+    </table>
+    </div>
+    </form>
+    </body>
+</html>
