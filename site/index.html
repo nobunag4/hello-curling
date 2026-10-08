@@ -271,6 +271,10 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 .team { font-weight: 500; }
 .team.win { font-weight: 700; }
 .team.lose { color: var(--ink2); font-weight: 400; }
+.fl { width: 18px; height: 13.5px; border-radius: 2px; vertical-align: -2px; margin-right: 6px; object-fit: cover; box-shadow: 0 0 0 1px rgba(127,127,127,.25); }
+.cc .fl { width: 15px; height: 11.25px; margin-right: 5px; vertical-align: -1.5px; }
+.fl-md { width: 28px; height: 21px; border-radius: 4px; object-fit: cover; box-shadow: 0 0 0 1px rgba(127,127,127,.25); }
+.fl-lg { display: block; width: 72px; height: 54px; margin: 0 auto 16px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px var(--line2), 0 14px 30px -14px rgba(0,0,0,.5); }
 .cc { font-size: 11px; font-weight: 600; color: var(--ink2); background: var(--bg2); border-radius: 6px; padding: 2px 6px; margin-inline: 8px; letter-spacing: .02em; }
 .sc { text-align: center; font-family: var(--serif); font-size: 26px; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
 .sc.vs { font-family: var(--sans); font-size: 14px; color: var(--ink2); letter-spacing: 0; }
@@ -996,8 +1000,8 @@ const T = {
       ["Duplas mistas", "Um homem e uma mulher, 5 pedras cada por end e uma pedra já posicionada antes de começar. Jogo rápido, com muitos pontos."],
       ["DSC", "Draw Shot Challenge: antes dos jogos, cada time lança pedras no botão e mede a distância. É usado como desempate (menor é melhor)."],
     ],
-    foot1: "Datas e tabelas da World Curling, do Grand Slam of Curling e da federação tcheca, consultadas em outubro de 2026. Sedes e participantes marcados como \"a confirmar\" ou \"possível\" ainda podem mudar.",
-    foot2: "Os placares não atualizam sozinhos nesta versão. Times seguidos, favoritos e preferências ficam salvos só neste navegador.",
+    foot1: "Tabelas e placares da World Curling, atualizados automaticamente; durante os jogos o placar ao vivo atualiza a cada 30 segundos. Grand Slam of Curling pelo site oficial do circuito. Sedes e participantes marcados como \"a confirmar\" ou \"possível\" ainda podem mudar.",
+    foot2: "Times seguidos, favoritos e preferências ficam salvos só neste navegador.",
   },
   en: {
     menu: "Menu", navHist: "History", navSearch: "Search", popPh: "Search athlete, nation, game…",
@@ -1084,8 +1088,8 @@ const T = {
       ["Mixed doubles", "One man and one woman, 5 stones each per end plus one stone placed before the end starts. Fast games with lots of scoring."],
       ["DSC", "Draw Shot Challenge: before games, each team throws stones to the button and the distance is measured. Used as a tiebreaker (lower is better)."],
     ],
-    foot1: "Dates and draws from World Curling, the Grand Slam of Curling and the Czech federation, checked in October 2026. Venues and entries marked \"TBC\" or \"possible\" may still change.",
-    foot2: "Scores don't update automatically in this version. Followed teams, stars and preferences are saved in this browser only.",
+    foot1: "Draws and scores from World Curling, updated automatically; during games the live score refreshes every 30 seconds. Grand Slam of Curling from the tour's official site. Venues and entries marked \"TBC\" or \"possible\" may still change.",
+    foot2: "Followed teams, stars and preferences are saved in this browser only.",
   }
 };
 
@@ -1332,7 +1336,7 @@ function renderGames() {
         const key = `${g.id}|${d.t.getTime()}|${i}`, showLs = gm.live && (on || LS_OPEN.has(key));
         const hmA = on && gm.live.hammer === "a" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
         const hmB = on && gm.live.hammer === "b" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
-        const tag = x => { const cc = teamCC(x); return cc ? `<span class="cc">${cc}</span>` : ""; };
+        const tag = x => flagChip(teamCC(x));
         const nt = d.notes ? `<div class="gnote">${t()[d.notes[i]]}</div>` : "";
         const dv = gm.div && state.div === "all" ? `<span>${t().divShort[gm.div]}</span>` : "";
         const cal = !done && !PLACEHOLDER.has(gm.a) && Date.now() < d.t.getTime()
@@ -1420,7 +1424,7 @@ function renderBrazil() {
   cards.push(`<div class="card">
     <div class="k">${t().histTitle}</div>
     <div class="note">${t().histNote}</div>
-    <div class="mates">${["BRA", "ITA"].map(c => `<button class="mate" data-nation="${c}">${esc(nationName(c))}<small>${t().seeProfile}</small></button>`).join("")}</div>
+    <div class="mates">${["BRA", "ITA"].map(c => `<button class="mate" data-nation="${c}">${flagImg(c, "fl-md")}<span>${esc(nationName(c))}<small>${t().seeProfile}</small></span></button>`).join("")}</div>
   </div>`);
   document.getElementById("bra").innerHTML = cards.join("");
 }
@@ -1730,7 +1734,10 @@ function photoCredit(id) {
   return `<p class="pf-src">${t().photo}: ${esc(author || "Wikimedia Commons")}${lic ? " · " + esc(lic) : ""} · ${ext(page, "Wikimedia Commons ↗")}</p>`;
 }
 
-function flagChip(code) { return code ? `<span class="cc">${code}</span>` : ""; }
+// Bandeiras: flag-icons (MIT), guardadas em img/flags/<código>.svg
+const FLAGS = new Set("AND ARG ARM ARU AUS AUT AZE BEL BIH BLR BOL BRA BUL CAN CHI CHN CRO CYP CZE DEN ENG ESP EST FIN FRA GBR GEO GER GRE GUY HKG HUN IND IRL ISL ISR ITA JAM JPN KAZ KEN KGZ KOR KSA LAT LBN LIE LTU LUX MEX MGL MON NED NGR NOR NPA NZL PAK PHI POL POR PUR QAT RKS ROU RUS SCO SLO SRB SUI SVK SVN SWE THA TPE TUR UKR USA WAL".split(" "));
+function flagImg(code, cls = "fl") { return FLAGS.has(code) ? `<img class="${cls}" src="img/flags/${code}.svg" alt="" loading="lazy" decoding="async">` : ""; }
+function flagChip(code) { return code ? `<span class="cc">${flagImg(code)}${code}</span>` : ""; }
 function medalDot(m) { return m ? `<i class="md m${m}" title="${[null, t().gold, t().silver, t().bronze][m]}"></i>` : ""; }
 function ordinal(n) { return n == null ? "–" : state.lang === "pt" ? `${n}º` : `${n}${[, "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10] || "th"}`; }
 function ageOf(born) {
@@ -1838,6 +1845,7 @@ async function openNation(code) {
   const showAll = n.history.length > 25;
   openSheet(`
     <div class="pf-head">
+      ${flagImg(code, "fl-lg")}
       <div class="pf-k">${t().nationK}</div>
       <h2 class="pf-name">${esc(nationName(code))}</h2>
       <div class="pf-facts">${flagChip(code)} ${n.history.length} ${t().participations}${n.history.length ? ` · ${n.history[n.history.length - 1].year}–${n.history[0].year}` : ""}</div>
@@ -1852,7 +1860,7 @@ async function openNation(code) {
       <span class="cy">${b.year}</span><span class="cn"><b>${esc(typeLabel(b))}</b><small>${esc(divName(b.division))}${b.times > 1 ? ` · ${b.times}×` : ""}</small></span>
       <span class="cr">${medalDot(b.medal)}${ordinal(b.rank)}</span><span class="cw"></span></div>`).join("")}</div>` : ""}
     ${people.length ? `<h3 class="pf-h">${t().topAthletes}</h3><div class="mates">${people.map(p =>
-      `<button class="mate" data-person="${p.id}">${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></button>`).join("")}</div>` : ""}
+      `<button class="mate" data-person="${p.id}">${avatar(p.id, p.name, "sm")}<span>${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></span></button>`).join("")}</div>` : ""}
     ${n.recent.length ? `<h3 class="pf-h">${t().recentGames}</h3><div class="lsl">${n.recent.slice(0, 10).map(g =>
       `<div class="lsw"><div class="lsm">${esc(g.when ? g.when.slice(0, 10).split("-").reverse().join("/") : "")} · ${esc(drawLabel(g.draw))}</div>${linescore(g)}</div>`).join("")}</div>` : ""}
     <h3 class="pf-h">${t().allChamps}</h3>
@@ -1948,19 +1956,26 @@ function applySchedule(sch) {
       const parts = se.place.split(",").map(x => x.trim());
       e = { id: se.id, cat: SLUG_CAT[base] || "other", main: !!SLUG_CAT[base], start: se.start, end: se.end, pt: nm[0], en: nm[1],
         official: se.name, city: parts.slice(0, -1).join(", ") || parts[0], country: COUNTRY_CODE[parts[parts.length - 1]] || parts[parts.length - 1],
-        links: [["watch", WCTV], ["scores", `${LIVE}/${se.slug}/`]], auto: true };
+        links: se.source === "gsoc" ? [["watch", ROCK], ["site", GSOC]] : [["watch", WCTV], ["scores", `${LIVE}/${se.slug}/`]], auto: true };
+      if (se.source === "gsoc") { e.cat = "slam"; e.main = true; e.pt = e.en = se.name; }
       e.s = pd(e.start); e.e = pd(e.end);
       EVENTS.push(e);
     }
     const old = GAMES[se.id] || {};
-    const watch = old.watch || ((e.links || []).find(l => l[0] === "watch") || [])[1] || WCTV;
+    const slam = se.source === "gsoc";
+    const watch = old.watch || ((e.links || []).find(l => l[0] === "watch") || [])[1] || (slam ? ROCK : WCTV);
+    if (se.teams) Object.assign(SKIP_CC, se.teams);
+    // jogo encerrado com placar por end (Grand Slam): um toque mostra os ends
+    const ends = g => g.ends ? { on: false, ends: g.ends.map(([x, y], i) => ({ n: String(i + 1), a: x, b: y })), swap: false } : undefined;
     GAMES[se.id] = {
-      id: se.id, len: old.len || (se.md ? 2 : 2.75), watch, scores: `${LIVE}/${se.slug}/`, src: "livescores.worldcurling.org",
+      id: se.id, len: old.len || (se.md ? 2 : 2.75), watch, scores: slam ? (old.scores || GSOC) : `${LIVE}/${se.slug}/`,
+      src: slam ? "thegrandslamofcurling.com" : "livescores.worldcurling.org",
       curlit: se.curlit && se.curlit.season ? { season: se.curlit.season, comp: se.curlit.comp, events: se.curlit.events } : old.curlit,
       md: se.md, auto: true,
       list: se.draws.map(d => ({ t: new Date(d.t), label: drawKey(d, se.split), raw: d.label, group: d.group,
-        games: d.games.map(g => ({ a: g.a, b: g.b, sa: g.sa, sb: g.sb, div: g.div || null })) })),
+        games: d.games.map(g => ({ a: g.a, b: g.b, sa: g.sa, sb: g.sb, div: g.div || null, live: ends(g) })) })),
     };
+    if (slam && GROUPS[se.id]) return;  // os grupos do Slam escritos aqui trazem as chaves; o feed só traz a lista
     if (se.groups && se.groups.length)
       GROUPS[se.id] = { groups: se.groups.map(g => [g.group, g.div || null, g.teams]), note: (GROUPS[se.id] || {}).note || ["", ""], dsc: (GROUPS[se.id] || {}).dsc };
   });
@@ -2094,7 +2109,7 @@ function renderArchive() {
     : ARCH.sort === "entries" ? (a, b) => b.entries - a.entries : (a, b) => meds(b) - meds(a) || b.entries - a.entries);
   const shown = ARCH.all ? list : list.slice(0, 12);
   grid.innerHTML = shown.map(n => `<button class="nat" data-nation="${n.code}">
-    <small>${n.code} · ${t().natSince(n.first, n.last)}</small>
+    <small>${flagImg(n.code)}${n.code} · ${t().natSince(n.first, n.last)}</small>
     <b>${esc(nationName(n.code))}</b>
     <small>${t().entriesN(n.entries)}</small>
     ${n.gold + n.silver + n.bronze ? `<span class="meds">${[[1, n.gold], [2, n.silver], [3, n.bronze]].filter(([, c]) => c).map(([m, c]) => `<span>${medalDot(m)}${c}</span>`).join("")}</span>` : ""}
@@ -2108,7 +2123,7 @@ function renderArchiveSearch() {
   if (!q || !DATA.index) { el.innerHTML = ""; return; }
   const r = searchPeople(q);
   if (!r.people.length && !r.nations.length) { el.innerHTML = `<div class="msg">${t().archNone}</div>`; return; }
-  el.innerHTML = r.nations.map(n => `<button data-nation="${n.code}"><span>${esc(nationName(n.code))}</span><small>${t().entriesN(n.entries)}</small></button>`).join("") +
+  el.innerHTML = r.nations.map(n => `<button data-nation="${n.code}"><span class="who">${flagImg(n.code)}${esc(nationName(n.code))}</span><small>${t().entriesN(n.entries)}</small></button>`).join("") +
     r.people.map(p => `<button data-person="${p[0]}"><span class="who">${avatar(p[0], p[1], "sm")}${esc(p[1])}</span><small>${p[2].map(c => c).join(" · ")} · ${p[3]}</small></button>`).join("");
 }
 document.addEventListener("click", ev => {
@@ -2129,7 +2144,7 @@ function popResultsHTML(q) {
   const r = searchRun(q), cut = (a, n) => a.slice(0, n);
   let h = "";
   if (r.nations.length) h += `<div class="ps">${t().secNations}</div>` + cut(r.nations, 3).map(n =>
-    `<button class="pr" data-nation="${n.code}"><span>${esc(nationName(n.code))}</span><small>${n.gold}/${n.silver}/${n.bronze}</small></button>`).join("");
+    `<button class="pr" data-nation="${n.code}"><span class="who">${flagImg(n.code)}${esc(nationName(n.code))}</span><small>${n.gold}/${n.silver}/${n.bronze}</small></button>`).join("");
   if (r.people.length) h += `<div class="ps">${t().secPeople}</div>` + cut(r.people, 5).map(p =>
     `<button class="pr" data-person="${p[0]}"><span class="who">${avatar(p[0], p[1], "sm")}${esc(p[1])}</span><small>${p[2].join(" · ")} · ${p[3]}</small></button>`).join("");
   if (r.games.length) h += `<div class="ps">${r.emptyDay ? t().nextGames : t().secGames}</div>` + cut(r.games, 5).map(gm => {

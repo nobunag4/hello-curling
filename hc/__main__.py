@@ -187,6 +187,13 @@ def cmd_sync_schedule(a):
         events[ev["id"]] = ev
         print(f"{ev['id']}: {len(ev['draws'])} sessões, {sum(len(d['games']) for d in ev['draws'])} jogos, "
               f"{sum(g['sa'] is not None for d in ev['draws'] for g in d['games'])} com placar")
+    try:
+        from .sources import gsoc
+        for ev in gsoc.fetch_slams(today, max_age=a.max_age):
+            events[ev["id"]] = ev
+            print(f"{ev['id']}: {len(ev['draws'])} sessões, {sum(len(d['games']) for d in ev['draws'])} jogos (Grand Slam)")
+    except Exception as e:
+        print(f"Grand Slam: falhou ({e})")
     # torneios que saíram da lista continuam por duas semanas depois do fim (resultados recentes)
     for k, ev in old.get("events", {}).items():
         if k not in events and date.fromisoformat(ev["end"]) >= today - timedelta(days=14):

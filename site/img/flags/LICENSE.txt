@@ -1,0 +1,4 @@
+Bandeiras: flag-icons 7.2.3 (https://github.com/lipis/flag-icons), licença MIT.
+The MIT License (MIT)
+
+Copyright (c) 2013 Panayiotis Lipiridis
