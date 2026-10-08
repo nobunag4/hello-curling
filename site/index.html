@@ -61,9 +61,22 @@ nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; backgro
 nav .in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: 60px; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 24px; letter-spacing: -0.04em; color: var(--ink); }
 .logo:hover { text-decoration: none; }
-.navlinks { display: flex; gap: 28px; font-size: 15px; font-weight: 500; }
-.navlinks a { color: var(--ink); }
-.navright { justify-self: end; }
+nav .in { grid-template-columns: 1fr auto; }
+.navright { justify-self: end; display: flex; align-items: center; gap: 14px; }
+.menubtn { display: inline-flex; align-items: center; gap: 10px; border: 0; background: none; cursor: pointer; color: var(--ink); font-size: 15px; font-weight: 500; padding: 8px 2px; }
+.menubtn i { position: relative; width: 18px; height: 10px; }
+.menubtn i::before, .menubtn i::after { content: ""; position: absolute; left: 0; right: 0; height: 1.5px; background: currentColor; border-radius: 2px; transition: transform .35s cubic-bezier(.2,.7,.2,1), top .35s cubic-bezier(.2,.7,.2,1); }
+.menubtn i::before { top: 0; } .menubtn i::after { top: 8.5px; }
+.menubtn[aria-expanded="true"] i::before { top: 4.25px; transform: rotate(45deg); }
+.menubtn[aria-expanded="true"] i::after { top: 4.25px; transform: rotate(-45deg); }
+.menu { border-top: 1px solid var(--line); }
+.menu .in { display: flex; flex-direction: column; align-items: center; height: auto; padding-block: 28px 40px; gap: 4px; }
+.menu a { font-family: var(--serif); font-size: clamp(30px, 4.4vw, 44px); letter-spacing: -0.04em; line-height: 1.25; color: var(--ink); opacity: 0; transform: translateY(8px); animation: menuin .45s cubic-bezier(.2,.7,.2,1) forwards; }
+.menu a:hover { text-decoration: none; color: var(--red); }
+.menu a:nth-child(2) { animation-delay: .04s; } .menu a:nth-child(3) { animation-delay: .08s; }
+.menu a:nth-child(4) { animation-delay: .12s; } .menu a:nth-child(5) { animation-delay: .16s; }
+@keyframes menuin { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .menu a { animation: none; opacity: 1; transform: none; } }
 .seg { display: inline-flex; background: var(--bg2); border-radius: 999px; padding: 3px; gap: 2px; flex-wrap: wrap; }
 .band.alt .seg { background: var(--card); box-shadow: inset 0 0 0 1px var(--line); }
 .seg button { border: 0; background: none; border-radius: 999px; padding: 6px 14px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--ink2); white-space: nowrap; }
@@ -366,8 +379,7 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
   .two { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
-  nav .in { grid-template-columns: 1fr auto; }
-  .navlinks { display: none; }
+  .menubtn span { display: none; }
   .qph, #q { font-size: 17px; }
   .qph { left: 50px; }
   .band { padding-block: 64px; }
@@ -390,26 +402,30 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
 <nav>
   <div class="in">
     <a class="logo" href="#top" aria-label="Hello, Curling">
-      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+      <svg width="30" height="30" viewBox="0 0 26 26" aria-hidden="true">
         <circle cx="13" cy="13" r="12.5" fill="var(--navy)"/>
         <circle cx="13" cy="13" r="9" fill="var(--bg)"/>
         <circle cx="13" cy="13" r="6.2" fill="var(--red)"/>
         <circle cx="13" cy="13" r="2.6" fill="var(--bg)"/>
       </svg>
-      Hello, Curling
     </a>
-    <div class="navlinks">
-      <a href="#jogos" data-i18n="navGames">Jogos</a>
-      <a href="#agenda" data-i18n="navAgenda">Agenda</a>
-      <a href="#seguir" data-i18n="navFollow">Seus times</a>
-      <a href="#brasil" data-i18n="navBra">Brasil</a>
-      <a href="#guia" data-i18n="navGuide">Guia</a>
-    </div>
     <div class="navright">
       <div class="seg" role="group" aria-label="Idioma">
         <button id="lang-pt" data-lang="pt" aria-pressed="true">PT</button>
         <button id="lang-en" data-lang="en" aria-pressed="false">EN</button>
       </div>
+      <button class="menubtn" id="menubtn" aria-expanded="false" aria-controls="menu">
+        <span data-i18n="menu">Menu</span><i aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <div class="menu" id="menu" hidden>
+    <div class="in">
+      <a href="#jogos" data-i18n="navGames">Jogos</a>
+      <a href="#agenda" data-i18n="navAgenda">Agenda</a>
+      <a href="#seguir" data-i18n="navFollow">Seus times</a>
+      <a href="#brasil" data-i18n="navBra">Brasil</a>
+      <a href="#guia" data-i18n="navGuide">Guia</a>
     </div>
   </div>
 </nav>
@@ -814,7 +830,7 @@ const SOURCES = [
 
 const T = {
   pt: {
-    navFollow: "Seus times", navGames: "Jogos", navBra: "Brasil", navAgenda: "Agenda", navGuide: "Guia",
+    menu: "Menu", navFollow: "Seus times", navGames: "Jogos", navBra: "Brasil", navAgenda: "Agenda", navGuide: "Guia",
     heroEyebrow: "Temporada 2026/27",
     heroTitle: "Curling, no horário de Brasília.",
     heroLede: "Um jeito fácil de acompanhar o curling.",
@@ -893,7 +909,7 @@ const T = {
     foot2: "Os placares não atualizam sozinhos nesta versão. Times seguidos, favoritos e preferências ficam salvos só neste navegador.",
   },
   en: {
-    navFollow: "Your teams", navGames: "Games", navBra: "Brazil", navAgenda: "Schedule", navGuide: "Guide",
+    menu: "Menu", navFollow: "Your teams", navGames: "Games", navBra: "Brazil", navAgenda: "Schedule", navGuide: "Guide",
     heroEyebrow: "2026/27 season",
     heroTitle: "Curling, on Brasília time.",
     heroLede: "An easy way to follow curling.",
@@ -1854,5 +1870,15 @@ document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !documen
   }), { threshold: 0, rootMargin: "0px 0px -8% 0px" });
   els.forEach(el => io.observe(el));
   document.documentElement.classList.add("rv-on");
+})();
+
+// Menu do topo
+(() => {
+  const btn = document.getElementById("menubtn"), menu = document.getElementById("menu");
+  const set = open => { btn.setAttribute("aria-expanded", open); menu.hidden = !open; };
+  btn.addEventListener("click", () => set(menu.hidden));
+  menu.addEventListener("click", e => { if (e.target.closest("a")) set(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") set(false); });
+  document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest("nav")) set(false); });
 })();
 </script>
