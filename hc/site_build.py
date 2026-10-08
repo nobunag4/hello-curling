@@ -18,7 +18,16 @@ HEAD = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Um jeito fácil de acompanhar o curling: jogos, agenda, seus times e o histórico completo de atletas e seleções.">
 <meta name="color-scheme" content="light dark">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Ccircle cx='13' cy='13' r='12.5' fill='%23002664'/%3E%3Ccircle cx='13' cy='13' r='9' fill='white'/%3E%3Ccircle cx='13' cy='13' r='6.2' fill='%23d80007'/%3E%3Ccircle cx='13' cy='13' r='2.6' fill='white'/%3E%3C/svg%3E">
+<link rel="icon" href="img/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" href="img/logo-192.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hello, Curling">
+<meta property="og:description" content="Um jeito fácil de acompanhar o curling.">
+<meta property="og:image" content="https://nobunag4.github.io/hello-curling/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 """
 
@@ -34,6 +43,8 @@ def build(out: Path = ROOT / "_site") -> Path:
     (out / "index.html").write_text(html, encoding="utf-8")
     if (ROOT / "site" / "data").exists():
         shutil.copytree(ROOT / "site" / "data", out / "data")
+    if (ROOT / "site" / "img").exists():
+        shutil.copytree(ROOT / "site" / "img", out / "img")
     (out / ".nojekyll").write_text("")
     return out
 

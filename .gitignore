@@ -8,3 +8,6 @@ data/*.sqlite-wal
 data/*.sqlite-shm
 _site/
 data/*.sqlite
+
+# originais da logo (os tamanhos usados no site ficam em site/img)
+assets/

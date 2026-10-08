@@ -61,6 +61,7 @@ nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; backgro
 nav .in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: 60px; }
 .logo { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 24px; letter-spacing: -0.04em; color: var(--ink); }
 .logo:hover { text-decoration: none; }
+.logo img { display: block; object-fit: contain; }
 nav .in { grid-template-columns: 1fr auto; }
 .navright { justify-self: end; display: flex; align-items: center; gap: 14px; }
 .menubtn { display: inline-flex; align-items: center; gap: 10px; border: 0; background: none; cursor: pointer; color: var(--ink); font-size: 15px; font-weight: 500; padding: 8px 2px; }
@@ -370,7 +371,7 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 
 /* Rodapé */
 footer { padding-block: 72px; background: var(--bg); border-top: 1px solid var(--line); text-align: center; }
-footer .logo { justify-content: center; font-size: 32px; margin-bottom: 18px; }
+footer .logo { flex-direction: column; justify-content: center; gap: 14px; font-size: 32px; margin-bottom: 18px; }
 footer h3 { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 32px 0 12px; }
 .srcs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; font-size: 14px; max-width: 760px; margin: 0 auto; }
 footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--ink2); }
@@ -402,12 +403,7 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
 <nav>
   <div class="in">
     <a class="logo" href="#top" aria-label="Hello, Curling">
-      <svg width="30" height="30" viewBox="0 0 26 26" aria-hidden="true">
-        <circle cx="13" cy="13" r="12.5" fill="var(--navy)"/>
-        <circle cx="13" cy="13" r="9" fill="var(--bg)"/>
-        <circle cx="13" cy="13" r="6.2" fill="var(--red)"/>
-        <circle cx="13" cy="13" r="2.6" fill="var(--bg)"/>
-      </svg>
+      <img src="img/logo-96.png" width="38" height="38" alt="">
     </a>
     <div class="navright">
       <div class="seg" role="group" aria-label="Idioma">
@@ -545,12 +541,7 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
 
 <footer>
   <div class="in">
-    <div class="logo">
-      <svg width="30" height="30" viewBox="0 0 26 26" aria-hidden="true">
-        <circle cx="13" cy="13" r="12.5" fill="var(--navy)"/><circle cx="13" cy="13" r="9" fill="var(--bg2)"/>
-        <circle cx="13" cy="13" r="6.2" fill="var(--red)"/><circle cx="13" cy="13" r="2.6" fill="var(--bg2)"/>
-      </svg>Hello, Curling
-    </div>
+    <div class="logo"><img src="img/logo-192.png" width="88" height="88" alt="">Hello, Curling</div>
     <h3 data-i18n="sourcesTitle">Fontes</h3>
     <div class="srcs" id="srcs"></div>
     <p id="dbstats"></p>
