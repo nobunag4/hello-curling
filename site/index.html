@@ -232,6 +232,21 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 .st.live { color: var(--green); font-weight: 600; }
 .game.fol { box-shadow: inset 4px 0 0 var(--green); }
 .game.fol.ita { box-shadow: inset 4px 0 0 var(--blue); }
+.game.open, .game.on { cursor: pointer; }
+.game[data-ls] { cursor: pointer; }
+.game.on .sc { color: var(--green); }
+.st.live span::first-letter { animation: blink 1.6s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.hm { color: var(--red); font-size: 12px; margin-inline: 4px; vertical-align: 2px; }
+.ls { grid-column: 1 / -1; overflow-x: auto; margin: 4px -4px 0; }
+.ls table { width: auto; border-collapse: collapse; margin: 0 auto; font-variant-numeric: tabular-nums; font-size: 14px; }
+.ls th, .ls td { padding: 5px 8px; text-align: center; min-width: 26px; }
+.ls th { font-size: 11px; font-weight: 500; color: var(--ink2); }
+.ls td:first-child, .ls th:first-child { text-align: left; font-weight: 600; font-size: 12px; padding-right: 14px; }
+.ls td.pt { font-weight: 700; }
+.ls td.z { color: var(--ink2); opacity: .55; }
+.ls td.now { box-shadow: inset 0 -2px 0 var(--green); }
+.ls td.tot, .ls th.tot { font-family: var(--serif); font-size: 18px; font-weight: 400; border-left: 1px solid var(--line); padding-left: 12px; }
 .gnote { grid-column: 1 / -1; text-align: center; font-size: 13px; font-weight: 500; color: var(--red); margin-bottom: -6px; }
 .legendline { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--ink2); margin-top: 24px; }
 .legendline i { display: inline-block; width: 4px; height: 14px; border-radius: 2px; vertical-align: -2px; margin-right: 6px; }
@@ -381,6 +396,9 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
 }
 @media (max-width: 760px) {
   .menubtn span { display: none; }
+  .ls th, .ls td { padding: 5px 4px; min-width: 19px; }
+  .ls td:first-child, .ls th:first-child { padding-right: 8px; }
+  .ls td.tot, .ls th.tot { padding-left: 8px; }
   .qph, #q { font-size: 17px; }
   .qph { left: 50px; }
   .band { padding-block: 64px; }
@@ -690,7 +708,7 @@ const SKIP_CC = { "Zardini Lacedelli": "ITA", "Hösli": "SUI", "Yamaguchi": "JPN
 const GAMES = {
   wmdqe26: {
     offset: "-06:00", len: 2, watch: ROCKCREEK, scores: "https://livescores.worldcurling.org/wmdqe26/",
-    src: "livescores.worldcurling.org",
+    src: "livescores.worldcurling.org", curlit: { season: "2627", comp: "WMDQE26", events: [1] }, md: true,
     draws: [
       ["2026-10-02T09:00", 1, "FRA 12-1 BEL|IND 3-8 USA|HKG 8-2 PHI|GUY 5-11 LAT|NGR 2-11 SVK"],
       ["2026-10-02T13:00", 2, "POL 7-4 AUT|IRL 4-9 TPE|KEN 3-10 BRA|ROU 3-11 ESP|MEX 12-2 PUR"],
@@ -861,7 +879,9 @@ const T = {
     days: "dias", day: "dia", endsToday: "termina hoje", today: "hoje", ended: "Encerrado",
     nothingLive: "Nenhum torneio hoje", firstGame: "Primeiro jogo",
     tbc: "Sede a confirmar", approx: "data aproximada",
-    watch: "Assistir", scores: "Placar ao vivo", site: "Tabela oficial", dazn: "DAZN",
+    watch: "Assistir", scores: "Site oficial",
+    liveEnd: n => `● Ao vivo · ${n === "EE" ? "end extra" : "end " + n}`, hammer: "Hammer (última pedra do end)",
+    liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver o placar por end", site: "Tabela oficial", dazn: "DAZN",
     bra: "Brasil", ita: "Itália", maybe: "possível",
     fMain: "Principais", fAll: "Todos", fSlam: "Grand Slam", fWorld: "Mundiais", fQual: "Qualificatórios",
     fBra: "Brasil", fIta: "Itália", fStar: "★ Favoritos", fPast: "Mostrar encerrados",
@@ -940,7 +960,9 @@ const T = {
     days: "days", day: "day", endsToday: "ends today", today: "today", ended: "Finished",
     nothingLive: "No event today", firstGame: "First game",
     tbc: "Venue TBC", approx: "approximate dates",
-    watch: "Watch", scores: "Live scores", site: "Official draw", dazn: "DAZN",
+    watch: "Watch", scores: "Official site",
+    liveEnd: n => `● Live · ${n === "EE" ? "extra end" : "end " + n}`, hammer: "Hammer (last stone of the end)",
+    liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game to see the end-by-end score", site: "Official draw", dazn: "DAZN",
     bra: "Brazil", ita: "Italy", maybe: "possible",
     fMain: "Main events", fAll: "All", fSlam: "Grand Slam", fWorld: "Worlds", fQual: "Qualifiers",
     fBra: "Brazil", fIta: "Italy", fStar: "★ Starred", fPast: "Show finished",
@@ -1069,6 +1091,7 @@ function gcal(gm) {
 }
 
 function gameStatus(gm, start, len) {
+  if (gm.live && gm.live.on) return { cls: "live", txt: t().liveEnd(gm.live.end) };
   if (gm.sa != null) return { cls: "", txt: t().done };
   const now = Date.now();
   if (now < start.getTime()) return { cls: "", txt: "" };
@@ -1175,7 +1198,7 @@ function renderGames() {
 
   document.getElementById("evhead").innerHTML = `
     <div><div class="t">${esc(name(e))}</div><div class="m">${esc(place(e))} · ${fmtRange(e)} · ${t().tzNow(tz().split("/").pop().replace(/_/g, " "))}</div></div>
-    <div class="cta" style="margin:0">${ext(g.watch, t().watch, "btn sm primary")}${ext(g.scores, e.cat === "slam" ? t().site : t().scores, "btn sm")}</div>`;
+    <div class="cta" style="margin:0">${ext(g.watch, t().watch, "btn sm primary")}${g.curlit ? "" : ext(g.scores, t().site, "btn sm")}</div>`;
 
   const daysEl = document.getElementById("days");
   daysEl.hidden = state.view === "table";
@@ -1209,18 +1232,22 @@ function renderGames() {
     const body = !d.games.length ? `<div class="msg">${d.label === "tb" ? t().tbNote : t().playoffNote}</div>` :
       d.shown.map(gm => {
         const i = d.games.indexOf(gm), st = gameStatus(gm, d.t, g.len);
-        const done = gm.sa != null, aw = done && gm.sa > gm.sb, bw = done && gm.sb > gm.sa;
-        const cls = followed(gm) ? (isIta(gm) && !hasTeam(gm, "BRA") ? "fol ita" : "fol") : "";
+        const on = !!(gm.live && gm.live.on), done = gm.sa != null && !on, aw = done && gm.sa > gm.sb, bw = done && gm.sb > gm.sa;
+        const cls = (followed(gm) ? (isIta(gm) && !hasTeam(gm, "BRA") ? "fol ita" : "fol") : "") + (on ? " on" : "");
+        const key = `${g.id}|${d.t.getTime()}|${i}`, showLs = gm.live && (on || LS_OPEN.has(key));
+        const hmA = on && gm.live.hammer === "a" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
+        const hmB = on && gm.live.hammer === "b" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
         const tag = x => { const cc = teamCC(x); return cc ? `<span class="cc">${cc}</span>` : ""; };
         const nt = d.notes ? `<div class="gnote">${t()[d.notes[i]]}</div>` : "";
         const dv = gm.div && state.div === "all" ? `<span>${t().divShort[gm.div]}</span>` : "";
         const cal = !done && !PLACEHOLDER.has(gm.a) && Date.now() < d.t.getTime()
           ? ext(gcal({ ...gm, t: d.t, ev: g.id, len: g.len }), t().addCal, "cal") : "";
-        return `<div class="game ${cls}">${nt}
-          <span class="a"><span class="team ${aw ? "win" : bw ? "lose" : ""}">${esc(teamName(gm.a))}</span>${tag(gm.a)}</span>
-          <span class="sc ${done ? "" : "vs"}">${done ? `${gm.sa}–${gm.sb}` : "vs"}</span>
-          <span class="b">${tag(gm.b)}<span class="team ${bw ? "win" : aw ? "lose" : ""}">${esc(teamName(gm.b))}</span></span>
+        return `<div class="game ${cls}"${gm.live && !on ? ` data-ls="${key}"` : ""}>${nt}
+          <span class="a">${hmA}<span class="team ${aw ? "win" : bw ? "lose" : ""}">${esc(teamName(gm.a))}</span>${tag(gm.a)}</span>
+          <span class="sc ${gm.sa != null ? "" : "vs"}">${gm.sa != null ? `${gm.sa}–${gm.sb}` : "vs"}</span>
+          <span class="b">${tag(gm.b)}<span class="team ${bw ? "win" : aw ? "lose" : ""}">${esc(teamName(gm.b))}</span>${hmB}</span>
           <span class="st ${st.cls}">${st.txt ? `<span>${st.txt}</span>` : dv}${cal}</span>
+          ${showLs ? lineScoreHTML(gm) : ""}
         </div>`;
       }).join("");
     return `<div><div class="group-h"><b>${hm(d.t)}</b><span>${label}</span></div><div class="list">${body}</div></div>`;
@@ -1228,7 +1255,8 @@ function renderGames() {
 
   document.getElementById("glegend").innerHTML =
     `<span><i style="background:var(--green)"></i>${t().legFol}</span><span><i style="background:var(--blue)"></i>${t().legIta}</span><span>${t().src(g.src)}</span>` +
-    (g.liveUpdated ? `<span>${t().liveAt(new Date(g.liveUpdated))}</span>` : "");
+    (g.list.some(d => d.games.some(x => x.live && !x.live.on)) ? `<span>${t().endsTap}</span>` : "") +
+    (g.livePolled ? `<span>${t().liveNow(new Date(g.livePolled))}</span>` : g.liveUpdated ? `<span>${t().liveAt(new Date(g.liveUpdated))}</span>` : "");
 }
 
 function renderTable(e, g) {
@@ -1738,7 +1766,7 @@ async function loadLive() {
         let gm = d.games.find(x => (x.a === lg.a && x.b === lg.b) || (x.a === lg.b && x.b === lg.a));
         if (!gm) {
           // jogo da fase final que ainda estava como "vencedor da semi": troca pelos times reais
-          gm = d.games.find(x => PLACEHOLDER.has(x.a) && !x.filled);
+          gm = placeholderFor(d, lg.label);
           if (!gm || PLACEHOLDER.has(lg.a)) return;
           gm.a = lg.a; gm.b = lg.b; gm.filled = true;
         }
@@ -1768,6 +1796,104 @@ function render() {
   applyLang(); renderExample(false); renderSearch(); renderMarquee(); renderNow(); renderFollow(); renderGames(); renderBrazil();
   renderRibbon(); renderFilters(); renderList(); renderGuide();
 }
+
+// ---------- Placar ao vivo ----------
+// A World Curling publica o placar oficial (sistema CURLIT) numa API aberta a qualquer site. O navegador lê
+// direto dela a cada 30 segundos enquanto há jogo acontecendo, sem robô no meio. data/live.json continua
+// valendo como reserva (e para a versão do claude.ai, que não pode buscar fora).
+const CURLIT_API = "https://livescores.worldcurling.org/curlitsse/Result/LiveResults";
+const LS_OPEN = new Set();
+
+// Jogo da fase final ainda com "vencedor/perdedor da semi": a final fica com WSF e o bronze com LSF
+function placeholderFor(d, title) {
+  const want = /bronze|3rd/i.test(title || "") ? "LSF" : /gold|final/i.test(title || "") && !/semi|quarter/i.test(title || "") ? "WSF" : null;
+  return d.games.find(x => PLACEHOLDER.has(x.a) && !x.filled && (!want || x.a === want));
+}
+
+function lineScoreHTML(gm) {
+  const L = gm.live, sw = L.swap;
+  const ends = L.ends;
+  const cell = (v, k) => v == null ? "<td></td>" : `<td class="${v > 0 ? "pt" : "z"}${L.on && k === ends.length - 1 ? " now" : ""}">${v}</td>`;
+  const row = (code, side) => `<tr><td>${esc(teamCC(code) || code)}</td>${ends.map((e, k) => cell(sw ? (side === "a" ? e.b : e.a) : (side === "a" ? e.a : e.b), k)).join("")}
+    <td class="tot">${side === "a" ? gm.sa : gm.sb}</td></tr>`;
+  return `<div class="ls"><table><thead><tr><th></th>${ends.map(e => `<th>${e.n === "EE" ? t().extraEnd : e.n}</th>`).join("")}<th class="tot"></th></tr></thead>
+    <tbody>${row(gm.a, "a")}${row(gm.b, "b")}</tbody></table></div>`;
+}
+
+// Converte um jogo da API para o nosso formato, com quem tem o hammer no end atual
+function fromCurlit(rg, md, lower) {
+  const fix = c => (lower && /women/i.test(rg.event || "") ? c.toLowerCase() : c);
+  const num = v => (v == null || String(v).trim() === "" ? null : Number(v));
+  const all = Object.entries(rg.ends || {}).filter(([k]) => k).map(([n, v]) => ({ n, a: num(v.h), b: num(v.a) }));
+  const played = all.filter(e => e.a != null || e.b != null);
+  const official = /official|final|complete/i.test(rg.status || "");
+  const on = !official && !/scheduled/i.test(rg.status || "") && (played.length > 0 || /live|progress|play/i.test(rg.status || ""));
+  let ham = rg.homeTeam.lsfe ? "a" : rg.awayTeam.lsfe ? "b" : null;
+  played.forEach(e => {
+    if (!ham) return;
+    if ((e.a || 0) > 0) ham = "b"; else if ((e.b || 0) > 0) ham = "a"; else if (md) ham = ham === "a" ? "b" : "a";
+  });
+  const nextEnd = all[played.length] ? all[played.length].n : played.length + 1;
+  // mostra os ends já jogados e, ao vivo, a coluna do end em andamento
+  const ends = on ? [...played, { n: String(nextEnd), a: null, b: null }] : played;
+  return {
+    a: fix(rg.homeTeam.noc), b: fix(rg.awayTeam.noc), title: rg.gamesTitle,
+    sa: played.length || official ? num(rg.homeTeam.total) ?? 0 : null, sb: played.length || official ? num(rg.awayTeam.total) ?? 0 : null,
+    live: { on, end: rg.cEnd || nextEnd, hammer: ham, ends, status: rg.status },
+  };
+}
+
+function mergeCurlit(g, lg) {
+  const now = Date.now();
+  const near = g.list.filter(d => Math.abs(d.t.getTime() - now) < (g.len + 6) * 3600000).sort((x, y) => Math.abs(x.t - now) - Math.abs(y.t - now));
+  for (const d of near) {
+    let gm = d.games.find(x => (x.a === lg.a && x.b === lg.b) || (x.a === lg.b && x.b === lg.a));
+    if (!gm) { gm = placeholderFor(d, lg.title); if (gm) { gm.a = lg.a; gm.b = lg.b; gm.filled = true; } }
+    if (!gm) continue;
+    const swap = gm.a !== lg.a;
+    gm.sa = swap ? lg.sb : lg.sa; gm.sb = swap ? lg.sa : lg.sb;
+    gm.live = { ...lg.live, swap, hammer: lg.live.hammer && swap ? (lg.live.hammer === "a" ? "b" : "a") : lg.live.hammer };
+    return true;
+  }
+  return false;
+}
+
+function inLiveWindow(g) {
+  const now = Date.now();
+  return g.list.some(d => now > d.t.getTime() - 20 * 60000 && now < d.t.getTime() + (g.len + 1.5) * 3600000);
+}
+
+let liveSig = "";
+async function pollLive(force) {
+  if (document.hidden && !force) return;
+  const jobs = Object.entries(GAMES).filter(([, g]) => g.curlit && (force ? status(evById(g.id)) === "live" : inLiveWindow(g)));
+  if (!jobs.length) return;
+  let changed = false;
+  for (const [, g] of jobs) {
+    const c = g.curlit;
+    for (const ev of c.events) {
+      try {
+        const r = await fetch(`${CURLIT_API}?season=${c.season}&competition=${c.comp}&eventId=${ev}&sessionId=0`, { cache: "no-store" });
+        if (!r.ok) continue;
+        const list = await r.json();
+        list.forEach(rg => { if (mergeCurlit(g, fromCurlit(rg, g.md, c.lower))) changed = true; });
+        g.livePolled = Date.now();
+      } catch {}
+    }
+  }
+  const sig = JSON.stringify(Object.values(GAMES).map(g => g.list.map(d => d.games.map(x => [x.a, x.b, x.sa, x.sb, x.live && x.live.end]))));
+  if (changed && sig !== liveSig) { liveSig = sig; renderNow(); renderGames(); renderBrazil(); }
+  else if (changed) renderGames();
+}
+setInterval(pollLive, 30000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
+document.addEventListener("click", ev => {
+  const row = ev.target.closest("[data-ls]");
+  if (!row || ev.target.closest("a, button")) return;
+  const k = row.dataset.ls;
+  LS_OPEN.has(k) ? LS_OPEN.delete(k) : LS_OPEN.add(k);
+  renderGames();
+});
 
 let qTimer;
 document.addEventListener("input", ev => {
@@ -1838,7 +1964,7 @@ document.addEventListener("click", ev => {
 
 render();
 loadIndex();
-loadLive();
+loadLive().then(() => pollLive(true));
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !document.getElementById("sheet").hidden) closeSheet(); });
 
 // Revelar ao rolar: observa o que aparece de fato na tela (funciona mesmo com a página dentro de um quadro).
