@@ -136,10 +136,29 @@ def ingest_wcf_event(con: sqlite3.Connection, meta: dict, details: dict, games: 
     return {"event": eid, "entries": len(entry_ids), "games": len(games), "complete": complete}
 
 
+GENDER_VOTES = """SELECT m.person_id,
+    SUM(m.label = 'Male' OR (e.division = 'Men' AND m.role NOT IN ('coach','official'))) AS male,
+    SUM(m.label = 'Female' OR (e.division = 'Women' AND m.role NOT IN ('coach','official'))) AS female
+  FROM entry_member m JOIN entry en ON en.id = m.entry_id JOIN event e ON e.id = en.event_id"""
+
+
 def _gender_from_label(con, pid: int, label: str | None) -> None:
-    """Nas duplas mistas a escalação diz 'Male' / 'Female': aproveitamos para preencher o gênero."""
+    """Nas duplas mistas a escalação diz 'Male' / 'Female'; os naipes masculino/feminino também contam.
+    Vale a maioria: o cadastro da World Curling tem erros pontuais (Brett Gallant aparece como 'Female' em 2025)."""
     if label in ("Male", "Female"):
-        con.execute("UPDATE person SET gender=? WHERE id=? AND gender IS NULL", ("M" if label == "Male" else "F", pid))
+        repair_genders(con, pid)
+
+
+def repair_genders(con, pid: int | None = None) -> int:
+    """Gênero pela maioria das participações, para quem não tem gênero vindo da ficha pessoal."""
+    q = GENDER_VOTES + (" WHERE m.person_id = ?" if pid else "") + " GROUP BY m.person_id"
+    n = 0
+    for r in con.execute(q, (pid,) if pid else ()).fetchall():
+        g = "M" if r["male"] > r["female"] else "F" if r["female"] > r["male"] else None
+        if g:
+            n += con.execute("UPDATE person SET gender = ? WHERE id = ? AND profile_at IS NULL AND (gender IS NULL OR gender != ?)",
+                             (g, r["person_id"], g)).rowcount
+    return n
 
 
 def update_person_profile(con: sqlite3.Connection, person_id: int, prof: dict) -> None:

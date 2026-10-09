@@ -97,10 +97,21 @@ def run(args) -> None:
         return entry["rank"] if e["type_id"] in MEDAL_TYPES and entry["rank"] in (1, 2, 3) else None
 
     # ---------------- arquivo por seleção
+    # Só os campeonatos de seleções contam para a seleção. Os times do Grand Slam são de clube: entram na carreira
+    # de cada atleta, mas não no histórico, nas medalhas nem no confronto direto do país.
     by_nation = defaultdict(list)
     for en in entries.values():
-        if en["nation"]:
+        if en["nation"] and events[en["event_id"]]["source"] == "wcf":
             by_nation[en["nation"]].append(en)
+    # atletas que só aparecem no Grand Slam ficam no arquivo do país deles
+    slam_only = defaultdict(set)
+    for en in entries.values():
+        if events[en["event_id"]]["source"] != "wcf":
+            for p, _, _ in members[en["id"]]:
+                pr = persons.get(p)
+                codes = json.loads(pr["nations"]) if pr and pr["nations"] else [en["nation"]] if en["nation"] else []
+                for c in codes:
+                    slam_only[c].add(p)
 
     latest_season = max((e["season"] for e in events.values() if e["season"]), default="0000-00")
     recent_cut = f"{int(latest_season[:4]) - RECENT_SEASONS + 1}-00"
@@ -118,6 +129,8 @@ def run(args) -> None:
                          "w": w, "l": l, "members": [[p, role, sk] for p, role, sk in members[en["id"]]]})
             for p, _, _ in members[en["id"]]:
                 people[p] = None
+        for p in slam_only.get(code, ()):
+            people.setdefault(p, None)
         # atletas e técnicos que passaram pela seleção
         for p in people:
             pr = persons.get(p)
@@ -128,6 +141,7 @@ def run(args) -> None:
                 en = entries[entry_id]
                 w, l = rec[entry_id]
                 car.append({"event": en["event_id"], "nation": en["nation"], "team": en["name"], "role": role, "skip": skip,
+                            "slam": events[en["event_id"]]["source"] == "gsoc",
                             "rank": en["rank"], "medal": medal(en), "w": w, "l": l,
                             "year": events[en["event_id"]]["year"], "name": events[en["event_id"]]["name"],
                             "division": events[en["event_id"]]["division"]})
@@ -173,6 +187,8 @@ def run(args) -> None:
     ordered = sorted(entries.values(), key=lambda en: (events[en["event_id"]]["start_date"] or "", en["id"]), reverse=True)
     for en in ordered:
         e = events[en["event_id"]]
+        if e["source"] != "wcf":
+            continue
         cat, code = category(e["division"], e["type_name"]), en["nation"]
         if not cat or not code:
             continue

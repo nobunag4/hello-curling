@@ -30,6 +30,9 @@ def get(url: str, max_age: float | None = None, retries: int = 3) -> str:
     p = cache_path(url)
     if p.exists() and (max_age is None or time.time() - p.stat().st_mtime < max_age):
         return p.read_text(encoding="utf-8")
+    gone = p.with_suffix(".404")  # endereço que não existe (404, ou 403 em sites que escondem): lembrado por uma semana
+    if gone.exists() and time.time() - gone.stat().st_mtime < 7 * 86400:
+        raise urllib.error.HTTPError(url, 404, "Not Found (cache)", None, None)
 
     delay = 2.0
     for attempt in range(retries):
@@ -49,7 +52,9 @@ def get(url: str, max_age: float | None = None, retries: int = 3) -> str:
                 idx.write(f"{p.name}\t{url}\n")
             return body
         except urllib.error.HTTPError as e:
-            if e.code == 404:
+            if e.code in (403, 404):
+                gone.parent.mkdir(parents=True, exist_ok=True)
+                gone.write_text(url)
                 raise
             if attempt == retries - 1:
                 raise

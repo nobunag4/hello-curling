@@ -12,6 +12,7 @@
   python3 -m hc stats                                     números do banco
   python3 -m hc photos                                    fotos livres dos atletas (Wikidata + Commons)
   python3 -m hc export                                    gera os arquivos JSON do site
+  python3 -m hc sync-gsoc [--force]                      Grand Slams encerrados para o banco (desde 2024-25)
   python3 -m hc build-site                                monta _site/ para o GitHub Pages
   python3 -m hc site-version                              identificador do código do site (o robô compara com o publicado)
 """
@@ -273,6 +274,28 @@ def cmd_export(a):
     export.run(a)
 
 
+def cmd_sync_gsoc(a):
+    """Grand Slams encerrados para o banco (o site do circuito tem dados a partir de 2024-25)."""
+    from . import fetch
+    from .ingest_gsoc import People, ingest_slam
+    from .sources import gsoc
+    con = db.connect()
+    series = gsoc.finished_slams(gsoc.parse_series(fetch.get(gsoc.SERIES, max_age=6 * 3600)), date.today())
+    people = People(con)
+    for s in series:
+        have = con.execute("SELECT COUNT(*) FROM event WHERE id LIKE ? AND complete = 1", (f"gsoc:{s['tour_id']}:%",)).fetchone()[0]
+        if have and not a.force:
+            continue
+        try:
+            for r in ingest_slam(con, gsoc.fetch_history(s), people):
+                print(f"{s['season']} {s['series_name'][:40]:<40} {r['event'][-1]}  times={r['entries']:>2} jogos={r['games']:>3}")
+            con.commit()
+        except Exception as e:  # noqa: BLE001
+            con.rollback()
+            print(f"{s['tour_id']}: falhou ({e})", file=sys.stderr)
+    print(f"jogadores: {people.summary()}")
+
+
 def cmd_build_site(a):
     from . import site_build
     print(f"site montado em {site_build.build()}")
@@ -301,6 +324,7 @@ def main(argv=None):
     sub.add_parser("overrides").set_defaults(f=cmd_overrides)
     sub.add_parser("review").set_defaults(f=cmd_review)
     sub.add_parser("stats").set_defaults(f=cmd_stats)
+    s = sub.add_parser("sync-gsoc"); s.add_argument("--force", action="store_true"); s.set_defaults(f=cmd_sync_gsoc)
     sub.add_parser("build-site").set_defaults(f=cmd_build_site)
     sub.add_parser("site-version").set_defaults(f=cmd_site_version)
     s = sub.add_parser("photos"); s.add_argument("--limit", type=int); s.set_defaults(f=cmd_photos)

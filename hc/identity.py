@@ -16,6 +16,7 @@ Estratégia, da evidência mais forte para a mais fraca:
      - atividade: pessoa sem jogos há muitas temporadas perde pontos
      - companheiros de time: se os colegas já ligados jogaram com o candidato, a nota sobe bastante.
        É a evidência mais forte depois do código: homônimos raramente têm os mesmos colegas.
+     - data de nascimento (quando as duas fontes têm): igual sobe muito; diferente elimina o candidato.
    Só liga sozinho quando a nota é alta E bem acima do segundo colocado. O resto vai para a fila de revisão.
 
 4. DUPLICATAS DENTRO DA PRÓPRIA WORLD CURLING. Os dados antigos foram montados por voluntários e às vezes
@@ -84,8 +85,9 @@ def _context(con: sqlite3.Connection, pid: int) -> dict:
         "JOIN event e ON e.id = en.event_id WHERE m.person_id = ? AND m.role NOT IN ('coach','official')", (pid,))]
     entry_nations = {r[0] for r in con.execute(
         "SELECT DISTINCT en.nation FROM entry_member m JOIN entry en ON en.id = m.entry_id WHERE m.person_id = ?", (pid,)) if r[0]}
-    gender = p["gender"]
-    if gender is None:  # deduz pelo naipe dos eventos disputados
+    gender, deduced = p["gender"], False
+    if gender is None:  # deduz pelo naipe dos eventos disputados (evidência fraca: há erros de cadastro)
+        deduced = True
         divs = {r[0] for r in con.execute(
             "SELECT DISTINCT e.division FROM entry_member m JOIN entry en ON en.id = m.entry_id "
             "JOIN event e ON e.id = en.event_id WHERE m.person_id = ? AND m.role NOT IN ('coach','official','player')", (pid,))}
@@ -94,7 +96,7 @@ def _context(con: sqlite3.Connection, pid: int) -> dict:
         elif divs == {"Women"}:
             gender = "F"
     nations = set(json.loads(p["nations"])) if p["nations"] else set()
-    return {"id": pid, "name": p["name"], "gender": gender, "nations": nations | entry_nations,
+    return {"id": pid, "name": p["name"], "gender": gender, "gender_deduced": deduced, "nations": nations | entry_nations, "born": p["born"],
             "last_season": max(seasons) if seasons else None,
             "aliases": [r[0] for r in con.execute("SELECT raw FROM person_name WHERE person_id = ?", (pid,))]}
 
@@ -127,19 +129,31 @@ class NameIndex:
                     self.by_token[t].add(r["person_id"])
 
     def candidates(self, name: str) -> set[int]:
-        toks = [t for t in names.tokens(name) if len(t) >= 3 and t not in names._PARTICLES]
+        all_toks = names.tokens(name)
+        toks = [t for t in all_toks if len(t) >= 3 and t not in names._PARTICLES]
+        # partes vizinhas unidas, para nomes escritos com ou sem hífen ('Seung-youn' x 'Seungyoun')
+        toks += [a + b for a, b in zip(all_toks, all_toks[1:])]
         out: set[int] = set()
         for t in toks:
             out |= self.by_token.get(t, set())
         return out
 
 
-def score(con, cand: dict, name: str, gender=None, nation=None, season=None, teammates: set[int] = frozenset()) -> tuple[float, list[str]]:
+def score(con, cand: dict, name: str, gender=None, nation=None, season=None, teammates: set[int] = frozenset(),
+          born: str | None = None) -> tuple[float, list[str]]:
     why = []
     s = max(names.similarity(name, a) for a in cand["aliases"] or [cand["name"]])
     why.append(f"nome {s:.2f}")
+    if born and cand.get("born"):
+        if born != cand["born"]:
+            return 0.0, why + ["nascimento diferente"]
+        s += 0.3
+        why.append("mesmo nascimento")
     if gender and cand["gender"]:
-        if gender != cand["gender"]:
+        if gender != cand["gender"] and cand.get("gender_deduced"):
+            s -= 0.15
+            why.append("gênero deduzido diferente")
+        elif gender != cand["gender"]:
             return 0.0, why + ["gênero diferente"]
         s += 0.03
         why.append("mesmo gênero")
@@ -166,7 +180,8 @@ def score(con, cand: dict, name: str, gender=None, nation=None, season=None, tea
 
 
 def resolve(con: sqlite3.Connection, source: str, key: str, name: str, *, gender=None, nation=None,
-            season=None, teammates: set[int] = frozenset(), index: NameIndex | None = None) -> tuple[int | None, float]:
+            season=None, teammates: set[int] = frozenset(), index: NameIndex | None = None,
+            born: str | None = None) -> tuple[int | None, float]:
     """Liga uma pessoa de uma fonte sem código a uma pessoa nossa. Devolve (id, confiança) ou (None, nota)."""
     row = con.execute("SELECT entity_id, confidence FROM link WHERE source=? AND kind='person' AND key=?", (source, key)).fetchone()
     if row:
@@ -177,7 +192,7 @@ def resolve(con: sqlite3.Connection, source: str, key: str, name: str, *, gender
     # fichas unificadas apontam para a mesma pessoa: cada pessoa entra uma vez só na disputa
     for pid in {live_id(con, c) for c in index.candidates(name)}:
         cand = _context(con, pid)
-        sc, why = score(con, cand, name, gender, nation, season, teammates)
+        sc, why = score(con, cand, name, gender, nation, season, teammates, born)
         if sc > 0.3:
             ranked.append((sc, pid, cand["name"], why))
     ranked.sort(reverse=True)

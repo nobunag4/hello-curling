@@ -17,6 +17,13 @@ _FOLD = str.maketrans({
 })
 # Partículas que podem ou não aparecer, e que não ajudam a distinguir pessoas
 _PARTICLES = {"van", "von", "de", "der", "den", "da", "di", "du", "le", "la", "del", "dos", "das", "do"}
+# Apelidos comuns no circuito norte-americano que não são começo do nome ('Chris' de 'Christopher' já é coberto)
+_NICK = {"mike": "michael", "bob": "robert", "rob": "robert", "bill": "william", "will": "william", "jim": "james",
+         "jimmy": "james", "joe": "joseph", "dick": "richard", "rick": "richard", "ted": "edward", "ed": "edward",
+         "andy": "andrew", "drew": "andrew", "kate": "katherine", "katie": "katherine", "liz": "elizabeth",
+         "beth": "elizabeth", "becca": "rebecca", "becky": "rebecca", "jenn": "jennifer", "jen": "jennifer",
+         "peggy": "margaret", "maggie": "margaret", "tony": "anthony", "jack": "john", "johnny": "john",
+         "danny": "daniel", "dan": "daniel", "benny": "benjamin", "charlie": "charles", "chuck": "charles", "matt": "matthew", "tom": "thomas", "tommy": "thomas", "nick": "nicholas"}
 
 
 def fold(s: str) -> str:
@@ -68,6 +75,17 @@ def similarity(a: str, b: str) -> float:
         return 0.0
     if sorted(ta) == sorted(tb):
         return 1.0
+    # nomes asiáticos: ordem trocada e partes unidas ou com hífen ('Gim Eun-ji' x 'Eunji Gim')
+    if len(ta) <= 4 and len(tb) <= 4 and _joined(ta) & _joined(tb):
+        return 0.97
+    # apelido ou forma curta do primeiro nome, com o resto igual ('Chris Plys' x 'Christopher Plys')
+    if len(ta) == len(tb) >= 2:
+        diff = [(x, y) for x, y in zip(sorted(ta, key=lambda t: t in tb), sorted(tb, key=lambda t: t in ta)) if x != y]
+        rest_a, rest_b = [t for t in ta if t in tb], [t for t in tb if t in ta]
+        if len(diff) == 1 and len(rest_a) == len(ta) - 1 and len(rest_b) == len(tb) - 1:
+            x, y = diff[0]
+            if min(len(x), len(y)) >= 3 and (x.startswith(y) or y.startswith(x) or _NICK.get(x) == y or _NICK.get(y) == x):
+                return 0.9
     sa = [t for t in ta if t not in _PARTICLES]
     sb = [t for t in tb if t not in _PARTICLES]
     if sorted(sa) == sorted(sb):
@@ -95,3 +113,9 @@ def similarity(a: str, b: str) -> float:
     if r >= 0.9:
         return round(0.8 * r, 3)
     return round(r * 0.5, 3)
+
+
+def _joined(toks: list[str]) -> set[str]:
+    """Todas as ordens dos tokens, coladas: 'eun ji gim' -> {'eunjigim', 'gimeunji', ...}."""
+    from itertools import permutations
+    return {"".join(p) for p in permutations(toks)}

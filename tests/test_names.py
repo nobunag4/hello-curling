@@ -36,5 +36,20 @@ class TestNames(unittest.TestCase):
         self.assertLess(names.similarity("Anna Hasselborg", "Silvana Tirinzoni"), 0.5)
 
 
+class NicknameAndAsianNamesTest(unittest.TestCase):
+    def test_same_person(self):
+        from hc.names import similarity
+        for a, b in [("Gim Eun-ji", "Eunji Gim"), ("Kim Min-ji", "Minji Kim"), ("Xiao Ming Xu", "Xiaoming Xu"),
+                     ("Christopher Plys", "Chris Plys"), ("Matt Hamilton", "Matthew Hamilton"), ("Mike McEwen", "Michael McEwen"),
+                     ("Benny Kapp", "Benjamin Kapp")]:
+            self.assertGreaterEqual(similarity(a, b), 0.9, (a, b))
+
+    def test_different_people(self):
+        from hc.names import similarity
+        for a, b in [("Seol Ye-eun", "Seol Ye-ji"), ("Kim Min-ji", "Kim Min-jung"), ("Yannick Schwaller", "Xenia Schwaller"),
+                     ("Dawn McEwen", "Mike McEwen")]:
+            self.assertLess(similarity(a, b), 0.6, (a, b))
+
+
 if __name__ == "__main__":
     unittest.main()

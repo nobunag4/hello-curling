@@ -18,13 +18,15 @@ function slim(feed) {
   const out = [];
   for (const m of feed.matches || []) {
     const ps = m.participants || [];
-    if (ps.length !== 2 || !real(ps[0].name) || !real(ps[1].name)) continue;
+    // "Men Tier 1" é o Slam; o "Tier 2" é um torneio paralelo de acesso e fica de fora
+    const grp = /^(Men|Women)(?: Tier 1)?$/.exec((m.event_group || "").trim());
+    if (ps.length !== 2 || !real(ps[0].name) || !real(ps[1].name) || !grp) continue;
     const [a, b] = ps;
     const state = m.event_state === "R" ? "done" : m.event_state === "L" ? "live" : "pre";
     const ends = (m.ends || "").split(",").map(e => e.trim()).filter(e => /^\d+-\d+$/.test(e)).map(e => e.split("-").map(Number));
     const score = p => state !== "pre" && /^\d+$/.test(String(p.value ?? "")) ? Number(p.value) : null;
     out.push({
-      t: utc(m.start_date), div: { Men: "m", Women: "w" }[m.event_group] || null,
+      t: utc(m.start_date), div: grp[1] === "Men" ? "m" : "w",
       a: DISPLAY[a.name] || a.name, b: DISPLAY[b.name] || b.name, sa: score(a), sb: score(b), ends,
       hammer: a.lsfe === "true" ? "a" : b.lsfe === "true" ? "b" : null, state,
     });

@@ -11,6 +11,7 @@ Usa só a biblioteca padrão do Python (3.11 ou mais novo). Não há nada para i
 python3 -m hc sync-wcf                      # baixa todos os campeonatos da World Curling (1959 até hoje)
 python3 -m hc sync-wcf --types 1,22 --since 2020   # só alguns tipos/anos
 python3 -m hc sync-schedule                 # calendário automático: torneios atuais e próximos, com tabelas e placares
+python3 -m hc sync-gsoc                     # Grand Slams encerrados (desde 2024-25) para o banco, ligando cada jogador ao atleta certo
 python3 -m hc photos                        # fotos livres dos atletas (Wikidata + Wikimedia Commons)
 python3 -m hc persons --nations BRA,ITA     # lê as páginas pessoais (nascimento, gênero, seleções)
 python3 -m hc dupes                         # procura a mesma pessoa cadastrada com dois códigos
@@ -71,5 +72,5 @@ Toda ligação fica registrada na tabela `link`, com método e confiança, e pod
 | World Curling, resultados históricos | lida: campeonatos, escalações, jogos com placar por end, fichas pessoais |
 | World Curling, placar ao vivo (CURLIT) | lida: calendário de todos os torneios atuais e próximos; o site lê o placar ao vivo direto da API oficial |
 | Wikidata + Wikimedia Commons | fotos com licença livre, ligadas pelo código oficial do atleta |
-| Grand Slam of Curling | lida: calendário e resultados pelo robô; placar ao vivo pelo nosso serviço em api.hellocurling.com |
+| Grand Slam of Curling | lida: calendário, placar ao vivo (pelo nosso serviço em api.hellocurling.com) e, no banco, todos os Slams encerrados desde 2024-25 com formações e quem jogou cada partida |
 | CurlingZone | só com autorização |

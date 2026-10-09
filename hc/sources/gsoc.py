@@ -16,6 +16,12 @@ BASE = "https://www.thegrandslamofcurling.com"
 FEED = (BASE + "/default.aspx?methodtype=3&client=36f6377633&sport=31&league=0&timezone=-0000&language=en&tournament={tour}")
 SERIES = BASE + "/curling/static/json/series_list.json"
 TEAM = BASE + "/curling/static/json/{id}_team.json"
+SQUAD = BASE + "/curling/static/json/{series}_{team}_squad.json"   # formação do time naquele torneio
+MATCH = BASE + "/curling/live/json/{id}.json"                       # ficha do jogo: quem entrou no gelo
+# Os cinco Slams da temporada (o mesmo site também publica Brier, Scotties, Olimpíadas e Mundial, que não entram).
+SLAM_PREFIX = {"tch", "cco", "kio", "wfg", "plc"}
+POSITION = {"LEAD": "lead", "SECOND": "second", "THIRD": "third", "FOURTH": "fourth", "SKIP": "skip",
+            "ALTERNATE": "alternate", "ALT": "alternate", "FIFTH": "alternate", "COACH": "coach"}
 
 # torneio-mãe do circuito -> id no nosso site
 PARENT_ID = {"GSOC Invitational": "gsoc-inv", "GSOC Masters": "gsoc-masters", "GSOC National": "gsoc-national",
@@ -32,6 +38,13 @@ COUNTRY = {
 }
 STAGE = {"round robin": None, "tiebreaker": "tb", "quarter final": "qf", "quarterfinal": "qf", "semi final": "sf",
          "semifinal": "sf", "final": "fin"}
+
+
+def division_of(group: str | None) -> str | None:
+    """'Men' / 'Women'. Os Slams com mais times trazem dois níveis: 'Men Tier 1' é o Slam; o 'Tier 2' é um torneio
+    paralelo de acesso, que fica de fora (None)."""
+    m = re.fullmatch(r"(Men|Women)(?: Tier 1)?", (group or "").strip())
+    return {"Men": "m", "Women": "w"}[m.group(1)] if m else None
 
 
 def _name(n: str) -> str:
@@ -72,6 +85,8 @@ def parse_feed(raw: str) -> list[dict]:
         ps = m.get("participants") or []
         if len(ps) != 2:
             continue
+        if m.get("event_group") and division_of(m.get("event_group")) is None:
+            continue  # torneio paralelo (Tier 2)
         a, b = ps
         stage = STAGE.get(m.get("stage", "").strip().lower(), m.get("stage"))
         draw = re.match(r"Draw (\d+)", m.get("match_draw") or "")
@@ -84,7 +99,7 @@ def parse_feed(raw: str) -> list[dict]:
         score = lambda p: int(p["value"]) if str(p.get("value", "")).isdigit() and (done or live) else None
         out.append({
             "t": _utc(m["start_date"]).astimezone(timezone.utc).isoformat(timespec="minutes").replace("+00:00", "Z"),
-            "div": {"Men": "m", "Women": "w"}.get(m.get("event_group")),
+            "div": division_of(m.get("event_group")),
             "stage": stage, "draw": int(draw.group(1)) if draw else None,
             "a": _name(a["name"]), "b": _name(b["name"]), "ida": a.get("id"), "idb": b.get("id"),
             "real": _real(a["name"]) and _real(b["name"]),
@@ -153,3 +168,50 @@ def fetch_slams(today, max_age: float) -> list[dict]:
                 countries[n] = cc
         out.append(build(s, matches, countries))
     return out
+
+
+# ------------------------------------------------------------------ histórico (banco)
+
+def finished_slams(series: list[dict], today) -> list[dict]:
+    """Slams já encerrados, com todos os jogos registrados. O site só tem dados a partir de 2024-25."""
+    out = []
+    for s in series:
+        if s.get("league_type_name") != "Grand Slam of Curling" or s["tour_id"].split("_")[0] not in SLAM_PREFIX:
+            continue
+        end = datetime.strptime(s["end_date"], "%m/%d/%Y").date()
+        if end >= today or not s.get("match_count") or s.get("completed_matches") != s.get("match_count"):
+            continue
+        out.append({**s, "start": datetime.strptime(s["start_date"], "%m/%d/%Y").date(), "end": end})
+    return out
+
+
+def roles(players: list[dict]) -> list[tuple[dict, str, bool]]:
+    """Posição de cada jogador. Quem é 'SKIP' joga a 4ª pedra, a não ser que o time tenha também um 'FOURTH'
+    (aí o skip lança a 3ª, como fazem alguns times)."""
+    pos = [POSITION.get((p.get("position_name") or p.get("position") or "").upper(), "player") for p in players]
+    has_fourth = "fourth" in pos
+    return [(p, ("third" if has_fourth else "fourth") if r == "skip" else r, r == "skip") for p, r in zip(players, pos)]
+
+
+def fetch_history(s: dict) -> dict:
+    """Tudo de um Slam encerrado: jogos, formação de cada time, ficha de cada jogo e país de cada time.
+    São arquivos que não mudam mais: ficam no cache para sempre."""
+    raw = json.loads(fetch.get(FEED.format(tour=s["tour_id"])))["matches"]
+    team_ids = {p["id"] for m in raw for p in m.get("participants") or [] if _real(p.get("name", ""))}
+    squads, countries, details = {}, {}, {}
+    for tid in team_ids:
+        try:
+            squads[tid] = json.loads(fetch.get(SQUAD.format(series=s["series_id"], team=tid)))["squads"]
+        except Exception:  # noqa: BLE001
+            squads[tid] = None
+        try:
+            countries[tid] = team_country(fetch.get(TEAM.format(id=tid)))
+        except Exception:  # noqa: BLE001
+            countries[tid] = None
+    for m in raw:
+        if m.get("event_state") == "R" and m.get("game_id"):
+            try:
+                details[str(m["game_id"])] = json.loads(fetch.get(MATCH.format(id=m["game_id"])))
+            except Exception:  # noqa: BLE001
+                pass
+    return {"series": s, "matches": raw, "squads": squads, "countries": countries, "details": details}

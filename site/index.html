@@ -1099,7 +1099,7 @@ const T = {
     h2hK: "Confronto direto", h2hTitle: (a, b) => `${a} x ${b} no curling`, h2hBig: n => `Maior vitória: ${n}`, h2hAll: "Todos os jogos",
     h2hTap: "Os jogos mais recentes abrem o placar por end.", h2hNever: "As duas seleções nunca se enfrentaram em campeonatos da World Curling.",
     h2hSub: "Escolha duas seleções e veja todos os jogos entre elas.", h2hGo: "Ver", h2hFull: "Ver confronto completo",
-    natRivals: "Adversários mais frequentes", site: "Tabela oficial", dazn: "DAZN",
+    natRivals: "Adversários mais frequentes", teamOf: n => `Team ${n}`, profileSrcSlam: "Dados oficiais do Grand Slam of Curling.", site: "Tabela oficial", dazn: "DAZN",
     bra: "Brasil", ita: "Itália", maybe: "possível",
     fMain: "Principais", fAll: "Todos", fSlam: "Grand Slam", fWorld: "Mundiais", fQual: "Qualificatórios",
     fBra: "Brasil", fIta: "Itália", fStar: "★ Favoritos", fPast: "Mostrar encerrados",
@@ -1194,7 +1194,7 @@ const T = {
     h2hK: "Head to head", h2hTitle: (a, b) => `${a} v ${b} curling`, h2hBig: n => `Biggest win: ${n}`, h2hAll: "All games",
     h2hTap: "The most recent games open the end-by-end score.", h2hNever: "These two teams have never met in a World Curling championship.",
     h2hSub: "Pick two teams and see every game between them.", h2hGo: "Go", h2hFull: "Full head to head",
-    natRivals: "Most frequent opponents", site: "Official draw", dazn: "DAZN",
+    natRivals: "Most frequent opponents", teamOf: n => `Team ${n}`, profileSrcSlam: "Official data from the Grand Slam of Curling.", site: "Official draw", dazn: "DAZN",
     bra: "Brazil", ita: "Italy", maybe: "possible",
     fMain: "Main events", fAll: "All", fSlam: "Grand Slam", fWorld: "Worlds", fQual: "Qualifiers",
     fBra: "Brazil", fIta: "Italy", fStar: "★ Starred", fPast: "Show finished",
@@ -1956,8 +1956,8 @@ async function openPerson(id, quiet) {
   ].filter(Boolean).join(" · ");
   const row = c => `<div class="crow">
       <span class="cy">${c.year || ""}</span>
-      <span class="cn"><b>${esc(c.name)}</b><small>${esc(divName(c.division) || "")}${c.nation && p.nations.length > 1 ? " · " + esc(nationName(c.nation)) : ""} · ${ROLE_L[state.lang][c.role] || c.role}${c.skip ? " · skip" : ""}</small></span>
-      <span class="cr">${medalDot(c.medal)}${ordinal(c.rank)}</span>
+      <span class="cn"><b>${esc(c.name)}</b><small>${c.slam ? `Grand Slam · ${esc(t().teamOf(c.team))} · ` : ""}${esc(divName(c.division) || "")}${c.nation && p.nations.length > 1 && !c.slam ? " · " + esc(nationName(c.nation)) : ""} · ${ROLE_L[state.lang][c.role] || c.role}${c.skip ? " · skip" : ""}</small></span>
+      <span class="cr">${medalDot(c.medal || (c.slam && c.rank === 1 ? 1 : null))}${ordinal(c.rank)}</span>
       <span class="cw">${c.w}–${c.l}</span></div>`;
   openSheet(`
     <div class="pf-head">
@@ -1977,7 +1977,7 @@ async function openPerson(id, quiet) {
     ${coach.length ? `<h3 class="pf-h">${t().asCoach}</h3><div class="clist">${coach.map(row).join("")}</div>` : ""}
     ${p.mates.length ? `<h3 class="pf-h">${t().mates}</h3><div class="mates">${p.mates.map(([q, n, nm]) =>
       `<button class="mate" data-person="${q}">${avatar(q, nm, "sm")}<span>${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></span></button>`).join("")}</div>` : ""}
-    <p class="pf-src">${t().profileSrc} ${p.wcf ? ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗") : ""}</p>
+    <p class="pf-src">${p.wcf ? `${t().profileSrc} ${ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗")}` : t().profileSrcSlam}</p>
     ${photoCredit(id)}`);
 }
 

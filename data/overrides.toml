@@ -26,3 +26,10 @@ source = "wcf-live"
 key = "wmdqe26:UKR:kononenko oleksandra"
 wcf = 9524
 reason = "Mesma atleta; a World Curling grafou 'Kononeko' numa ficha antiga"
+
+# ---- Grand Slam, 09/10/2026 ----
+[[link]]
+source = "gsoc"
+key = "389"
+wcf = 928
+reason = "Wayne Middaugh, campeão mundial pelo Canadá em 1998; ficou sem campeonatos da World Curling por 14 temporadas"
