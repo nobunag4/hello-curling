@@ -1971,7 +1971,7 @@ function applySchedule(sch) {
       id: se.id, len: old.len || (se.md ? 2 : 2.75), watch, scores: slam ? (old.scores || GSOC) : `${LIVE}/${se.slug}/`,
       src: slam ? "thegrandslamofcurling.com" : "livescores.worldcurling.org",
       curlit: se.curlit && se.curlit.season ? { season: se.curlit.season, comp: se.curlit.comp, events: se.curlit.events } : old.curlit,
-      md: se.md, auto: true,
+      gsoc: slam ? se.slug : old.gsoc, md: se.md, auto: true,
       list: se.draws.map(d => ({ t: new Date(d.t), label: drawKey(d, se.split), raw: d.label, group: d.group,
         games: d.games.map(g => ({ a: g.a, b: g.b, sa: g.sa, sb: g.sb, div: g.div || null, live: ends(g) })) })),
     };
@@ -1995,6 +1995,8 @@ async function loadSchedule() {
 // direto dela a cada 30 segundos enquanto há jogo acontecendo, sem robô no meio. data/live.json continua
 // valendo como reserva (e para a versão do claude.ai, que não pode buscar fora).
 const CURLIT_API = "https://livescores.worldcurling.org/curlitsse/Result/LiveResults";
+// O Grand Slam não deixa o navegador ler o feed dele; o nosso serviço (worker/api.js) busca e repassa
+const SLAM_API = "https://api.hellocurling.com/gsoc/";
 const LS_OPEN = new Set();
 
 // Jogo da fase final ainda com "vencedor/perdedor da semi": a final fica com WSF e o bronze com LSF
@@ -2047,12 +2049,40 @@ function mergeCurlit(g, lg) {
       d.games = d.games.filter(x => !PLACEHOLDER.has(x.a)).concat(gm);
     }
     if (!gm) continue;
-    const swap = gm.a !== lg.a;
-    gm.sa = swap ? lg.sb : lg.sa; gm.sb = swap ? lg.sa : lg.sb;
-    gm.live = { ...lg.live, swap, hammer: lg.live.hammer && swap ? (lg.live.hammer === "a" ? "b" : "a") : lg.live.hammer };
+    putLive(gm, lg);
     return true;
   }
   return false;
+}
+
+function putLive(gm, lg) {
+  const swap = gm.a !== lg.a;
+  gm.sa = swap ? lg.sb : lg.sa; gm.sb = swap ? lg.sa : lg.sb;
+  gm.live = { ...lg.live, swap, hammer: lg.live.hammer && swap ? (lg.live.hammer === "a" ? "b" : "a") : lg.live.hammer };
+}
+
+// Jogo do Grand Slam (já enxuto pelo nosso serviço) no mesmo formato de fromCurlit
+function fromSlam(s) {
+  const on = s.state === "live";
+  let ham = s.hammer;
+  const played = s.ends.map(([x, y], i) => ({ n: String(i + 1), a: x, b: y }));
+  played.forEach(e => { if (ham && e.a > 0) ham = "b"; else if (ham && e.b > 0) ham = "a"; });
+  const ends = on ? [...played, { n: String(played.length + 1), a: null, b: null }] : played;
+  return { a: s.a, b: s.b, div: s.div, sa: s.sa, sb: s.sb, live: { on, end: played.length + 1, hammer: ham, ends, status: s.state } };
+}
+
+// No Slam o horário de cada jogo é exato: casa pela rodada e pelos times
+function mergeSlam(g, s) {
+  if (s.state === "pre") return false;
+  const d = g.list.find(d => d.t.getTime() === Date.parse(s.t));
+  if (!d) return false;
+  let gm = d.games.find(x => (x.a === s.a && x.b === s.b) || (x.a === s.b && x.b === s.a));
+  if (!gm) { gm = { a: s.a, b: s.b, sa: null, sb: null, div: s.div }; d.games.push(gm); }
+  const lg = fromSlam(s);
+  if (gm.sa === (gm.a === lg.a ? lg.sa : lg.sb) && gm.sb === (gm.a === lg.a ? lg.sb : lg.sa) && gm.live && gm.live.on === lg.live.on
+    && gm.live.ends.length === lg.live.ends.length) return false;
+  putLive(gm, lg);
+  return true;
 }
 
 function inLiveWindow(g) {
@@ -2063,10 +2093,17 @@ function inLiveWindow(g) {
 let liveSig = "";
 async function pollLive(force) {
   if (document.hidden && !force) return;
-  const jobs = Object.entries(GAMES).filter(([, g]) => g.curlit && (force ? status(evById(g.id)) === "live" : inLiveWindow(g)));
+  const jobs = Object.entries(GAMES).filter(([, g]) => (g.curlit || g.gsoc) && (force ? status(evById(g.id)) === "live" : inLiveWindow(g)));
   if (!jobs.length) return;
   let changed = false;
   for (const [, g] of jobs) {
+    if (g.gsoc) {
+      try {
+        const r = await fetch(SLAM_API + g.gsoc, { cache: "no-store" });
+        if (r.ok) { (await r.json()).games.forEach(s => { if (mergeSlam(g, s)) changed = true; }); g.livePolled = Date.now(); }
+      } catch {}
+      continue;
+    }
     const c = g.curlit;
     for (const ev of c.events) {
       try {

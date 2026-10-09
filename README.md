@@ -40,6 +40,7 @@ data/
   hello_curling.sqlite   o banco (fora do git; a versão oficial fica anexada à release "banco" no GitHub)
   overrides.toml         decisões manuais de identidade
 tests/             testes com páginas reais salvas em tests/fixtures
+worker/            api.hellocurling.com (Cloudflare Worker): repassa o placar ao vivo do Grand Slam; publicar com worker/deploy.sh
 ```
 
 ## Como ligamos quem é quem
@@ -70,5 +71,5 @@ Toda ligação fica registrada na tabela `link`, com método e confiança, e pod
 | World Curling, resultados históricos | lida: campeonatos, escalações, jogos com placar por end, fichas pessoais |
 | World Curling, placar ao vivo (CURLIT) | lida: calendário de todos os torneios atuais e próximos; o site lê o placar ao vivo direto da API oficial |
 | Wikidata + Wikimedia Commons | fotos com licença livre, ligadas pelo código oficial do atleta |
-| Grand Slam of Curling | próximo passo (usa a ligação automática pelo nome do skip) |
+| Grand Slam of Curling | lida: calendário e resultados pelo robô; placar ao vivo pelo nosso serviço em api.hellocurling.com |
 | CurlingZone | só com autorização |
