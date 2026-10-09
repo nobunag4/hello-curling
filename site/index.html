@@ -188,7 +188,7 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 .mq b { font-family: var(--serif); font-weight: 400; font-size: 26px; letter-spacing: -0.04em; line-height: 1; }
 .mq b small { font-family: var(--sans); font-size: 13px; color: var(--ink2); letter-spacing: 0; margin-left: 6px; }
 .mq .vs { font-weight: 500; font-size: 15px; margin-top: 6px; }
-.mq .ev { font-size: 13px; color: var(--ink2); }
+.mq .evn { font-size: 13px; color: var(--ink2); }
 .mq.fol { box-shadow: inset 0 0 0 1.5px var(--green); }
 
 /* Movimento */
@@ -218,6 +218,17 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 @media (prefers-reduced-motion: reduce) {
   .marquee { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
 }
+/* Celular e tablet (toque): no lugar da animação, uma faixa para arrastar com o dedo. A animação contínua trava
+   no Safari do iPhone (o toque deixa o "passar o mouse" preso e pausa a faixa) e a máscara com animação às vezes
+   nem é desenhada. */
+@media (hover: none) {
+  .marquee { overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 20px; scrollbar-width: none;
+    -webkit-mask-image: none; mask-image: none; margin-inline: -20px; }
+  .marquee::-webkit-scrollbar { display: none; }
+  .track { animation: none !important; padding-inline: 20px; }
+  .mq { scroll-snap-align: start; }
+  .mq[aria-hidden="true"] { display: none; }
+}
 
 /* Seus times */
 .follow-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; align-items: center; margin-bottom: 40px; }
@@ -236,7 +247,7 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 .li .when b { display: block; color: var(--ink); font-size: 20px; font-weight: 500; letter-spacing: -0.03em; }
 .li .what { min-width: 0; }
 .li .what .vs { font-weight: 500; }
-.li .what .ev { font-size: 13px; color: var(--ink2); }
+.li .what .evn { font-size: 13px; color: var(--ink2); }
 .res { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .res.w { color: var(--green); }
 .res.l { color: var(--red); }
@@ -1296,7 +1307,7 @@ function renderFollow() {
   const row = (gm, right) => {
     const e = evById(gm.ev), k = dayKey(gm.t), p = dayParts(k);
     return `<div class="li"><div class="when"><b>${hm(gm.t)}</b>${p.wd}, ${p.d} ${p.m}</div>
-      <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
+      <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="evn">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
       <div class="side">${right}</div></div>`;
   };
   const none = msg => `<div class="msg">${msg}</div>`;
@@ -1636,11 +1647,11 @@ function renderSearch() {
   if (!n) html += `<div class="msg">${t().noResults}</div>`;
   if (r.nations.length) html += `<div class="sec">${t().secNations}</div>` + r.nations.map(nt => `<div class="li">
       <div class="when"><b>${nt.gold + nt.silver + nt.bronze}</b>${t().medalsWord}</div>
-      <div class="what"><div class="vs">${esc(nationName(nt.code))}</div><div class="ev">${nt.entries} ${t().participations} · ${nt.first}–${nt.last} · ${nt.gold}/${nt.silver}/${nt.bronze}</div></div>
+      <div class="what"><div class="vs">${esc(nationName(nt.code))}</div><div class="evn">${nt.entries} ${t().participations} · ${nt.first}–${nt.last} · ${nt.gold}/${nt.silver}/${nt.bronze}</div></div>
       <div class="side"><button class="linkish cal" data-nation="${nt.code}">${t().seeProfile}</button></div></div>`).join("");
   if (r.people.length) html += `<div class="sec">${t().secPeople}</div>` + r.people.map(pp => `<div class="li">
       <div class="when"><b>${pp[3]}</b>${t().lastSeen}</div>
-      <div class="what"><div class="vs">${esc(pp[1])}</div><div class="ev">${pp[2].map(nationName).join(" · ")}</div></div>
+      <div class="what"><div class="vs">${esc(pp[1])}</div><div class="evn">${pp[2].map(nationName).join(" · ")}</div></div>
       <div class="side"><button class="linkish cal" data-person="${pp[0]}">${t().seeProfile}</button></div></div>`).join("");
   if (r.terms.length) html += `<div class="sec">${t().secTerms}</div>` + r.terms.map(([h, p]) => `<div class="def"><b>${h}</b><p>${p}</p></div>`).join("");
   if (r.emptyDay) html += `<div class="msg">${t().emptyDay}</div>`;
@@ -1653,7 +1664,7 @@ function renderSearch() {
   }).join("");
   if (r.events.length) html += `<div class="sec">${t().secEvents}</div>` + r.events.map(e => `<div class="li">
       <div class="when"><b>${e.s.getDate()}${e.s.getMonth() === e.e.getMonth() ? "–" + e.e.getDate() : ""}</b>${t().months[e.s.getMonth()]}</div>
-      <div class="what"><div class="vs">${esc(name(e))}</div><div class="ev">${esc(place(e))}</div></div>
+      <div class="what"><div class="vs">${esc(name(e))}</div><div class="evn">${esc(place(e))}</div></div>
       <div class="side">${GAMES[e.id] ? `<a class="cal" href="#jogos" data-gev-go="${e.id}">${t().seeGames} →</a>` : ext(e.links[0][1], t()[e.links[0][0]], "cal")}</div></div>`).join("");
   box.innerHTML = html;
   box.hidden = false;
@@ -1662,7 +1673,7 @@ function renderSearch() {
 function gameRow(gm, right) {
   const e = evById(gm.ev), p = dayParts(dayKey(gm.t));
   return `<div class="li"><div class="when"><b>${hm(gm.t)}</b>${p.wd}, ${p.d} ${p.m}</div>
-    <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
+    <div class="what"><div class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</div><div class="evn">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</div></div>
     <div class="side">${right}</div></div>`;
 }
 
@@ -1685,7 +1696,7 @@ function renderMarquee() {
     return `<button class="mq ${followed(gm) ? "fol" : ""}" data-gev-go="${gm.ev}" data-day-go="${k}" ${hidden ? 'tabindex="-1" aria-hidden="true"' : ""}>
       <b>${hm(gm.t)}<small>${k === dayKey(new Date()) ? t().today : `${p.wd}, ${p.d} ${p.m}`}</small></b>
       <span class="vs">${esc(teamName(gm.a))} ${t().vs} ${esc(teamName(gm.b))}</span>
-      <span class="ev">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</span></button>`;
+      <span class="evn">${esc(shortName(e))}${gm.div ? " · " + t().divShort[gm.div] : ""}</span></button>`;
   };
   document.getElementById("track").innerHTML = list.map(g => card(g, false)).join("") + list.map(g => card(g, true)).join("");
 }
