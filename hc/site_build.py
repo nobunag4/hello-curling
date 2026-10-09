@@ -22,9 +22,11 @@ HEAD = """<!doctype html>
 <link rel="icon" type="image/png" href="img/logo-192.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://hellocurling.com/">
+<link rel="canonical" href="https://hellocurling.com/">
 <meta property="og:title" content="Hello, Curling">
 <meta property="og:description" content="Um jeito fácil de acompanhar o curling.">
-<meta property="og:image" content="https://nobunag4.github.io/hello-curling/img/og.jpg">
+<meta property="og:image" content="https://hellocurling.com/img/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
