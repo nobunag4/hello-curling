@@ -13,6 +13,7 @@
   python3 -m hc photos                                    fotos livres dos atletas (Wikidata + Commons)
   python3 -m hc export                                    gera os arquivos JSON do site
   python3 -m hc build-site                                monta _site/ para o GitHub Pages
+  python3 -m hc site-version                              identificador do código do site (o robô compara com o publicado)
 """
 from __future__ import annotations
 
@@ -277,6 +278,11 @@ def cmd_build_site(a):
     print(f"site montado em {site_build.build()}")
 
 
+def cmd_site_version(a):
+    from . import site_build
+    print(site_build.version())
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(prog="hc", description="Hello, Curling: coleta e organização de dados")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -296,12 +302,13 @@ def main(argv=None):
     sub.add_parser("review").set_defaults(f=cmd_review)
     sub.add_parser("stats").set_defaults(f=cmd_stats)
     sub.add_parser("build-site").set_defaults(f=cmd_build_site)
+    sub.add_parser("site-version").set_defaults(f=cmd_site_version)
     s = sub.add_parser("photos"); s.add_argument("--limit", type=int); s.set_defaults(f=cmd_photos)
     s = sub.add_parser("export"); s.add_argument("--out", default="site/data"); s.set_defaults(f=cmd_export)
     a = p.parse_args(argv)
     t0 = time.time()
     a.f(a)
-    print(f"({time.time() - t0:.0f}s)")
+    print(f"({time.time() - t0:.0f}s)", file=sys.stderr)
 
 
 if __name__ == "__main__":

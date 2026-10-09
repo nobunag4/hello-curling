@@ -3,7 +3,8 @@
 #   - uma vez por dia: campeonatos recém-encerrados da World Curling, fichas novas e exportação completa
 # O banco (data/hello_curling.sqlite) fica anexado à release "banco" do GitHub: é baixado no começo,
 # e na parte diária é substituído pela versão nova. Assim o repositório não cresce a cada atualização.
-# Só faz commit e publica quando algum dado mudou de verdade, ou quando o próprio site muda (push em site/).
+# Só faz commit e publica quando algum dado mudou de verdade, quando o próprio site muda (push em site/), ou quando
+# o site no ar está com código mais velho que o do repositório (uma publicação que se perdeu na fila do GitHub).
 # O agendamento do GitHub atrasa muito (às vezes horas); quem chama o robô na hora certa é o nosso serviço na
 # Cloudflare (worker/api.js), com "agendado" ligado. O agendamento abaixo fica só de reserva.
 name: Atualizar dados
@@ -84,12 +85,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload banco data/hello_curling.sqlite --clobber
+      - name: O site no ar está com o código atual?
+        id: versao
+        run: |
+          atual=$(python -m hc site-version)
+          no_ar=$(curl -fsS https://hellocurling.com/version.txt || echo nenhuma)
+          echo "código $atual, no ar $no_ar"
+          if [ "$atual" = "$no_ar" ]; then echo "atrasado=false" >> "$GITHUB_OUTPUT"; else echo "atrasado=true" >> "$GITHUB_OUTPUT"; fi
       - name: Montar site
-        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
+        if: steps.commit.outputs.mudou == 'true' || steps.versao.outputs.atrasado == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
         run: python -m hc build-site
       - uses: actions/upload-pages-artifact@v3
-        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
+        if: steps.commit.outputs.mudou == 'true' || steps.versao.outputs.atrasado == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
         with:
           path: _site
       - uses: actions/deploy-pages@v4
-        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
+        if: steps.commit.outputs.mudou == 'true' || steps.versao.outputs.atrasado == 'true' || (github.event_name != 'schedule' && !inputs.agendado)

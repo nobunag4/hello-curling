@@ -152,6 +152,15 @@ def _profiles(data: Path, names_pt: dict[str, str]) -> tuple[list[tuple[str, dic
     return athletes, nations, pairs
 
 
+def version() -> str:
+    """Identifica o código do site (página + montagem). Vai para /version.txt; o robô compara com o que está no ar
+    para republicar quando uma publicação se perdeu (ex.: cancelada na fila do GitHub)."""
+    h = hashlib.sha256()
+    for f in (ROOT / "site" / "index.html", Path(__file__)):
+        h.update(f.read_bytes())
+    return h.hexdigest()[:16]
+
+
 def build(out: Path = ROOT / "_site") -> Path:
     src = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
     style = re.search(r"<style>(.*?)</style>", src, re.S)
@@ -187,6 +196,7 @@ def build(out: Path = ROOT / "_site") -> Path:
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + "".join(f"<url><loc>{SITE}{u}</loc></url>\n" for u in urls) + "</urlset>\n", encoding="utf-8")
     (out / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
+    (out / "version.txt").write_text(version() + "\n")
     (out / ".nojekyll").write_text("")
     return out
 
