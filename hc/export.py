@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MEDAL_TYPES = {1, 2, 4, 5, 7, 8, 16, 22, 27, 35, 36, 38}
 PLAYING = ("fourth", "third", "second", "lead", "alternate", "player")
 RECENT_SEASONS = 3
-VS_LAST = 6   # últimos confrontos guardados por adversário
+VS_LAST = 6   # últimos confrontos guardados com placar por end; os demais vão só com o resultado
 
 
 def category(division: str | None, type_name: str | None) -> str | None:
@@ -167,8 +167,9 @@ def run(args) -> None:
                              "last": max((events[e["event_id"]]["year"] or 0) for e in ens)})
 
     # ---------------- retrospecto e última formação, por seleção e categoria
-    vs = defaultdict(lambda: defaultdict(lambda: {"vs": defaultdict(lambda: [0, 0, []]), "lineup": None}))
+    vs = defaultdict(lambda: defaultdict(lambda: {"vs": defaultdict(lambda: [0, 0, [], []]), "lineup": None}))
     names_needed = defaultdict(set)
+    types_used = defaultdict(dict)
     ordered = sorted(entries.values(), key=lambda en: (events[en["event_id"]]["start_date"] or "", en["id"]), reverse=True)
     for en in ordered:
         e = events[en["event_id"]]
@@ -186,6 +187,8 @@ def run(args) -> None:
                 continue
             rec_ = slot["vs"][opp]
             rec_[0 if sm > so else 1] += sm != so
+            rec_[3].append([e["year"], e["type_id"], g["stage"], g["draw"], sm, so])
+            types_used[code][e["type_id"]] = e["type_name"]
             if len(rec_[2]) < VS_LAST:
                 mine = g["entry1"] == en["id"]
                 rec_[2].append({"y": e["year"], "type": e["type_id"], "typeName": e["type_name"], "stage": g["stage"], "draw": g["draw"],
@@ -195,8 +198,10 @@ def run(args) -> None:
     for code, cats in vs.items():
         total += _dump(out / "vs" / f"{code}.json", {
             "code": code,
-            "cats": {c: {"vs": {o: {"w": r[0], "l": r[1], "last": r[2]} for o, r in s["vs"].items()}, "lineup": s["lineup"]} for c, s in cats.items()},
+            "cats": {c: {"vs": {o: {"w": r[0], "l": r[1], "last": r[2], "all": r[3]} for o, r in s["vs"].items()}, "lineup": s["lineup"]}
+                     for c, s in cats.items()},
             "names": {str(p): persons[p]["name"] for p in names_needed[code]},
+            "types": {str(k): v for k, v in types_used[code].items()},  # all: [ano, tipo, fase, rodada, pontos, contra]
         })
 
     # ---------------- índice de busca

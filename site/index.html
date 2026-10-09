@@ -484,12 +484,29 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .gp-ms { background: var(--bg2); border-radius: 18px; overflow: hidden; }
 .gp-m { border-top: 1px solid var(--line); }
 .gp-m:first-child { border-top: 0; }
-.gp-m summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; list-style: none; font-size: 15px; }
+.gp-m summary, .gp-m-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; list-style: none; font-size: 15px; }
 .gp-m summary::-webkit-details-marker { display: none; }
-.gp-m summary span { display: grid; min-width: 0; }
-.gp-m summary small { font-size: 13px; color: var(--ink2); }
-.gp-m summary b { font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 600; white-space: nowrap; }
-.gp-m summary b.l { color: var(--ink2); font-weight: 400; }
+.gp-m :is(summary, .gp-m-row) span { display: grid; min-width: 0; }
+.gp-m :is(summary, .gp-m-row) small { font-size: 13px; color: var(--ink2); }
+.gp-m :is(summary, .gp-m-row) b { font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 600; white-space: nowrap; }
+.gp-m :is(summary, .gp-m-row) b.l { color: var(--ink2); font-weight: 400; }
+.gp-m-row { cursor: default; }
+.h2h-flags { display: flex; justify-content: center; align-items: center; gap: 16px; color: var(--ink2); }
+.h2h-cats { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 auto 14px; width: fit-content; max-width: 100%; }
+.h2h-cats::-webkit-scrollbar { display: none; }
+.h2h-cats button { flex: none; white-space: nowrap; }
+.h2h-hl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.h2h-hl:empty { display: none; }
+.h2h-hl div { background: var(--bg2); border-radius: 18px; padding: 14px 16px; display: grid; gap: 2px; }
+.h2h-hl span, .h2h-hl small { font-size: 13px; color: var(--ink2); }
+.h2h-hl b { font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.h2h-pick { max-width: 560px; margin: 8px auto 44px; background: var(--card); border-radius: 24px; padding: 22px; text-align: center; box-shadow: inset 0 0 0 1px var(--line); }
+.h2h-pick h3 { margin: 0; font-size: 18px; font-weight: 600; }
+.h2h-pick p { margin: 4px 0 16px; font-size: 14px; color: var(--ink2); }
+.h2h-row { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 10px; align-items: center; }
+.h2h-row select { min-width: 0; width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg2); border: 0; border-radius: 999px; padding: 10px 14px; }
+.h2h-row span { color: var(--ink2); }
+@media (max-width: 480px) { .h2h-row { grid-template-columns: 1fr auto 1fr; } .h2h-row button { grid-column: 1 / -1; } .h2h-hl { grid-template-columns: 1fr; } }
 .gp-m .ls { margin: 0 8px 12px; }
 .gp-more { font-size: 13px; color: var(--ink2); margin: 8px 4px 0; }
 @media (max-width: 560px) { .gp-camps, .gp-lus { grid-template-columns: 1fr; } .gp-sc { font-size: 42px; } }
@@ -655,6 +672,7 @@ footer .fnote { margin-top: 36px; }
       <input id="hq" type="search" autocomplete="off" data-i18n-ph="archPh" placeholder="Nome do atleta ou seleção">
     </div>
     <div class="arch-res" id="arch-res"></div>
+    <div class="h2h-pick" id="h2h-pick"></div>
     <div class="arch-ctl"><div class="seg" id="arch-sort" role="group"></div></div>
     <div class="nat-grid" id="arch-grid"></div>
     <div class="arch-more" id="arch-more"></div>
@@ -1019,7 +1037,11 @@ const T = {
     liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver os detalhes",
     gpCamp: "Neste torneio", gpNoGames: "ainda sem jogos", gpH2h: "Retrospecto", gpGames: n => n === 1 ? "1 jogo" : `${n} jogos`, gpLast: n => `Os ${n} confrontos mais recentes; toque para ver o placar por end.`, gpTap: "Toque num confronto para ver o placar por end.",
     gpFirst: "Primeiro encontro entre as duas seleções nesta categoria.", gpLineups: "Última formação",
-    gpSrc: "Retrospecto e formações: resultados oficiais da World Curling.", site: "Tabela oficial", dazn: "DAZN",
+    gpSrc: "Retrospecto e formações: resultados oficiais da World Curling.",
+    h2hK: "Confronto direto", h2hTitle: (a, b) => `${a} x ${b} no curling`, h2hBig: n => `Maior vitória: ${n}`, h2hAll: "Todos os jogos",
+    h2hTap: "Os jogos mais recentes abrem o placar por end.", h2hNever: "As duas seleções nunca se enfrentaram em campeonatos da World Curling.",
+    h2hSub: "Escolha duas seleções e veja todos os jogos entre elas.", h2hGo: "Ver", h2hFull: "Ver confronto completo",
+    natRivals: "Adversários mais frequentes", site: "Tabela oficial", dazn: "DAZN",
     bra: "Brasil", ita: "Itália", maybe: "possível",
     fMain: "Principais", fAll: "Todos", fSlam: "Grand Slam", fWorld: "Mundiais", fQual: "Qualificatórios",
     fBra: "Brasil", fIta: "Itália", fStar: "★ Favoritos", fPast: "Mostrar encerrados",
@@ -1110,7 +1132,11 @@ const T = {
     liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game for details",
     gpCamp: "In this event", gpNoGames: "no games yet", gpH2h: "Head to head", gpGames: n => n === 1 ? "1 game" : `${n} games`, gpLast: n => `The ${n} most recent meetings; tap for the end-by-end score.`, gpTap: "Tap a meeting for the end-by-end score.",
     gpFirst: "First meeting between these two teams in this category.", gpLineups: "Latest line-up",
-    gpSrc: "Head to head and line-ups: official World Curling results.", site: "Official draw", dazn: "DAZN",
+    gpSrc: "Head to head and line-ups: official World Curling results.",
+    h2hK: "Head to head", h2hTitle: (a, b) => `${a} v ${b} curling`, h2hBig: n => `Biggest win: ${n}`, h2hAll: "All games",
+    h2hTap: "The most recent games open the end-by-end score.", h2hNever: "These two teams have never met in a World Curling championship.",
+    h2hSub: "Pick two teams and see every game between them.", h2hGo: "Go", h2hFull: "Full head to head",
+    natRivals: "Most frequent opponents", site: "Official draw", dazn: "DAZN",
     bra: "Brazil", ita: "Italy", maybe: "possible",
     fMain: "Main events", fAll: "All", fSlam: "Grand Slam", fWorld: "Worlds", fQual: "Qualifiers",
     fBra: "Brazil", fIta: "Italy", fStar: "★ Starred", fPast: "Show finished",
@@ -1828,7 +1854,7 @@ function closeSheet(fromHistory) {
 // Aqui o endereço acompanha o perfil aberto: o "voltar" fecha o perfil, e um link direto abre já nele.
 // Trocar de perfil com a janela aberta não empilha histórico: fechar sempre volta para onde se estava.
 const ROUTES = !!window.HC_ROUTES;
-const ROUTE_RE = /^\/(atleta|selecao)\/([^/]+)/;
+const ROUTE_RE = /^\/(atleta|selecao|confronto)\/([^/]+)/;
 const HOME_TITLE = document.title;
 const LETTERS = { ł: "l", đ: "d", ø: "o", æ: "ae", œ: "oe", ß: "ss", þ: "th", ı: "i" };
 const slugify = s => norm(s).replace(/[łđøæœßþı]/g, c => LETTERS[c]).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -1843,6 +1869,7 @@ function route() {
   const m = location.pathname.match(ROUTE_RE);
   if (!m) { if (!document.getElementById("sheet").hidden) closeSheet(true); return; }
   if (m[1] === "atleta") openPerson(parseInt(m[2], 10), true);
+  else if (m[1] === "confronto") { const [x, y] = m[2].toUpperCase().split("-"); if (x && y) openH2H(x, y, true); }
   else openNation(m[2].toUpperCase(), true);
 }
 addEventListener("popstate", route);
@@ -1972,7 +1999,8 @@ async function renderGameSheet(first) {
         <div class="gp-h2h"><div><b>${rec.w}</b><span>${esc(teamName(gm.a))}</span></div><div class="gp-h2h-n">${t().gpGames(n)}</div><div><b>${rec.l}</b><span>${esc(teamName(gm.b))}</span></div></div>
         <div class="gp-ms">${rec.last.map(m => `<details class="gp-m"><summary><span>${m.y} · ${esc(typeLabel(m))}<small>${esc(drawLabel(m.draw))}</small></span>
           <b class="${m.f > m.a ? "w" : "l"}">${m.f}–${m.a}</b></summary>${linescore({ team: A, opp: B, for: m.f, against: m.a, hammer: m.h, ends: m.e, endsOpp: m.o })}</details>`).join("")}</div>
-        <p class="gp-more">${rec.last.length < n ? t().gpLast(rec.last.length) : t().gpTap}</p>`;
+        <p class="gp-more">${rec.last.length < n ? t().gpLast(rec.last.length) : t().gpTap}</p>
+        <div class="gp-acts"><button class="btn sm" data-h2h="${A}-${B}">${t().h2hFull}</button></div>`;
     } else if (va) h2h = `<h3 class="pf-h">${t().gpH2h}</h3><div class="msg">${t().gpFirst}</div>`;
     const lu = (v, x) => {
       const L = v && v.cats[cat] && v.cats[cat].lineup;
@@ -2007,6 +2035,82 @@ async function renderGameSheet(first) {
   if (first) openSheet(html); else if (!document.getElementById("sheet").hidden) body.innerHTML = html;
 }
 
+// ---------- Confronto direto ----------
+// Todos os jogos entre duas seleções, por categoria (data/vs/XXX.json). Endereço /confronto/{a}-{b}/ em ordem alfabética.
+const CAT_L = {
+  pt: { m: "Masculino", w: "Feminino", md: "Duplas mistas", x: "Misto", jm: "Juvenil masc.", jw: "Juvenil fem.", jmd: "Juvenil duplas",
+    sm: "Sênior masc.", sw: "Sênior fem.", smd: "Sênior duplas", wcx: "Cadeira de rodas", wcmd: "Cadeira de rodas duplas" },
+  en: { m: "Men", w: "Women", md: "Mixed doubles", x: "Mixed", jm: "Junior men", jw: "Junior women", jmd: "Junior doubles",
+    sm: "Senior men", sw: "Senior women", smd: "Senior doubles", wcx: "Wheelchair", wcmd: "Wheelchair doubles" },
+};
+const CAT_ORDER = ["m", "w", "md", "x", "jm", "jw", "jmd", "sm", "sw", "smd", "wcx", "wcmd"];
+const H2H = { a: null, b: null, cat: "all", all: false };
+const h2hPath = (a, b) => `/confronto/${[a, b].map(c => c.toLowerCase()).sort().join("-")}/`;
+
+async function openH2H(a, b, quiet) {
+  GAME.key = null;
+  if (a === b) return;
+  // Brasil e Itália, os times da casa, ficam sempre à esquerda
+  if (["BRA", "ITA"].includes(b) && !["BRA", "ITA"].includes(a)) [a, b] = [b, a];
+  if (H2H.a !== a || H2H.b !== b) { H2H.cat = "all"; H2H.all = false; }
+  Object.assign(H2H, { a, b });
+  openSheet(`<div class="msg">${t().loading}</div>`);
+  const v = await loadVs(a);
+  if (H2H.a !== a || H2H.b !== b) return;
+  setRoute(h2hPath(a, b), t().h2hTitle(nationName(a), nationName(b)), quiet);
+  renderH2H(v, true);
+}
+
+function renderH2H(v, first) {
+  const { a, b } = H2H;
+  const cats = v ? CAT_ORDER.filter(c => v.cats[c] && v.cats[c].vs[b]) : [];
+  if (H2H.cat !== "all" && !cats.includes(H2H.cat)) H2H.cat = "all";
+  const shown = H2H.cat === "all" ? cats : [H2H.cat];
+  const games = shown.flatMap(c => {
+    const r = v.cats[c].vs[b], last = r.last;
+    // os mais recentes vêm com placar por end ("last"); o resto, só com o resultado
+    return r.all.map(([y, type, stage, draw, f, ag], i) => ({ c, y, type, typeName: v.types[type], stage, draw, f, a: ag, ends: i < last.length ? last[i] : null }));
+  }).sort((x, y) => y.y - x.y);
+  const w = games.filter(g => g.f > g.a).length, l = games.filter(g => g.f < g.a).length;
+  const big = side => games.filter(g => side ? g.f > g.a : g.a > g.f).sort((x, y) => Math.abs(y.f - y.a) - Math.abs(x.f - x.a) || y.y - x.y)[0];
+  const ba = big(true), bb = big(false);
+  const fl = c => flagImg(c, "fl-lg");
+  const row = g => {
+    const head = `<span>${g.y} · ${esc(typeLabel(g))}<small>${esc(drawLabel(g.draw))}${shown.length > 1 ? " · " + CAT_L[state.lang][g.c] : ""}</small></span>
+      <b class="${g.f > g.a ? "w" : "l"}">${g.f}–${g.a}</b>`;
+    return g.ends ? `<details class="gp-m"><summary>${head}</summary>${linescore({ team: a, opp: b, for: g.f, against: g.a, hammer: g.ends.h, ends: g.ends.e, endsOpp: g.ends.o })}</details>`
+      : `<div class="gp-m"><div class="gp-m-row">${head}</div></div>`;
+  };
+  const hl = (lbl, g) => g ? `<div><span>${lbl}</span><b>${Math.max(g.f, g.a)}–${Math.min(g.f, g.a)}</b><small>${g.y} · ${esc(typeLabel(g))}</small></div>` : "";
+  const html = `
+    <div class="pf-head">
+      <div class="pf-k">${t().h2hK}</div>
+      <div class="h2h-flags">${fl(a)}<span>${t().vs}</span>${fl(b)}</div>
+      <h2 class="pf-name">${esc(nationName(a))} ${t().vs} ${esc(nationName(b))}</h2>
+    </div>
+    ${games.length ? `
+    <div class="gp-h2h"><div><b>${w}</b><span>${esc(nationName(a))}</span></div><div class="gp-h2h-n">${t().gpGames(games.length)}</div><div><b>${l}</b><span>${esc(nationName(b))}</span></div></div>
+    ${cats.length > 1 ? `<div class="seg h2h-cats" role="group">${["all", ...cats].map(c => `<button data-h2h-cat="${c}" aria-pressed="${H2H.cat === c}">${c === "all" ? t().divAll : CAT_L[state.lang][c]}</button>`).join("")}</div>` : ""}
+    <div class="h2h-hl">${hl(t().h2hBig(nationName(a)), ba)}${hl(t().h2hBig(nationName(b)), bb)}</div>
+    <h3 class="pf-h">${t().h2hAll}</h3>
+    <div class="gp-ms">${(H2H.all ? games : games.slice(0, 25)).map(row).join("")}</div>
+    <p class="gp-more">${t().h2hTap}</p>
+    ${!H2H.all && games.length > 25 ? `<div class="gp-acts"><button class="btn sm" data-h2h-all="1">${t().showAll} (${games.length})</button></div>` : ""}` : `<div class="msg">${t().h2hNever}</div>`}
+    <div class="gp-acts"><button class="btn sm" data-nation="${a}">${esc(nationName(a))}</button><button class="btn sm" data-nation="${b}">${esc(nationName(b))}</button></div>
+    <p class="pf-src">${t().gpSrc}</p>`;
+  if (first) openSheet(html); else document.getElementById("sheet-body").innerHTML = html;
+}
+
+function h2hPicker() {
+  const el = document.getElementById("h2h-pick");
+  if (!el || !DATA.index) return;
+  const nats = [...DATA.index.nations].sort((x, y) => nationName(x.code).localeCompare(nationName(y.code)));
+  const sel = (id, v) => `<select id="${id}" aria-label="${t().h2hK}">${nats.map(n => `<option value="${n.code}"${n.code === v ? " selected" : ""}>${esc(nationName(n.code))}</option>`).join("")}</select>`;
+  const cur = id => (document.getElementById(id) || {}).value;
+  el.innerHTML = `<h3>${t().h2hK}</h3><p>${t().h2hSub}</p>
+    <div class="h2h-row">${sel("h2h-a", cur("h2h-a") || "BRA")}<span>${t().vs}</span>${sel("h2h-b", cur("h2h-b") || "USA")}<button class="btn sm primary" data-h2h-go="1">${t().h2hGo}</button></div>`;
+}
+
 function drawLabel(d) {
   if (!d) return "";
   if (state.lang !== "pt") return d;
@@ -2033,6 +2137,12 @@ async function openNation(code, quiet) {
   openSheet(`<div class="msg">${t().loading}</div>`);
   let n;
   try { n = await loadNation(code); } catch { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
+  // adversários mais frequentes, somando todas as categorias
+  const v = await loadVs(code), opp = new Map();
+  if (v) Object.values(v.cats).forEach(c => Object.entries(c.vs).forEach(([o, r]) => {
+    const x = opp.get(o) || { w: 0, l: 0 }; x.w += r.w; x.l += r.l; opp.set(o, x);
+  }));
+  const rivals = [...opp].sort((x, y) => (y[1].w + y[1].l) - (x[1].w + x[1].l)).slice(0, 8);
   setRoute(`/selecao/${code.toLowerCase()}/`, t().natTitle(nationName(code)), quiet);
   // melhores resultados por campeonato e naipe
   const best = new Map();
@@ -2064,6 +2174,8 @@ async function openNation(code, quiet) {
       <span class="cr">${medalDot(b.medal)}${ordinal(b.rank)}</span><span class="cw"></span></div>`).join("")}</div>` : ""}
     ${people.length ? `<h3 class="pf-h">${t().topAthletes}</h3><div class="mates">${people.map(p =>
       `<button class="mate" data-person="${p.id}">${avatar(p.id, p.name, "sm")}<span>${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></span></button>`).join("")}</div>` : ""}
+    ${rivals.length ? `<h3 class="pf-h">${t().natRivals}</h3><div class="mates">${rivals.map(([o, r]) =>
+      `<button class="mate" data-h2h="${code}-${o}">${flagImg(o, "fl-md")}<span>${esc(nationName(o))}<small>${r.w}–${r.l}</small></span></button>`).join("")}</div>` : ""}
     ${n.recent.length ? `<h3 class="pf-h">${t().recentGames}</h3><div class="lsl">${n.recent.slice(0, 10).map(g =>
       `<div class="lsw"><div class="lsm">${esc(g.when ? g.when.slice(0, 10).split("-").reverse().join("/") : "")} · ${esc(drawLabel(g.draw))}</div>${linescore(g)}</div>`).join("")}</div>` : ""}
     <h3 class="pf-h">${t().allChamps}</h3>
@@ -2354,6 +2466,7 @@ function renderArchive() {
   </button>`).join("");
   document.getElementById("arch-more").innerHTML = list.length > 12
     ? `<button class="btn sm" data-arch-all="1">${ARCH.all ? t().archLess : t().archAll(list.length)}</button>` : "";
+  h2hPicker();
   renderArchiveSearch();
 }
 function renderArchiveSearch() {
@@ -2474,6 +2587,10 @@ document.addEventListener("click", ev => {
   if (!b) return;
   const ds = b.dataset;
   if (ds.close) { closeSheet(); return; }
+  if (ds.h2hGo) { openH2H(document.getElementById("h2h-a").value, document.getElementById("h2h-b").value); return; }
+  if (ds.h2h) { const [x, y] = ds.h2h.split("-"); openH2H(x, y); return; }
+  if (ds.h2hCat) { H2H.cat = ds.h2hCat; H2H.all = false; renderH2H(VS[H2H.a], false); return; }
+  if (ds.h2hAll) { H2H.all = true; renderH2H(VS[H2H.a], false); return; }
   if (ds.person) { openPerson(+ds.person); return; }
   if (ds.nation) { openNation(ds.nation); return; }
   if (ds.natAll) {

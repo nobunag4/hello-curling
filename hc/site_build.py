@@ -3,7 +3,8 @@
 site/index.html é escrito no formato de página do claude.ai (sem <html>/<head>), que completa o esqueleto
 ao publicar. Aqui completamos o esqueleto nós mesmos e copiamos os dados.
 
-Cada atleta e cada seleção ganha o seu endereço (/atleta/{id}-{nome}, /selecao/{código}), com título,
+Cada atleta, cada seleção e cada par de seleções que já se enfrentou ganha o seu endereço (/atleta/{id}-{nome},
+/selecao/{código}, /confronto/{a}-{b}), com título,
 descrição e prévia de compartilhamento próprios, para o Google e para o WhatsApp. Todas essas páginas são
 o mesmo site; o código e o estilo ficam em arquivos compartilhados (app.*.js / app.*.css), senão cada
 uma das ~9 mil páginas repetiria os 150 KB do site inteiro.
@@ -16,6 +17,7 @@ import json
 import re
 import shutil
 import unicodedata
+from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -88,8 +90,29 @@ def _page(shell: str, *, title: str, desc: str, path: str, og_title: str | None 
     return head + shell
 
 
-def _profiles(data: Path, names_pt: dict[str, str]) -> tuple[list[tuple[str, dict]], list[tuple[str, dict]]]:
-    """Páginas de atletas e seleções: (endereço, campos do <head>)."""
+def _pairs(data: Path, nname) -> list[tuple[str, dict]]:
+    """Páginas de confronto direto, uma por par que já se enfrentou (somando todas as categorias)."""
+    out = []
+    for f in sorted((data / "vs").glob("*.json")):
+        v = json.loads(f.read_text(encoding="utf-8"))
+        a, tot = v["code"], defaultdict(lambda: [0, 0])
+        for c in v["cats"].values():
+            for o, r in c["vs"].items():
+                tot[o][0] += r["w"]
+                tot[o][1] += r["l"]
+        for b, (w, l) in sorted(tot.items()):
+            if a >= b:  # cada par uma vez, em ordem alfabética
+                continue
+            na, nb, n = nname(a), nname(b), w + l
+            desc = (f"{na} {w} x {l} {nb} em {_plural(n, 'jogo', 'jogos')} de campeonatos da World Curling. "
+                    "Todos os confrontos, maiores vitórias e placar por end.")
+            out.append((f"/confronto/{a.lower()}-{b.lower()}", {"title": f"{na} x {nb} no curling · Hello, Curling",
+                                                              "og_title": f"{na} x {nb} no curling", "desc": desc}))
+    return out
+
+
+def _profiles(data: Path, names_pt: dict[str, str]) -> tuple[list[tuple[str, dict]], list[tuple[str, dict]], list[tuple[str, dict]]]:
+    """Páginas de atletas, seleções e confrontos: (endereço, campos do <head>)."""
     index = json.loads((data / "index.json").read_text(encoding="utf-8"))
     photos = index.get("photos", {})
     nat_en = {n["code"]: n["name"] for n in index["nations"]}
@@ -125,7 +148,8 @@ def _profiles(data: Path, names_pt: dict[str, str]) -> tuple[list[tuple[str, dic
         athletes.append((f"/atleta/{pid}-{slugify(p['name'])}", {
             "title": f"{p['name']} · Hello, Curling", "og_title": p["name"], "desc": desc, "og_type": "profile",
             "image": f"{SITE}/img/people/{ph[0]}" if ph else None}))
-    return athletes, nations
+    pairs = _pairs(data, nname) if (data / "vs").exists() else []
+    return athletes, nations, pairs
 
 
 def build(out: Path = ROOT / "_site") -> Path:
@@ -153,8 +177,8 @@ def build(out: Path = ROOT / "_site") -> Path:
 
     urls = ["/"]
     if (data / "index.json").exists():
-        athletes, nations = _profiles(data, _nation_pt(src))
-        for path, fields in nations + athletes:
+        athletes, nations, pairs = _profiles(data, _nation_pt(src))
+        for path, fields in nations + pairs + athletes:
             d = out / path.lstrip("/")
             d.mkdir(parents=True, exist_ok=True)
             (d / "index.html").write_text(_page(shell, path=path + "/", css=css, **fields), encoding="utf-8")
