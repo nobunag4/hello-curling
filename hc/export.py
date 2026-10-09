@@ -2,6 +2,8 @@
 
   site/data/index.json          busca: pessoas (id, nome, seleções) e seleções disponíveis
   site/data/nation/XXX.json     tudo de uma seleção: histórico por campeonato, atletas com carreira e jogos recentes
+  site/data/vs/XXX.json         para a página de um jogo: retrospecto contra cada adversário e a última formação,
+                                separados por categoria (masculino, feminino, duplas mistas, juvenil, cadeira de rodas...)
 
 Um arquivo por seleção mantém cada download pequeno: o site só baixa a seleção que a pessoa abrir.
 """
@@ -19,6 +21,18 @@ ROOT = Path(__file__).resolve().parent.parent
 MEDAL_TYPES = {1, 2, 4, 5, 7, 8, 16, 22, 27, 35, 36, 38}
 PLAYING = ("fourth", "third", "second", "lead", "alternate", "player")
 RECENT_SEASONS = 3
+VS_LAST = 6   # últimos confrontos guardados por adversário
+
+
+def category(division: str | None, type_name: str | None) -> str | None:
+    """Categoria de comparação: 'm', 'w', 'md', 'x' com prefixo j (juvenil), s (sênior) ou wc (cadeira de rodas).
+    Igual a gameCat() na página."""
+    base = {"Men": "m", "Women": "w", "Mixed Doubles": "md", "Mixed": "x"}.get(division or "")
+    if not base:
+        return None
+    tn = type_name or ""
+    pre = "j" if "Junior" in tn else "s" if "Senior" in tn else "wc" if ("heelchair" in tn or "Paralympic" in tn) else ""
+    return pre + base
 
 
 def _dump(path: Path, obj) -> int:
@@ -151,6 +165,39 @@ def run(args) -> None:
         nation_index.append({"code": code, "name": names_seen.most_common(1)[0][0], "entries": len(ens), "gold": medals[1], "silver": medals[2], "bronze": medals[3],
                              "first": min((events[e["event_id"]]["year"] or 9999) for e in ens),
                              "last": max((events[e["event_id"]]["year"] or 0) for e in ens)})
+
+    # ---------------- retrospecto e última formação, por seleção e categoria
+    vs = defaultdict(lambda: defaultdict(lambda: {"vs": defaultdict(lambda: [0, 0, []]), "lineup": None}))
+    names_needed = defaultdict(set)
+    ordered = sorted(entries.values(), key=lambda en: (events[en["event_id"]]["start_date"] or "", en["id"]), reverse=True)
+    for en in ordered:
+        e = events[en["event_id"]]
+        cat, code = category(e["division"], e["type_name"]), en["nation"]
+        if not cat or not code:
+            continue
+        slot = vs[code][cat]
+        if slot["lineup"] is None and any(r in PLAYING for _, r, _ in members[en["id"]]):
+            slot["lineup"] = {"year": e["year"], "type": e["type_id"], "typeName": e["type_name"], "name": e["name"],
+                              "members": [[p, r, sk] for p, r, sk in members[en["id"]] if p in persons]}
+            names_needed[code].update(p for p, _, _ in members[en["id"]] if p in persons)
+        for g, other, sm, so in reversed(games_by_entry[en["id"]]):
+            opp = entries.get(other, {}).get("nation")
+            if not opp or opp == code:
+                continue
+            rec_ = slot["vs"][opp]
+            rec_[0 if sm > so else 1] += sm != so
+            if len(rec_[2]) < VS_LAST:
+                mine = g["entry1"] == en["id"]
+                rec_[2].append({"y": e["year"], "type": e["type_id"], "typeName": e["type_name"], "stage": g["stage"], "draw": g["draw"],
+                                "when": (g["start_local"] or "")[:10], "f": sm, "a": so,
+                                "h": (g["hammer"] == (1 if mine else 2)) if g["hammer"] else None,
+                                "e": json.loads(g["ends1"] if mine else g["ends2"]), "o": json.loads(g["ends2"] if mine else g["ends1"])})
+    for code, cats in vs.items():
+        total += _dump(out / "vs" / f"{code}.json", {
+            "code": code,
+            "cats": {c: {"vs": {o: {"w": r[0], "l": r[1], "last": r[2]} for o, r in s["vs"].items()}, "lineup": s["lineup"]} for c, s in cats.items()},
+            "names": {str(p): persons[p]["name"] for p in names_needed[code]},
+        })
 
     # ---------------- índice de busca
     idx_people = []

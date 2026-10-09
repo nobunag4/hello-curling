@@ -283,7 +283,7 @@ h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 5.6vw, 
 .game.fol { box-shadow: inset 4px 0 0 var(--green); }
 .game.fol.ita { box-shadow: inset 4px 0 0 var(--blue); }
 .game.open, .game.on { cursor: pointer; }
-.game[data-ls] { cursor: pointer; }
+.game[data-game] { cursor: pointer; }
 .game.on .sc { color: var(--green); }
 .st.live span::first-letter { animation: blink 1.6s ease-in-out infinite; }
 @keyframes blink { 50% { opacity: .25; } }
@@ -439,6 +439,49 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
   .crow { grid-template-columns: 44px 1fr 52px; }
   .crow .cw { display: none; }
 }
+
+/* Página do jogo */
+.gp-meta { font-size: 14px; color: var(--ink2); margin-top: 6px; }
+.gp-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 4px 0 18px; }
+.gp-team { display: grid; justify-items: center; gap: 6px; text-align: center; min-width: 0; }
+.gp-team b { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.gp-team small { font-size: 12px; color: var(--ink2); letter-spacing: .04em; }
+.gp-team.win b { color: var(--ink); }
+.gp-score .gp-team:not(.win) b { color: var(--ink2); }
+.gp-score:not(:has(.win)) .gp-team b { color: var(--ink); }
+.gp-sc { font-family: var(--serif); font-size: 52px; line-height: 1; letter-spacing: -0.04em; text-align: center; font-variant-numeric: tabular-nums; display: grid; gap: 8px; }
+.gp-sc i { font-style: normal; color: var(--ink2); margin: 0 .12em; }
+.gp-sc .vs { font-size: 28px; color: var(--ink2); }
+.gp-sc small { font-family: var(--sans); font-size: 13px; letter-spacing: 0; color: var(--ink2); }
+.gp-sc small.live { color: var(--green); font-weight: 600; }
+.gp-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 18px 0 8px; }
+.gp-camps, .gp-lus { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gp-camp, .gp-lu { background: var(--bg2); border-radius: 18px; padding: 14px 16px; min-width: 0; }
+.gp-camp-h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.gp-camp-h b { font-weight: 600; font-size: 15px; }
+.gp-camp-h span { font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; text-align: right; }
+.gp-form { display: flex; flex-wrap: wrap; gap: 4px; }
+.gp-form span { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff; }
+.gp-form .w { background: var(--green); }
+.gp-form .l { background: var(--ink2); opacity: .55; }
+.gp-form em { font-size: 13px; color: var(--ink2); font-style: normal; }
+.gp-lu .mates { display: grid; grid-template-columns: 1fr; }
+.gp-h2h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; background: var(--bg2); border-radius: 18px; padding: 16px; margin-bottom: 12px; text-align: center; }
+.gp-h2h b { font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1; display: block; font-variant-numeric: tabular-nums; }
+.gp-h2h span { font-size: 13px; color: var(--ink2); }
+.gp-h2h-n { font-size: 13px; color: var(--ink2); }
+.gp-ms { background: var(--bg2); border-radius: 18px; overflow: hidden; }
+.gp-m { border-top: 1px solid var(--line); }
+.gp-m:first-child { border-top: 0; }
+.gp-m summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; list-style: none; font-size: 15px; }
+.gp-m summary::-webkit-details-marker { display: none; }
+.gp-m summary span { display: grid; min-width: 0; }
+.gp-m summary small { font-size: 13px; color: var(--ink2); }
+.gp-m summary b { font-variant-numeric: tabular-nums; font-size: 16px; font-weight: 600; white-space: nowrap; }
+.gp-m summary b.l { color: var(--ink2); font-weight: 400; }
+.gp-m .ls { margin: 0 8px 12px; }
+.gp-more { font-size: 13px; color: var(--ink2); margin: 8px 4px 0; }
+@media (max-width: 560px) { .gp-camps, .gp-lus { grid-template-columns: 1fr; } .gp-sc { font-size: 42px; } }
 
 /* Rodapé */
 footer { padding-block: 72px; background: var(--bg); border-top: 1px solid var(--line); text-align: center; }
@@ -962,7 +1005,10 @@ const T = {
     tbc: "Sede a confirmar", approx: "data aproximada",
     watch: "Assistir", scores: "Site oficial", photo: "Foto",
     liveEnd: n => `● Ao vivo · ${n === "EE" ? "end extra" : "end " + n}`, hammer: "Hammer (última pedra do end)",
-    liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver o placar por end", site: "Tabela oficial", dazn: "DAZN",
+    liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver os detalhes",
+    gpCamp: "Neste torneio", gpNoGames: "ainda sem jogos", gpH2h: "Retrospecto", gpGames: n => n === 1 ? "1 jogo" : `${n} jogos`, gpLast: n => `Os ${n} confrontos mais recentes; toque para ver o placar por end.`, gpTap: "Toque num confronto para ver o placar por end.",
+    gpFirst: "Primeiro encontro entre as duas seleções nesta categoria.", gpLineups: "Última formação",
+    gpSrc: "Retrospecto e formações: resultados oficiais da World Curling.", site: "Tabela oficial", dazn: "DAZN",
     bra: "Brasil", ita: "Itália", maybe: "possível",
     fMain: "Principais", fAll: "Todos", fSlam: "Grand Slam", fWorld: "Mundiais", fQual: "Qualificatórios",
     fBra: "Brasil", fIta: "Itália", fStar: "★ Favoritos", fPast: "Mostrar encerrados",
@@ -1050,7 +1096,10 @@ const T = {
     tbc: "Venue TBC", approx: "approximate dates",
     watch: "Watch", scores: "Official site", photo: "Photo",
     liveEnd: n => `● Live · ${n === "EE" ? "extra end" : "end " + n}`, hammer: "Hammer (last stone of the end)",
-    liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game to see the end-by-end score", site: "Official draw", dazn: "DAZN",
+    liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game for details",
+    gpCamp: "In this event", gpNoGames: "no games yet", gpH2h: "Head to head", gpGames: n => n === 1 ? "1 game" : `${n} games`, gpLast: n => `The ${n} most recent meetings; tap for the end-by-end score.`, gpTap: "Tap a meeting for the end-by-end score.",
+    gpFirst: "First meeting between these two teams in this category.", gpLineups: "Latest line-up",
+    gpSrc: "Head to head and line-ups: official World Curling results.", site: "Official draw", dazn: "DAZN",
     bra: "Brazil", ita: "Italy", maybe: "possible",
     fMain: "Main events", fAll: "All", fSlam: "Grand Slam", fWorld: "Worlds", fQual: "Qualifiers",
     fBra: "Brazil", fIta: "Italy", fStar: "★ Starred", fPast: "Show finished",
@@ -1332,7 +1381,7 @@ function renderGames() {
         const i = d.games.indexOf(gm), st = gameStatus(gm, d.t, g.len);
         const on = !!(gm.live && gm.live.on), done = gm.sa != null && !on, aw = done && gm.sa > gm.sb, bw = done && gm.sb > gm.sa;
         const cls = (followed(gm) ? (isIta(gm) && !hasTeam(gm, "BRA") ? "fol ita" : "fol") : "") + (on ? " on" : "");
-        const key = `${g.id}|${d.t.getTime()}|${i}`, showLs = gm.live && (on || LS_OPEN.has(key));
+        const key = `${g.id}|${d.t.getTime()}|${i}`, showLs = on && gm.live.ends;
         const hmA = on && gm.live.hammer === "a" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
         const hmB = on && gm.live.hammer === "b" ? `<span class="hm" title="${t().hammer}">●</span>` : "";
         const tag = x => flagChip(teamCC(x));
@@ -1340,7 +1389,7 @@ function renderGames() {
         const dv = gm.div && state.div === "all" ? `<span>${t().divShort[gm.div]}</span>` : "";
         const cal = !done && !PLACEHOLDER.has(gm.a) && Date.now() < d.t.getTime()
           ? ext(gcal({ ...gm, t: d.t, ev: g.id, len: g.len }), t().addCal, "cal") : "";
-        return `<div class="game ${cls}"${gm.live && !on ? ` data-ls="${key}"` : ""}>${nt}
+        return `<div class="game ${cls}"${!PLACEHOLDER.has(gm.a) && !PLACEHOLDER.has(gm.b) ? ` data-game="${key}"` : ""}>${nt}
           <span class="a">${hmA}<span class="team ${aw ? "win" : bw ? "lose" : ""}">${esc(teamName(gm.a))}</span>${tag(gm.a)}</span>
           <span class="sc ${gm.sa != null ? "" : "vs"}">${gm.sa != null ? `${gm.sa}–${gm.sb}` : "vs"}</span>
           <span class="b">${tag(gm.b)}<span class="team ${bw ? "win" : aw ? "lose" : ""}">${esc(teamName(gm.b))}</span>${hmB}</span>
@@ -1353,7 +1402,7 @@ function renderGames() {
 
   document.getElementById("glegend").innerHTML =
     `<span><i style="background:var(--green)"></i>${t().legFol}</span><span><i style="background:var(--blue)"></i>${t().legIta}</span><span>${t().src(g.src)}</span>` +
-    (g.list.some(d => d.games.some(x => x.live && !x.live.on)) ? `<span>${t().endsTap}</span>` : "") +
+    (g.list.some(d => d.games.length) ? `<span>${t().endsTap}</span>` : "") +
     (g.livePolled ? `<span>${t().liveNow(new Date(g.livePolled))}</span>` : g.liveUpdated ? `<span>${t().liveAt(new Date(g.liveUpdated))}</span>` : "");
 }
 
@@ -1754,6 +1803,7 @@ function openSheet(html) {
   sh.querySelector(".sheet-x").focus();
 }
 function closeSheet(fromHistory) {
+  GAME.key = null;
   document.getElementById("sheet").hidden = true;
   document.body.style.overflow = "";
   document.title = HOME_TITLE;
@@ -1787,6 +1837,7 @@ function route() {
 addEventListener("popstate", route);
 
 async function openPerson(id, quiet) {
+  GAME.key = null;
   const ix = DATA.people.get(id);
   const codes = ix ? [...ix[2]].reverse() : [];
   openSheet(`<div class="msg">${t().loading}</div>`);
@@ -1834,6 +1885,117 @@ async function openPerson(id, quiet) {
     ${photoCredit(id)}`);
 }
 
+// ---------- Página do jogo ----------
+// Um toque num jogo abre os detalhes: placar por end, a campanha dos dois times no torneio e, entre
+// seleções, o retrospecto e a última formação de cada uma (data/vs/XXX.json, gerado do banco histórico).
+const VS = {};
+async function loadVs(code) {
+  if (VS[code] !== undefined) return VS[code];
+  try { const r = await fetch(`data/vs/${code}.json`); VS[code] = r.ok ? await r.json() : null; } catch { VS[code] = null; }
+  return VS[code];
+}
+
+// Categoria do jogo, igual a category() em hc/export.py
+function gameCats(g, gm) {
+  const base = g.id.replace(/\d+$/, "").replace(/-.*/, "");
+  const pre = /^wj/.test(base) ? "j" : /^ws/.test(base) ? "s" : /wh|wwc|wpc/.test(base) ? "wc" : "";
+  if (g.md) return [pre + "md"];
+  if (gm.div) return [pre + gm.div];
+  const nm = (evById(g.id) || {}).official || "";
+  if (/women/i.test(nm)) return [pre + "w"];
+  if (/\bmen/i.test(nm)) return [pre + "m"];
+  return pre === "wc" ? ["wcx"] : [pre + "m", pre + "w", pre + "x"];
+}
+
+function findGame(key) {
+  const [gid, ts, i] = key.split("|");
+  const g = GAMES[gid];
+  const d = g && g.list.find(x => x.t.getTime() === +ts);
+  return d && d.games[+i] ? { g, d, gm: d.games[+i] } : null;
+}
+
+const GAME = { key: null };
+function openGame(key) {
+  if (!findGame(key)) return;
+  GAME.key = key;
+  openSheet(`<div class="msg">${t().loading}</div>`);
+  renderGameSheet(true);
+}
+
+async function renderGameSheet(first) {
+  const key = GAME.key, f = key && findGame(key);
+  if (!f) return;
+  const { g, d, gm } = f, e = evById(g.id);
+  const A = teamCC(gm.a), B = teamCC(gm.b), nations = isCountry(gm.a) && isCountry(gm.b);
+  const st = gameStatus(gm, d.t, g.len), on = !!(gm.live && gm.live.on), done = gm.sa != null && !on;
+  const drawTxt = typeof d.label === "number" ? `${t().draw} ${d.label}` : (t()[d.label] || d.raw || d.label);
+  const side = (x, cc, won) => `<div class="gp-team ${won ? "win" : ""}">${cc ? flagImg(cc, "fl-md") : ""}<b>${esc(teamName(x))}</b>${cc ? `<small>${cc}</small>` : ""}</div>`;
+  const when = `${dayLabel(dayKey(d.t))} · ${hm(d.t)}`;
+
+  // campanha no torneio: resultados de cada time até aqui (mesma divisão)
+  const camp = x => {
+    const res = [];
+    g.list.forEach(dd => dd.games.forEach(o => {
+      if (o.sa == null || (o.live && o.live.on) || (gm.div && o.div && o.div !== gm.div)) return;
+      if (o.a === x) res.push({ opp: o.b, f: o.sa, a: o.sb, t: dd.t });
+      else if (o.b === x) res.push({ opp: o.a, f: o.sb, a: o.sa, t: dd.t });
+    }));
+    return res;
+  };
+  const campHTML = x => {
+    const res = camp(x), w = res.filter(r => r.f > r.a).length;
+    return `<div class="gp-camp"><div class="gp-camp-h"><b>${esc(teamName(x))}</b><span>${w}–${res.length - w}</span></div>
+      <div class="gp-form">${res.length ? res.map(r => `<span class="${r.f > r.a ? "w" : "l"}" title="${esc(teamName(r.opp))} ${r.f}–${r.a}">${r.f > r.a ? t().win : t().loss}</span>`).join("") : `<em>${t().gpNoGames}</em>`}</div></div>`;
+  };
+
+  let h2h = "", lineups = "";
+  if (nations) {
+    const [va, vb] = await Promise.all([loadVs(A), loadVs(B)]);
+    if (GAME.key !== key) return;
+    const cats = gameCats(g, gm);
+    const cat = cats.find(c => va && va.cats[c] && (va.cats[c].vs[B] || va.cats[c].lineup)) || cats[0];
+    const rec = va && va.cats[cat] && va.cats[cat].vs[B];
+    if (rec) {
+      const n = rec.w + rec.l;
+      h2h = `<h3 class="pf-h">${t().gpH2h}</h3>
+        <div class="gp-h2h"><div><b>${rec.w}</b><span>${esc(teamName(gm.a))}</span></div><div class="gp-h2h-n">${t().gpGames(n)}</div><div><b>${rec.l}</b><span>${esc(teamName(gm.b))}</span></div></div>
+        <div class="gp-ms">${rec.last.map(m => `<details class="gp-m"><summary><span>${m.y} · ${esc(typeLabel(m))}<small>${esc(drawLabel(m.draw))}</small></span>
+          <b class="${m.f > m.a ? "w" : "l"}">${m.f}–${m.a}</b></summary>${linescore({ team: A, opp: B, for: m.f, against: m.a, hammer: m.h, ends: m.e, endsOpp: m.o })}</details>`).join("")}</div>
+        <p class="gp-more">${rec.last.length < n ? t().gpLast(rec.last.length) : t().gpTap}</p>`;
+    } else if (va) h2h = `<h3 class="pf-h">${t().gpH2h}</h3><div class="msg">${t().gpFirst}</div>`;
+    const lu = (v, x) => {
+      const L = v && v.cats[cat] && v.cats[cat].lineup;
+      if (!L) return "";
+      const players = L.members.filter(([, r]) => r !== "coach" && r !== "official");
+      return `<div class="gp-lu"><div class="gp-camp-h"><b>${esc(teamName(x))}</b><span>${esc(typeLabel(L))} ${L.year}</span></div><div class="mates">${players.map(([p, r, sk]) => {
+        const nm = v.names[p] || "";
+        return `<button class="mate" data-person="${p}">${avatar(p, nm, "sm")}<span>${esc(nm)}<small>${ROLE_L[state.lang][r] || r}${sk ? " · skip" : ""}</small></span></button>`;
+      }).join("")}</div></div>`;
+    };
+    const la = lu(va, gm.a), lb = lu(vb, gm.b);
+    if (la || lb) lineups = `<h3 class="pf-h">${t().gpLineups}</h3><div class="gp-lus">${la}${lb}</div>`;
+  }
+
+  const html = `
+    <div class="pf-head">
+      <div class="pf-k">${esc(name(e))}</div>
+      <div class="gp-meta">${esc(drawTxt)} · ${when}${gm.div ? " · " + t().divShort[gm.div] : ""}</div>
+    </div>
+    <div class="gp-score">
+      ${side(gm.a, A, done && gm.sa > gm.sb)}
+      <div class="gp-sc">${gm.sa != null ? `<span>${gm.sa}<i>–</i>${gm.sb}</span>` : `<span class="vs">${t().vs}</span>`}<small class="${st.cls}">${st.txt || (done ? t().done : "")}</small></div>
+      ${side(gm.b, B, done && gm.sb > gm.sa)}
+    </div>
+    ${gm.live && gm.live.ends && gm.live.ends.length ? lineScoreHTML(gm) : ""}
+    <div class="gp-acts">${ext(g.watch, t().watch, "btn sm primary")}${ext(g.scores, t().scores, "btn sm")}${!done && !on && Date.now() < d.t.getTime() ? ext(gcal({ ...gm, t: d.t, ev: g.id, len: g.len }), t().addCal, "btn sm") : ""}</div>
+    <h3 class="pf-h">${t().gpCamp}</h3>
+    <div class="gp-camps">${campHTML(gm.a)}${campHTML(gm.b)}</div>
+    ${h2h}${lineups}
+    ${nations ? `<p class="pf-src">${t().gpSrc}</p>` : ""}`;
+  const body = document.getElementById("sheet-body");
+  if (first) openSheet(html); else if (!document.getElementById("sheet").hidden) body.innerHTML = html;
+}
+
 function drawLabel(d) {
   if (!d) return "";
   if (state.lang !== "pt") return d;
@@ -1856,6 +2018,7 @@ function linescore(g) {
 }
 
 async function openNation(code, quiet) {
+  GAME.key = null;
   openSheet(`<div class="msg">${t().loading}</div>`);
   let n;
   try { n = await loadNation(code); } catch { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
@@ -2026,7 +2189,6 @@ async function loadSchedule() {
 const CURLIT_API = "https://livescores.worldcurling.org/curlitsse/Result/LiveResults";
 // O Grand Slam não deixa o navegador ler o feed dele; o nosso serviço (worker/api.js) busca e repassa
 const SLAM_API = "https://api.hellocurling.com/gsoc/";
-const LS_OPEN = new Set();
 
 // Jogo da fase final ainda com "vencedor/perdedor da semi": a final fica com WSF e o bronze com LSF
 function placeholderFor(d, title) {
@@ -2147,15 +2309,14 @@ async function pollLive(force) {
   const sig = JSON.stringify(Object.values(GAMES).map(g => g.list.map(d => d.games.map(x => [x.a, x.b, x.sa, x.sb, x.live && x.live.end]))));
   if (changed && sig !== liveSig) { liveSig = sig; renderNow(); renderGames(); renderBrazil(); }
   else if (changed) renderGames();
+  if (changed && GAME.key) renderGameSheet(false);
 }
 setInterval(pollLive, 30000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
 document.addEventListener("click", ev => {
-  const row = ev.target.closest("[data-ls]");
+  const row = ev.target.closest("[data-game]");
   if (!row || ev.target.closest("a, button")) return;
-  const k = row.dataset.ls;
-  LS_OPEN.has(k) ? LS_OPEN.delete(k) : LS_OPEN.add(k);
-  renderGames();
+  openGame(row.dataset.game);
 });
 
 // ---------- Histórico: porta de entrada do banco ----------
