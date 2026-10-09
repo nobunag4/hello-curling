@@ -511,6 +511,62 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .gp-more { font-size: 13px; color: var(--ink2); margin: 8px 4px 0; }
 @media (max-width: 560px) { .gp-camps, .gp-lus { grid-template-columns: 1fr; } .gp-sc { font-size: 42px; } }
 
+
+/* ---------- Celular: o site vira um app ----------
+   Abaixo de 760px cada parte do site é uma aba (barra flutuante embaixo, em vidro). Só a aba aberta aparece,
+   então em vez de ~20 telas de rolagem cada aba tem de uma a três. A barra do topo some ao rolar para baixo e
+   volta ao rolar para cima. No computador nada disso se aplica: html.app só é ligado pelo script no celular. */
+.tabbar { display: none; }
+html.app [data-tab]:not(.tab-on) { display: none !important; }
+html.app .dock { display: none; }
+html.app body { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+html.app nav { position: sticky; top: 0; transition: transform .4s cubic-bezier(.2,.7,.2,1); }
+html.app nav.away { transform: translateY(-100%); }
+html.app nav .navbar { height: 56px; padding-inline: 16px; }
+html.app .tabbar {
+  display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; z-index: 45;
+  left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)); height: 64px; padding: 5px; box-sizing: border-box; border-radius: 28px;
+  background: var(--glass); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px);
+  box-shadow: 0 0 0 1px var(--line2), 0 18px 40px -18px rgba(0,0,0,.6);
+}
+.tabbar button { position: relative; z-index: 1; border: 0; background: none; color: var(--ink2); display: grid; justify-items: center; align-content: center;
+  gap: 3px; font: 500 10.5px/1.1 var(--sans); letter-spacing: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .25s ease; }
+.tabbar button[aria-current="page"] { color: var(--ink); }
+.tabbar button svg { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.tabbar button:active svg { transform: scale(.88); }
+.tab-ind { position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / 5); border-radius: 23px; background: var(--bg2);
+  box-shadow: inset 0 0 0 1px var(--line); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+html.app .band { padding-block: 40px 52px; }
+html.app .hero { padding-block: 36px 40px; }
+html.app .hero .marquee { margin-top: 32px; }
+html.app .now { margin-top: 28px; }
+html.app h2 { font-size: 40px; margin-bottom: 12px; }
+html.app .band .head .sub { margin-bottom: 0; }
+html.app footer { padding-block: 44px 24px; }
+html.app h2 { font-size: 34px; }
+html.app .band .head .sub { font-size: 15px; }
+/* faixas de botões que deslizam para o lado em vez de quebrar em várias linhas */
+html.app #evtabs, html.app #filters { display: flex; flex-wrap: nowrap; justify-content: flex-start; overflow-x: auto; scrollbar-width: none;
+  max-width: none; margin-inline: -20px; padding-inline: 20px; scroll-padding-inline: 20px; }
+html.app #evtabs { width: calc(100% + 40px); box-sizing: border-box; justify-self: stretch; align-self: stretch; background: none; box-shadow: none; padding-block: 0; gap: 6px; }
+html.app #evtabs button { box-shadow: inset 0 0 0 1px var(--line2); }
+html.app #evtabs::-webkit-scrollbar, html.app #filters::-webkit-scrollbar { display: none; }
+html.app #evtabs button, html.app #filters .chip { flex: none; white-space: nowrap; }
+html.app #legend { gap: 6px 14px; font-size: 12px; }
+html.app #legend + div { height: 22px !important; }
+/* Guia: os termos viram cartões para deslizar */
+html.app .house { display: none; }
+html.app .guide { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; gap: 12px; margin-inline: -20px; padding: 4px 20px; scroll-padding-inline: 20px; }
+html.app .guide::-webkit-scrollbar { display: none; }
+html.app .term { flex: 0 0 76%; scroll-snap-align: start; }
+/* Agenda: cartões mais enxutos */
+html.app .ev { grid-template-columns: 58px 1fr auto; gap: 12px; padding: 16px; }
+html.app .ev .off { display: none; }
+html.app .ev h4 { font-size: 18px; }
+html.app .ev .body { gap: 8px; }
+html.app .ev .note { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
 /* Rodapé */
 footer { padding-block: 72px; background: var(--bg); border-top: 1px solid var(--line); text-align: center; }
 footer .logo { flex-direction: column; justify-content: center; gap: 14px; font-size: 32px; margin-bottom: 18px; }
@@ -577,7 +633,9 @@ footer .fnote { margin-top: 36px; }
   </div>
 </div>
 
-<header class="hero" id="top">
+<div class="tabbar" id="tabbar" role="navigation" aria-label="Seções"><i class="tab-ind" aria-hidden="true"></i><button data-tab-go="inicio"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.5 12 3.5l8.5 7V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-6v6H5A1.5 1.5 0 0 1 3.5 19z"/></svg><span data-i18n="tabHome">Início</span></button><button data-tab-go="jogos"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="11" width="17" height="8.5" rx="4.25"/><path d="M8 11V9.5A3.5 3.5 0 0 1 11.5 6H17"/></svg><span data-i18n="tabGames">Jogos</span></button><button data-tab-go="agenda"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span data-i18n="tabAgenda">Agenda</span></button><button data-tab-go="times"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.8 2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z"/></svg><span data-i18n="tabTeams">Seus times</span></button><button data-tab-go="historico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0zM7.5 6H5a3 3 0 0 0 3 3.5M16.5 6H19a3 3 0 0 1-3 3.5M12 13.5V17M8.5 20.5h7M9.5 17h5v3.5h-5z"/></svg><span data-i18n="tabHist">Histórico</span></button></div>
+
+<header class="hero" id="top" data-tab="inicio">
   <div class="in">
     <h1>Hello, Curling</h1>
     <p class="lede" data-i18n="heroLede">Um jeito fácil de acompanhar o curling.</p>
@@ -596,7 +654,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </header>
 
-<section class="band alt" id="jogos">
+<section class="band alt" id="jogos" data-tab="jogos">
   <div class="in">
     <div class="head">
       <h2 data-i18n="gamesTitle">Quem joga, e quando.</h2>
@@ -622,7 +680,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </section>
 
-<section class="band" id="agenda">
+<section class="band" id="agenda" data-tab="agenda">
   <div class="in">
     <div class="head">
       <h2 data-i18n="agendaTitle">De outubro a maio.</h2>
@@ -636,7 +694,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </section>
 
-<section class="band alt" id="seguir">
+<section class="band alt" id="seguir" data-tab="times">
   <div class="in">
     <div class="head">
       <h2 data-i18n="followTitle">Jogos de quem você segue.</h2>
@@ -650,7 +708,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </section>
 
-<section class="band" id="brasil">
+<section class="band" id="brasil" data-tab="times">
   <div class="in">
     <div class="head">
       <h2 data-i18n="braTitle">Brasileiros na temporada.</h2>
@@ -660,7 +718,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </section>
 
-<section class="band alt" id="historico">
+<section class="band alt" id="historico" data-tab="historico">
   <div class="in">
     <div class="head">
       <h2 data-i18n="archTitle">Todo o curling, desde 1959.</h2>
@@ -679,7 +737,7 @@ footer .fnote { margin-top: 36px; }
   </div>
 </section>
 
-<section class="band" id="guia">
+<section class="band" id="guia" data-tab="inicio">
   <div class="in">
     <div class="head">
       <h2 data-i18n="guideTitle">Primeira vez vendo curling?</h2>
@@ -1009,7 +1067,7 @@ const T = {
     braSub: "Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.",
     agendaEyebrow: "Agenda", agendaTitle: "De outubro a maio.", agendaSub: "Toque numa barra para ir direto ao torneio.",
     guideEyebrow: "Guia rápido", guideTitle: "Primeira vez vendo curling?", guideSub: "Oito termos que você vai ouvir em toda transmissão.",
-    sourcesTitle: "Dados de", contact: "Contato", natTitle: n => `${n} no curling`,
+    sourcesTitle: "Dados de", contact: "Contato", tabHome: "Início", tabGames: "Jogos", tabAgenda: "Agenda", tabTeams: "Seus times", tabHist: "Histórico", natTitle: n => `${n} no curling`,
     searchLabel: "Buscar times, torneios ou termos",
     examples: ["Quando a Itália joga?", "Jogos de hoje", "Hasselborg", "Europeu feminino", "Grand Slam de Victoria", "O que é hammer?", "Brasil", "Jogos de amanhã"],
     exampleN: (i, n) => `Exemplo ${i} de ${n} · aperte Enter para buscar`,
@@ -1104,7 +1162,7 @@ const T = {
     braSub: "Results so far and the next events Brazil could enter.",
     agendaEyebrow: "Schedule", agendaTitle: "October to May.", agendaSub: "Tap a bar to jump to the event.",
     guideEyebrow: "Quick guide", guideTitle: "New to curling?", guideSub: "Eight terms you'll hear in every broadcast.",
-    sourcesTitle: "Data from", contact: "Contact", natTitle: n => `${n} curling`,
+    sourcesTitle: "Data from", contact: "Contact", tabHome: "Home", tabGames: "Games", tabAgenda: "Calendar", tabTeams: "Your teams", tabHist: "History", natTitle: n => `${n} curling`,
     searchLabel: "Search teams, events or terms",
     examples: ["When does Italy play?", "Today's games", "Hasselborg", "Europeans women", "Grand Slam Victoria", "What is the hammer?", "Brazil", "Tomorrow's games"],
     exampleN: (i, n) => `Example ${i} of ${n} · press Enter to search`,
@@ -2482,7 +2540,7 @@ document.addEventListener("click", ev => {
   if (s) { ARCH.sort = s.dataset.archSort; renderArchive(); return; }
   if (ev.target.closest("[data-arch-all]")) {
     const was = ARCH.all; ARCH.all = !ARCH.all; renderArchive();
-    if (was) document.getElementById("historico").scrollIntoView({ behavior: "smooth" });
+    if (was) goToSection(document.getElementById("historico"));
   }
 });
 
@@ -2580,7 +2638,7 @@ document.addEventListener("click", ev => {
   const go = ev.target.closest("[data-gev-go]");
   if (go) {
     state.gev = go.dataset.gevGo; state.day = go.dataset.dayGo || null; state.div = "all"; state.view = "games"; renderGames();
-    if (go.tagName === "BUTTON") document.getElementById("jogos").scrollIntoView();
+    if (go.tagName === "BUTTON") goToSection(document.getElementById("jogos"));
     return;
   }
   const b = ev.target.closest("button, [data-close]");
@@ -2619,9 +2677,79 @@ document.addEventListener("click", ev => {
   }
   else if (ds.jump) {
     const el = document.getElementById("ev-" + ds.jump);
-    if (el) { el.scrollIntoView({ block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1400); }
+    if (el) { goToSection(el, { block: "center" }); el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 1400); }
   }
 });
+
+
+// ---------- Celular: abas ----------
+const APP = matchMedia("(max-width: 760px)");
+const TABS = ["inicio", "jogos", "agenda", "times", "historico"];
+const TAB = { cur: null, mem: {} };
+const tabOf = el => { const s = el && el.closest("[data-tab]"); return s ? s.dataset.tab : null; };
+function setTab(tab, scroll) {
+  if (!TABS.includes(tab)) tab = "inicio";
+  if (TAB.cur) TAB.mem[TAB.cur] = scrollY;
+  const changed = TAB.cur !== tab;
+  TAB.cur = tab;
+  document.querySelectorAll("[data-tab]").forEach(s => s.classList.toggle("tab-on", s.dataset.tab === tab));
+  document.querySelectorAll("[data-tab-go]").forEach(b => b.dataset.tabGo === tab ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  document.querySelector(".tab-ind").style.transform = `translateX(${TABS.indexOf(tab) * 100}%)`;
+  try { sessionStorage.setItem("hc-tab", tab); } catch {}
+  document.querySelector("nav").classList.remove("away");
+  if (scroll === "keep") scrollTo(0, changed ? TAB.mem[tab] || 0 : 0);
+  else if (scroll !== false) scrollTo(0, 0);
+}
+// leva até uma seção (links do menu, "ver jogos", etc.): no celular troca de aba antes
+function goToSection(el, opts) {
+  if (!el) return;
+  if (APP.matches) {
+    const tab = tabOf(el);
+    setTab(tab, false);
+    const first = document.querySelector(`[data-tab="${tab}"]`);
+    if (first.contains(el) && el === first) { scrollTo(0, 0); return; }
+  }
+  el.scrollIntoView(opts || { behavior: APP.matches ? "auto" : "smooth" });
+}
+function applyApp() {
+  document.documentElement.classList.toggle("app", APP.matches);
+  if (APP.matches) {
+    let start = null;
+    const hash = location.hash.slice(1), el = hash && document.getElementById(hash);
+    if (el) start = tabOf(el);
+    if (!start) try { start = sessionStorage.getItem("hc-tab"); } catch {}
+    setTab(TAB.cur || start || "inicio", false);
+  }
+}
+APP.addEventListener ? APP.addEventListener("change", applyApp) : APP.addListener(applyApp);
+applyApp();
+document.getElementById("tabbar").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-tab-go]");
+  if (!b) return;
+  if (b.dataset.tabGo === TAB.cur) scrollTo({ top: 0, behavior: "smooth" });  // tocar de novo volta ao topo
+  else setTab(b.dataset.tabGo, "keep");
+});
+// links internos (#jogos, #agenda...) trocam de aba no celular
+document.addEventListener("click", ev => {
+  const a = ev.target.closest('a[href^="#"]');
+  if (!a || !APP.matches) return;
+  const id = a.getAttribute("href").slice(1), el = id === "top" ? document.getElementById("top") : document.getElementById(id);
+  if (!el) return;
+  ev.preventDefault();
+  if (id === "top") { if (TAB.cur === "inicio") scrollTo({ top: 0, behavior: "smooth" }); else setTab("inicio", "keep"); return; }  // o logo leva ao Início
+  goToSection(el);
+}, true);
+// barra do topo: some ao rolar para baixo, volta ao rolar para cima
+(() => {
+  let last = scrollY;
+  addEventListener("scroll", () => {
+    if (!APP.matches) return;
+    const y = scrollY, nav = document.querySelector("nav");
+    if (y > 120 && y > last + 8) nav.classList.add("away");
+    else if (y < last - 8 || y < 60) nav.classList.remove("away");
+    if (Math.abs(y - last) > 8) last = y;
+  }, { passive: true });
+})();
 
 render();
 loadIndex().then(route);
