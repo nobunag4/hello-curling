@@ -937,7 +937,7 @@ const T = {
     braSub: "Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.",
     agendaEyebrow: "Agenda", agendaTitle: "De outubro a maio.", agendaSub: "Toque numa barra para ir direto ao torneio.",
     guideEyebrow: "Guia rápido", guideTitle: "Primeira vez vendo curling?", guideSub: "Oito termos que você vai ouvir em toda transmissão.",
-    sourcesTitle: "Dados de", contact: "Contato",
+    sourcesTitle: "Dados de", contact: "Contato", natTitle: n => `${n} no curling`,
     searchLabel: "Buscar times, torneios ou termos",
     examples: ["Quando a Itália joga?", "Jogos de hoje", "Hasselborg", "Europeu feminino", "Grand Slam de Victoria", "O que é hammer?", "Brasil", "Jogos de amanhã"],
     exampleN: (i, n) => `Exemplo ${i} de ${n} · aperte Enter para buscar`,
@@ -1025,7 +1025,7 @@ const T = {
     braSub: "Results so far and the next events Brazil could enter.",
     agendaEyebrow: "Schedule", agendaTitle: "October to May.", agendaSub: "Tap a bar to jump to the event.",
     guideEyebrow: "Quick guide", guideTitle: "New to curling?", guideSub: "Eight terms you'll hear in every broadcast.",
-    sourcesTitle: "Data from", contact: "Contact",
+    sourcesTitle: "Data from", contact: "Contact", natTitle: n => `${n} curling`,
     searchLabel: "Search teams, events or terms",
     examples: ["When does Italy play?", "Today's games", "Hasselborg", "Europeans women", "Grand Slam Victoria", "What is the hammer?", "Brazil", "Tomorrow's games"],
     exampleN: (i, n) => `Example ${i} of ${n} · press Enter to search`,
@@ -1753,12 +1753,40 @@ function openSheet(html) {
   sh.querySelector(".sheet-panel").scrollTop = 0;
   sh.querySelector(".sheet-x").focus();
 }
-function closeSheet() {
+function closeSheet(fromHistory) {
   document.getElementById("sheet").hidden = true;
   document.body.style.overflow = "";
+  document.title = HOME_TITLE;
+  if (!ROUTES || fromHistory || !ROUTE_RE.test(location.pathname)) return;
+  if (history.state && history.state.hc) history.back(); else history.replaceState(null, "", "/");
 }
 
-async function openPerson(id) {
+// ---------- Endereços próprios ----------
+// No site publicado cada perfil tem endereço: /atleta/{id}-{nome} e /selecao/{código}. A montagem
+// (hc/site_build.py) gera uma página para cada um, com título e prévia próprios, e liga HC_ROUTES.
+// Aqui o endereço acompanha o perfil aberto: o "voltar" fecha o perfil, e um link direto abre já nele.
+// Trocar de perfil com a janela aberta não empilha histórico: fechar sempre volta para onde se estava.
+const ROUTES = !!window.HC_ROUTES;
+const ROUTE_RE = /^\/(atleta|selecao)\/([^/]+)/;
+const HOME_TITLE = document.title;
+const LETTERS = { ł: "l", đ: "d", ø: "o", æ: "ae", œ: "oe", ß: "ss", þ: "th", ı: "i" };
+const slugify = s => norm(s).replace(/[łđøæœßþı]/g, c => LETTERS[c]).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+function setRoute(path, title, quiet) {
+  document.title = `${title} · Hello, Curling`;
+  if (!ROUTES || quiet || location.pathname === path) return;
+  if (history.state && history.state.hc) history.replaceState({ hc: 1 }, "", path);
+  else history.pushState({ hc: 1 }, "", path);
+}
+function route() {
+  if (!ROUTES) return;
+  const m = location.pathname.match(ROUTE_RE);
+  if (!m) { if (!document.getElementById("sheet").hidden) closeSheet(true); return; }
+  if (m[1] === "atleta") openPerson(parseInt(m[2], 10), true);
+  else openNation(m[2].toUpperCase(), true);
+}
+addEventListener("popstate", route);
+
+async function openPerson(id, quiet) {
   const ix = DATA.people.get(id);
   const codes = ix ? [...ix[2]].reverse() : [];
   openSheet(`<div class="msg">${t().loading}</div>`);
@@ -1767,6 +1795,7 @@ async function openPerson(id) {
     try { const n = await loadNation(c); p = n.people[String(id)]; if (p) break; } catch {}
   }
   if (!p) { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
+  setRoute(`/atleta/${id}-${slugify(p.name)}/`, p.name, quiet);
   const players = p.career.filter(c => !["coach", "official"].includes(c.role));
   const coach = p.career.filter(c => ["coach", "official"].includes(c.role));
   const medals = [1, 2, 3].map(m => players.filter(c => c.medal === m).length);
@@ -1826,10 +1855,11 @@ function linescore(g) {
   </tbody></table>`;
 }
 
-async function openNation(code) {
+async function openNation(code, quiet) {
   openSheet(`<div class="msg">${t().loading}</div>`);
   let n;
   try { n = await loadNation(code); } catch { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
+  setRoute(`/selecao/${code.toLowerCase()}/`, t().natTitle(nationName(code)), quiet);
   // melhores resultados por campeonato e naipe
   const best = new Map();
   n.history.forEach(h => {
@@ -2305,7 +2335,7 @@ document.addEventListener("click", ev => {
 });
 
 render();
-loadIndex();
+loadIndex().then(route);
 loadSchedule().then(loadLive).then(() => pollLive(true));
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !document.getElementById("sheet").hidden) closeSheet(); });
 
