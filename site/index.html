@@ -447,6 +447,7 @@ footer h3 { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 32px 
 .srcs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; font-size: 14px; max-width: 760px; margin: 0 auto; }
 footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--ink2); }
 footer .fstats { font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+footer .fmail { margin-top: 28px; font-size: 14px; }
 footer .fnote { margin-top: 36px; }
 
 @media (max-width: 900px) {
@@ -642,6 +643,7 @@ footer .fnote { margin-top: 36px; }
     <p class="fstats" id="dbstats"></p>
     <h3 data-i18n="sourcesTitle">Dados</h3>
     <div class="srcs" id="srcs"></div>
+    <p class="fmail"><span data-i18n="contact">Contato</span> · <a href="mailto:contato@hellocurling.com">contato@hellocurling.com</a></p>
     <p class="fnote"><span data-i18n="foot1"></span> <span data-i18n="foot2"></span></p>
   </div>
 </footer>
@@ -935,7 +937,7 @@ const T = {
     braSub: "Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.",
     agendaEyebrow: "Agenda", agendaTitle: "De outubro a maio.", agendaSub: "Toque numa barra para ir direto ao torneio.",
     guideEyebrow: "Guia rápido", guideTitle: "Primeira vez vendo curling?", guideSub: "Oito termos que você vai ouvir em toda transmissão.",
-    sourcesTitle: "Dados de",
+    sourcesTitle: "Dados de", contact: "Contato",
     searchLabel: "Buscar times, torneios ou termos",
     examples: ["Quando a Itália joga?", "Jogos de hoje", "Hasselborg", "Europeu feminino", "Grand Slam de Victoria", "O que é hammer?", "Brasil", "Jogos de amanhã"],
     exampleN: (i, n) => `Exemplo ${i} de ${n} · aperte Enter para buscar`,
@@ -1023,7 +1025,7 @@ const T = {
     braSub: "Results so far and the next events Brazil could enter.",
     agendaEyebrow: "Schedule", agendaTitle: "October to May.", agendaSub: "Tap a bar to jump to the event.",
     guideEyebrow: "Quick guide", guideTitle: "New to curling?", guideSub: "Eight terms you'll hear in every broadcast.",
-    sourcesTitle: "Data from",
+    sourcesTitle: "Data from", contact: "Contact",
     searchLabel: "Search teams, events or terms",
     examples: ["When does Italy play?", "Today's games", "Hasselborg", "Europeans women", "Grand Slam Victoria", "What is the hammer?", "Brazil", "Tomorrow's games"],
     exampleN: (i, n) => `Example ${i} of ${n} · press Enter to search`,
