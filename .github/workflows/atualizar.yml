@@ -4,6 +4,8 @@
 # O banco (data/hello_curling.sqlite) fica anexado à release "banco" do GitHub: é baixado no começo,
 # e na parte diária é substituído pela versão nova. Assim o repositório não cresce a cada atualização.
 # Só faz commit e publica quando algum dado mudou de verdade, ou quando o próprio site muda (push em site/).
+# O agendamento do GitHub atrasa muito (às vezes horas); quem chama o robô na hora certa é o nosso serviço na
+# Cloudflare (worker/api.js), com "agendado" ligado. O agendamento abaixo fica só de reserva.
 name: Atualizar dados
 
 on:
@@ -17,6 +19,10 @@ on:
     inputs:
       completo:
         description: "Rodar também a parte diária (campeonatos, fichas e exportação)"
+        type: boolean
+        default: false
+      agendado:
+        description: "Chamado pelo agendamento da Cloudflare (só publica se algum dado mudou)"
         type: boolean
         default: false
 
@@ -79,11 +85,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload banco data/hello_curling.sqlite --clobber
       - name: Montar site
-        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
+        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
         run: python -m hc build-site
       - uses: actions/upload-pages-artifact@v3
-        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
+        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)
         with:
           path: _site
       - uses: actions/deploy-pages@v4
-        if: steps.commit.outputs.mudou == 'true' || github.event_name != 'schedule'
+        if: steps.commit.outputs.mudou == 'true' || (github.event_name != 'schedule' && !inputs.agendado)

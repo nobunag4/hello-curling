@@ -2,6 +2,9 @@
 // O site do circuito não deixa outros sites lerem os dados direto do navegador; este serviço (Cloudflare Worker)
 // busca o feed, enxuga para só o que a página usa e devolve com permissão para qualquer site ler.
 // Rota única: GET /gsoc/{tour_id}  (ex.: /gsoc/tch_2026). Guarda a resposta por 10 segundos.
+// Também é o relógio do robô: a cada 15 minutos (e às 6h30 UTC, com a parte diária) aciona o workflow
+// "Atualizar dados" no GitHub, que pelo agendamento do próprio GitHub atrasa demais.
+// O token do GitHub (só "Actions", só neste repositório) fica no segredo GH_TOKEN.
 
 const FEED = "https://www.thegrandslamofcurling.com/default.aspx?methodtype=3&client=36f6377633&sport=31&league=0&timezone=-0000&language=en&tournament=";
 // mesmos ajustes de nome de hc/sources/gsoc.py
@@ -29,7 +32,23 @@ function slim(feed) {
   return out;
 }
 
+const WORKFLOW = "https://api.github.com/repos/nobunag4/hello-curling/actions/workflows/atualizar.yml/dispatches";
+const DAILY = "30 6 * * *";
+
 export default {
+  async scheduled(event, env) {
+    // às 6h30 os dois horários disparam juntos; fica só o diário, que já faz tudo
+    const at = new Date(event.scheduledTime);
+    if (event.cron !== DAILY && at.getUTCHours() === 6 && at.getUTCMinutes() === 30) return;
+    const r = await fetch(WORKFLOW, {
+      method: "POST",
+      headers: { authorization: `Bearer ${env.GH_TOKEN}`, accept: "application/vnd.github+json", "user-agent": "hellocurling.com",
+        "x-github-api-version": "2022-11-28" },
+      body: JSON.stringify({ ref: "main", inputs: { agendado: "true", completo: String(event.cron === DAILY) } }),
+    });
+    if (!r.ok) throw new Error(`GitHub ${r.status}: ${await r.text()}`);
+  },
+
   async fetch(req, env, ctx) {
     if (req.method === "OPTIONS") return new Response(null, { headers: { ...HEADERS, "access-control-allow-methods": "GET" } });
     const m = new URL(req.url).pathname.match(/^\/gsoc\/([a-z]+_\d{4})$/);

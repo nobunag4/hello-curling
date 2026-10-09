@@ -446,6 +446,8 @@ footer .logo { flex-direction: column; justify-content: center; gap: 14px; font-
 footer h3 { font-size: 14px; font-weight: 500; color: var(--ink2); margin: 32px 0 12px; }
 .srcs { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; font-size: 14px; max-width: 760px; margin: 0 auto; }
 footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--ink2); }
+footer .fstats { font-size: 15px; color: var(--ink); font-variant-numeric: tabular-nums; }
+footer .fnote { margin-top: 36px; }
 
 @media (max-width: 900px) {
   .two { grid-template-columns: 1fr; }
@@ -637,11 +639,10 @@ footer p { margin: 8px auto 0; max-width: 64ch; font-size: 13px; color: var(--in
 <footer>
   <div class="in">
     <div class="logo"><img src="img/logo-192.png" width="88" height="88" alt="">Hello, Curling</div>
-    <h3 data-i18n="sourcesTitle">Fontes</h3>
+    <p class="fstats" id="dbstats"></p>
+    <h3 data-i18n="sourcesTitle">Dados</h3>
     <div class="srcs" id="srcs"></div>
-    <p id="dbstats"></p>
-    <p data-i18n="foot1"></p>
-    <p data-i18n="foot2"></p>
+    <p class="fnote"><span data-i18n="foot1"></span> <span data-i18n="foot2"></span></p>
   </div>
 </footer>
 
@@ -904,14 +905,10 @@ const GROUPS = {
 };
 
 const SOURCES = [
-  ["World Curling · calendário 2026–27", "https://worldcurling.org/2026/09/2026-2027-calendar/"],
-  ["World Curling · placares ao vivo", "https://livescores.worldcurling.org"],
-  ["Grand Slam of Curling · temporada 2026–27", "https://www.thegrandslamofcurling.com/media/grand-slam-of-curling-unveils-2026-27-season-schedule"],
-  ["Grand Slam · tabela de Victoria", "https://www.thegrandslamofcurling.com/news/hoesli-miura-complete-gsoc-co-op-invitational-field"],
-  ["Grand Slam · onde assistir", "https://www.thegrandslamofcurling.com/news/how-to-watch-the-2026-gsoc-co-op-invitational-on-tv-streaming"],
-  ["Europeu 2026 · tabela oficial (PDF)", "https://www.curling.cz/wp-content/uploads/2026/07/ECC-2026-Playing-Schedule_20260722.pdf"],
-  ["Qualificatório de Duplas Mistas · Wikipedia", "https://en.wikipedia.org/wiki/2026_World_Mixed_Doubles_Qualification_Event_(October)"],
-  ["Brasil no Pan-Continental 2025 · Olympics.com", "https://www.olympics.com/pt/milano-cortina-2026/noticias/brasil-vitoria-arabia-saudita-pan-continental-curling-2025/"],
+  ["World Curling", "https://livescores.worldcurling.org"],
+  ["Grand Slam of Curling", "https://www.thegrandslamofcurling.com"],
+  ["Wikimedia Commons", "https://commons.wikimedia.org"],
+  ["flag-icons", "https://flagicons.lipis.dev"],
 ];
 
 const T = {
@@ -938,7 +935,7 @@ const T = {
     braSub: "Campanhas, resultados e os próximos torneios em que o Brasil pode entrar.",
     agendaEyebrow: "Agenda", agendaTitle: "De outubro a maio.", agendaSub: "Toque numa barra para ir direto ao torneio.",
     guideEyebrow: "Guia rápido", guideTitle: "Primeira vez vendo curling?", guideSub: "Oito termos que você vai ouvir em toda transmissão.",
-    sourcesTitle: "Fontes",
+    sourcesTitle: "Dados de",
     searchLabel: "Buscar times, torneios ou termos",
     examples: ["Quando a Itália joga?", "Jogos de hoje", "Hasselborg", "Europeu feminino", "Grand Slam de Victoria", "O que é hammer?", "Brasil", "Jogos de amanhã"],
     exampleN: (i, n) => `Exemplo ${i} de ${n} · aperte Enter para buscar`,
@@ -955,7 +952,7 @@ const T = {
     allChamps: "Todos os campeonatos", showAll: "Mostrar todos",
     secPeople: "Atletas", lastSeen: "último ano", medalsWord: "medalhas", secNations: "Seleções", seeProfile: "Ver perfil →",
     histTitle: "Histórico completo", histNote: "Todos os campeonatos oficiais, com escalações e placares end a end.",
-    dbStats: (e, g, p) => `Banco de dados: ${e.toLocaleString("pt-BR")} campeonatos, ${g.toLocaleString("pt-BR")} jogos e ${p.toLocaleString("pt-BR")} atletas, desde 1959.`,
+    dbStats: (e, g, p) => `${e.toLocaleString("pt-BR")} campeonatos · ${g.toLocaleString("pt-BR")} jogos · ${p.toLocaleString("pt-BR")} atletas · desde 1959`,
     seeGames: "Ver jogos", emptyDay: "Nenhum jogo nesse dia.", nextGames: "Próximos jogos",
     live: "Ao vivo", next: "Próximo torneio", nextForYou: "Próximo jogo dos seus times", inDays: d => d === 1 ? "amanhã" : `em ${d} dias`,
     days: "dias", day: "dia", endsToday: "termina hoje", today: "hoje", ended: "Encerrado",
@@ -1000,8 +997,8 @@ const T = {
       ["Duplas mistas", "Um homem e uma mulher, 5 pedras cada por end e uma pedra já posicionada antes de começar. Jogo rápido, com muitos pontos."],
       ["DSC", "Draw Shot Challenge: antes dos jogos, cada time lança pedras no botão e mede a distância. É usado como desempate (menor é melhor)."],
     ],
-    foot1: "Tabelas e placares da World Curling, atualizados automaticamente; durante os jogos o placar ao vivo atualiza a cada 30 segundos. Grand Slam of Curling pelo site oficial do circuito. Sedes e participantes marcados como \"a confirmar\" ou \"possível\" ainda podem mudar.",
-    foot2: "Times seguidos, favoritos e preferências ficam salvos só neste navegador.",
+    foot1: "Site independente, feito por fãs. Sem ligação com a World Curling nem com o Grand Slam of Curling.",
+    foot2: "Seus times e favoritos ficam salvos só neste aparelho.",
   },
   en: {
     menu: "Menu", navHist: "History", navSearch: "Search", popPh: "Search athlete, nation, game…",
@@ -1026,7 +1023,7 @@ const T = {
     braSub: "Results so far and the next events Brazil could enter.",
     agendaEyebrow: "Schedule", agendaTitle: "October to May.", agendaSub: "Tap a bar to jump to the event.",
     guideEyebrow: "Quick guide", guideTitle: "New to curling?", guideSub: "Eight terms you'll hear in every broadcast.",
-    sourcesTitle: "Sources",
+    sourcesTitle: "Data from",
     searchLabel: "Search teams, events or terms",
     examples: ["When does Italy play?", "Today's games", "Hasselborg", "Europeans women", "Grand Slam Victoria", "What is the hammer?", "Brazil", "Tomorrow's games"],
     exampleN: (i, n) => `Example ${i} of ${n} · press Enter to search`,
@@ -1043,7 +1040,7 @@ const T = {
     allChamps: "All championships", showAll: "Show all",
     secPeople: "Athletes", lastSeen: "last seen", medalsWord: "medals", secNations: "National teams", seeProfile: "See profile →",
     histTitle: "Full history", histNote: "Every official championship, with lineups and end-by-end scores.",
-    dbStats: (e, g, p) => `Database: ${e.toLocaleString("en")} championships, ${g.toLocaleString("en")} games and ${p.toLocaleString("en")} athletes since 1959.`,
+    dbStats: (e, g, p) => `${e.toLocaleString("en")} championships · ${g.toLocaleString("en")} games · ${p.toLocaleString("en")} athletes · since 1959`,
     seeGames: "See games", emptyDay: "No games on that day.", nextGames: "Next games",
     live: "Live now", next: "Next event", nextForYou: "Your teams' next game", inDays: d => d === 1 ? "tomorrow" : `in ${d} days`,
     days: "days", day: "day", endsToday: "ends today", today: "today", ended: "Finished",
@@ -1088,8 +1085,8 @@ const T = {
       ["Mixed doubles", "One man and one woman, 5 stones each per end plus one stone placed before the end starts. Fast games with lots of scoring."],
       ["DSC", "Draw Shot Challenge: before games, each team throws stones to the button and the distance is measured. Used as a tiebreaker (lower is better)."],
     ],
-    foot1: "Draws and scores from World Curling, updated automatically; during games the live score refreshes every 30 seconds. Grand Slam of Curling from the tour's official site. Venues and entries marked \"TBC\" or \"possible\" may still change.",
-    foot2: "Followed teams, stars and preferences are saved in this browser only.",
+    foot1: "An independent fan site. Not affiliated with World Curling or the Grand Slam of Curling.",
+    foot2: "Your teams and stars are saved on this device only.",
   }
 };
 
