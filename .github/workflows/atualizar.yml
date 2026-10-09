@@ -11,8 +11,7 @@ name: Atualizar dados
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
-    - cron: "30 6 * * *"
+    - cron: "*/15 * * * *"   # reserva; a parte diária vem só da Cloudflare (o GitHub chegou a disparar 7h atrasado)
   push:
     branches: [main]
     paths: ["site/**", "hc/site_build.py"]
@@ -58,7 +57,7 @@ jobs:
         run: python -m hc sync-live
       - name: Campeonatos novos, fichas e exportação (diário)
         id: diario
-        if: github.event.schedule == '30 6 * * *' || (github.event_name == 'workflow_dispatch' && inputs.completo)
+        if: github.event_name == 'workflow_dispatch' && inputs.completo
         run: |
           python -m hc sync-wcf --since 2026
           python -m hc persons --limit 600   # fichas que faltam, das mais recentes para as antigas
