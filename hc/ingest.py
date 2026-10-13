@@ -161,6 +161,16 @@ def repair_genders(con, pid: int | None = None) -> int:
     return n
 
 
+def repair_error_profiles(con: sqlite3.Connection) -> int:
+    """Desfaz fichas lidas da página de erro da World Curling: o nome volta ao das súmulas e a ficha fica para ler de novo."""
+    bad = [r["id"] for r in con.execute("SELECT id FROM person WHERE name = 'Error!'")]
+    for pid in bad:
+        con.execute("DELETE FROM person_name WHERE person_id=? AND source='wcf-profile' AND raw = 'Error!'", (pid,))
+        best = con.execute("SELECT raw FROM person_name WHERE person_id=? ORDER BY seen DESC LIMIT 1", (pid,)).fetchone()
+        con.execute("UPDATE person SET name=COALESCE(?, name), profile_at=NULL WHERE id=?", (best and best["raw"], pid))
+    return len(bad)
+
+
 def update_person_profile(con: sqlite3.Connection, person_id: int, prof: dict) -> None:
     con.execute("UPDATE person SET gender=COALESCE(?, gender), born=COALESCE(?, born), delivery=COALESCE(?, delivery), "
                 "nations=?, profile_at=datetime('now') WHERE id=?",

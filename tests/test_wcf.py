@@ -47,6 +47,11 @@ class TestWcfParsers(unittest.TestCase):
         p = wcf.parse_person(read("wcf_person_5654.html"))
         self.assertEqual(p, {"name": "Marc Pfister", "nations": ["SUI", "PHI"], "born": "1989-09-26", "gender": "M", "delivery": "right"})
 
+
+    def test_person_error_page(self):
+        # a World Curling às vezes responde a ficha com a sua página de erro, cujo título é "Error!"
+        with self.assertRaises(ValueError):
+            wcf.parse_person('<h2 class="t-ice">Error!</h2><h3 class="tx-uc t-ice">Unexpected error occurred!</h3>')
     def test_roles(self):
         self.assertEqual(wcf.parse_role("Lead (Skip)"), ("lead", True))
         self.assertEqual(wcf.parse_role("Skip"), ("fourth", True))

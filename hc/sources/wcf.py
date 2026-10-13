@@ -309,7 +309,9 @@ def parse_person(markup: str) -> dict:
     h2 = root.find("h2", cls="t-ice")
     out = {"name": h2.text() if h2 else "", "nations": [], "born": None, "gender": None, "delivery": None}
     info_h = next((h for h in root.find_all() if h.tag in ("h2", "h3", "h4") and h.text() == "Personal information"), None)
-    scope = info_h.parent.parent if info_h is not None else root
+    if info_h is None:  # a World Curling às vezes devolve a própria página de erro ("Error!") no lugar da ficha
+        raise ValueError("página sem ficha pessoal")
+    scope = info_h.parent.parent
     for img in scope.find_all("img"):
         c = _flag(img)
         if c and c not in out["nations"]:

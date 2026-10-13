@@ -98,6 +98,8 @@ def cmd_audit(a):
 
 def cmd_persons(a):
     con = db.connect()
+    if n := ingest.repair_error_profiles(con):
+        print(f"{n} fichas lidas da página de erro, desfeitas")
     q = ("SELECT DISTINCT p.id, p.wcf_id, p.name FROM person p JOIN entry_member m ON m.person_id = p.id "
          "JOIN entry en ON en.id = m.entry_id JOIN event e ON e.id = en.event_id WHERE p.wcf_id IS NOT NULL "
          "AND p.merged_into IS NULL AND m.role NOT IN ('coach','official')")
