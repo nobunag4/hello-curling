@@ -402,6 +402,17 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .sheet-panel { position: relative; width: min(880px, 100%); max-height: calc(100% - 24px - env(safe-area-inset-top, 0px)); overflow-y: auto; background: var(--bg); border-radius: 28px 28px 0 0; padding: 40px 32px calc(40px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -20px 60px -20px rgba(0,0,0,.35); }
 @media (min-width: 900px) { .sheet { place-items: center; } .sheet-panel { border-radius: 28px; max-height: calc(100% - 64px); } }
 @media (prefers-reduced-motion: no-preference) { .sheet:not([hidden]) .sheet-panel { animation: load .45s cubic-bezier(.2,.7,.2,1) both; } }
+/* ficha escrita de antemão pela montagem do site (páginas de atleta, seleção e confronto), até os dados carregarem */
+.pre h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(38px, 7vw, 56px); letter-spacing: -0.04em; line-height: 1; margin: 6px 0 14px; }
+.pre h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--ink2); margin: 30px 0 10px; }
+.pre p, .pre li { color: var(--ink2); font-size: 15px; line-height: 1.5; margin: 0; }
+.pre ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.pre b, .pre a { color: var(--ink); font-weight: 500; }
+.pre .pre-k { font-size: 13px; }
+.pre .pre-k a { color: var(--ink2); text-decoration: none; }
+.fnats { margin-top: 28px; font-size: 13px; line-height: 2; color: var(--ink2); }
+.fnats a { color: var(--ink2); text-decoration: none; margin-right: 10px; white-space: nowrap; }
+.fnats a:hover { color: var(--ink); }
 .sheet-x { position: sticky; top: 0; float: right; margin: -16px -12px 0 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg2); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 2; }
 .pf-head { text-align: center; margin-bottom: 28px; }
 .av { display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden; background: var(--bg2); color: var(--ink2); font-weight: 600; letter-spacing: .02em; box-shadow: inset 0 0 0 1px var(--line); }
@@ -433,6 +444,7 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .mate > span { display: grid; gap: 1px; }
 .mate small { font-size: 12px; color: var(--ink2); font-weight: 400; }
 .mate:hover { box-shadow: inset 0 0 0 1px var(--ink); }
+a.mate, a.nat { color: inherit; text-decoration: none; }
 .lsl { display: grid; gap: 12px; }
 .lsw { background: var(--bg2); border-radius: 18px; padding: 12px 14px; overflow-x: auto; }
 .lsm { font-size: 12px; color: var(--ink2); margin-bottom: 6px; }
@@ -1571,7 +1583,7 @@ function renderBrazil() {
   cards.push(`<div class="card">
     <div class="k">${t().histTitle}</div>
     <div class="note">${t().histNote}</div>
-    <div class="mates">${["BRA", "ITA"].map(c => `<button class="mate" data-nation="${c}">${flagImg(c, "fl-md")}<span>${esc(nationName(c))}<small>${t().seeProfile}</small></span></button>`).join("")}</div>
+    <div class="mates">${["BRA", "ITA"].map(c => navTag(`/selecao/${c.toLowerCase()}/`, `data-nation="${c}"`, "mate", `${flagImg(c, "fl-md")}<span>${esc(nationName(c))}<small>${t().seeProfile}</small></span>`)).join("")}</div>
   </div>`);
   document.getElementById("bra").innerHTML = cards.join("");
 }
@@ -1893,6 +1905,13 @@ function ageOf(born) {
   return n.getFullYear() - b.getFullYear() - ((n.getMonth() < b.getMonth() || (n.getMonth() === b.getMonth() && n.getDate() < b.getDate())) ? 1 : 0);
 }
 
+// Páginas de atleta, seleção e confronto já chegam com o essencial escrito (para o Google e para quem abre o link):
+// enquanto os dados completos carregam, esse texto fica na tela no lugar do "Carregando"
+function sheetLoading() {
+  const pre = document.querySelector("#sheet-body > .pre");
+  if (pre && !pre.dataset.used) { pre.dataset.used = "1"; document.body.style.overflow = "hidden"; return; }
+  openSheet(`<div class="msg">${t().loading}</div>`);
+}
 function openSheet(html) {
   const sh = document.getElementById("sheet");
   document.getElementById("sheet-body").innerHTML = html;
@@ -1916,6 +1935,9 @@ function closeSheet(fromHistory) {
 // Aqui o endereço acompanha o perfil aberto: o "voltar" fecha o perfil, e um link direto abre já nele.
 // Trocar de perfil com a janela aberta não empilha histórico: fechar sempre volta para onde se estava.
 const ROUTES = !!window.HC_ROUTES;
+// Atleta, seleção ou confronto: com endereços próprios vira um link de verdade (o Google segue, e dá para abrir em outra aba)
+const personPath = (id, nm) => `/atleta/${id}-${slugify(nm)}/`;
+const navTag = (path, attrs, cls, inner) => ROUTES ? `<a class="${cls}" href="${path}" ${attrs}>${inner}</a>` : `<button class="${cls}" ${attrs}>${inner}</button>`;
 const ROUTE_RE = /^\/(atleta|selecao|confronto)\/([^/]+)/;
 const HOME_TITLE = document.title;
 const LETTERS = { ł: "l", đ: "d", ø: "o", æ: "ae", œ: "oe", ß: "ss", þ: "th", ı: "i" };
@@ -1940,7 +1962,7 @@ async function openPerson(id, quiet) {
   GAME.key = null;
   const ix = DATA.people.get(id);
   const codes = ix ? [...ix[2]].reverse() : [];
-  openSheet(`<div class="msg">${t().loading}</div>`);
+  sheetLoading();
   let p = null;
   for (const c of codes) {
     try { const n = await loadNation(c); p = n.people[String(id)]; if (p) break; } catch {}
@@ -1980,7 +2002,7 @@ async function openPerson(id, quiet) {
     <div class="clist">${players.map(row).join("") || `<div class="msg">–</div>`}</div>
     ${coach.length ? `<h3 class="pf-h">${t().asCoach}</h3><div class="clist">${coach.map(row).join("")}</div>` : ""}
     ${p.mates.length ? `<h3 class="pf-h">${t().mates}</h3><div class="mates">${p.mates.map(([q, n, nm]) =>
-      `<button class="mate" data-person="${q}">${avatar(q, nm, "sm")}<span>${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></span></button>`).join("")}</div>` : ""}
+      navTag(personPath(q, nm), `data-person="${q}"`, "mate", `${avatar(q, nm, "sm")}<span>${esc(nm)}<small>${n} ${n === 1 ? t().champ1 : t().champsLower}</small></span>`)).join("")}</div>` : ""}
     <p class="pf-src">${p.wcf ? `${t().profileSrc} ${ext(`https://results.worldcurling.org/Person/Details/${p.wcf}`, "World Curling ↗")}` : t().profileSrcSlam}</p>
     ${photoCredit(id)}`);
 }
@@ -2070,7 +2092,7 @@ async function renderGameSheet(first) {
       const players = L.members.filter(([, r]) => r !== "coach" && r !== "official");
       return `<div class="gp-lu"><div class="gp-camp-h"><b>${esc(teamName(x))}</b><span>${esc(typeLabel(L))} ${L.year}</span></div><div class="mates">${players.map(([p, r, sk]) => {
         const nm = v.names[p] || "";
-        return `<button class="mate" data-person="${p}">${avatar(p, nm, "sm")}<span>${esc(nm)}<small>${ROLE_L[state.lang][r] || r}${sk ? " · skip" : ""}</small></span></button>`;
+        return navTag(personPath(p, nm), `data-person="${p}"`, "mate", `${avatar(p, nm, "sm")}<span>${esc(nm)}<small>${ROLE_L[state.lang][r] || r}${sk ? " · skip" : ""}</small></span>`);
       }).join("")}</div></div>`;
     };
     const la = lu(va, gm.a), lb = lu(vb, gm.b);
@@ -2116,7 +2138,7 @@ async function openH2H(a, b, quiet) {
   if (["BRA", "ITA"].includes(b) && !["BRA", "ITA"].includes(a)) [a, b] = [b, a];
   if (H2H.a !== a || H2H.b !== b) { H2H.cat = "all"; H2H.all = false; }
   Object.assign(H2H, { a, b });
-  openSheet(`<div class="msg">${t().loading}</div>`);
+  sheetLoading();
   const v = await loadVs(a);
   if (H2H.a !== a || H2H.b !== b) return;
   setRoute(h2hPath(a, b), t().h2hTitle(nationName(a), nationName(b)), quiet);
@@ -2196,7 +2218,7 @@ function linescore(g) {
 
 async function openNation(code, quiet) {
   GAME.key = null;
-  openSheet(`<div class="msg">${t().loading}</div>`);
+  sheetLoading();
   let n;
   try { n = await loadNation(code); } catch { openSheet(`<div class="msg">${t().noProfile}</div>`); return; }
   // adversários mais frequentes, somando todas as categorias
@@ -2235,9 +2257,9 @@ async function openNation(code, quiet) {
       <span class="cy">${b.year}</span><span class="cn"><b>${esc(typeLabel(b))}</b><small>${esc(divName(b.division))}${b.times > 1 ? ` · ${b.times}×` : ""}</small></span>
       <span class="cr">${medalDot(b.medal)}${ordinal(b.rank)}</span><span class="cw"></span></div>`).join("")}</div>` : ""}
     ${people.length ? `<h3 class="pf-h">${t().topAthletes}</h3><div class="mates">${people.map(p =>
-      `<button class="mate" data-person="${p.id}">${avatar(p.id, p.name, "sm")}<span>${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></span></button>`).join("")}</div>` : ""}
+      navTag(personPath(p.id, p.name), `data-person="${p.id}"`, "mate", `${avatar(p.id, p.name, "sm")}<span>${esc(p.name)}<small>${p.games} ${t().gamesLower}</small></span>`)).join("")}</div>` : ""}
     ${rivals.length ? `<h3 class="pf-h">${t().natRivals}</h3><div class="mates">${rivals.map(([o, r]) =>
-      `<button class="mate" data-h2h="${code}-${o}">${flagImg(o, "fl-md")}<span>${esc(nationName(o))}<small>${r.w}–${r.l}</small></span></button>`).join("")}</div>` : ""}
+      navTag(h2hPath(code, o), `data-h2h="${code}-${o}"`, "mate", `${flagImg(o, "fl-md")}<span>${esc(nationName(o))}<small>${r.w}–${r.l}</small></span>`)).join("")}</div>` : ""}
     ${n.recent.length ? `<h3 class="pf-h">${t().recentGames}</h3><div class="lsl">${n.recent.slice(0, 10).map(g =>
       `<div class="lsw"><div class="lsm">${esc(g.when ? g.when.slice(0, 10).split("-").reverse().join("/") : "")} · ${esc(drawLabel(g.draw))}</div>${linescore(g)}</div>`).join("")}</div>` : ""}
     <h3 class="pf-h">${t().allChamps}</h3>
@@ -2520,12 +2542,12 @@ function renderArchive() {
   const list = [...ix.nations].sort(ARCH.sort === "name" ? (a, b) => nationName(a.code).localeCompare(nationName(b.code))
     : ARCH.sort === "entries" ? (a, b) => b.entries - a.entries : (a, b) => meds(b) - meds(a) || b.entries - a.entries);
   const shown = ARCH.all ? list : list.slice(0, 12);
-  grid.innerHTML = shown.map(n => `<button class="nat" data-nation="${n.code}">
+  grid.innerHTML = shown.map(n => navTag(`/selecao/${n.code.toLowerCase()}/`, `data-nation="${n.code}"`, "nat", `
     <small>${flagImg(n.code)}${n.code} · ${t().natSince(n.first, n.last)}</small>
     <b>${esc(nationName(n.code))}</b>
     <small>${t().entriesN(n.entries)}</small>
     ${n.gold + n.silver + n.bronze ? `<span class="meds">${[[1, n.gold], [2, n.silver], [3, n.bronze]].filter(([, c]) => c).map(([m, c]) => `<span>${medalDot(m)}${c}</span>`).join("")}</span>` : ""}
-  </button>`).join("");
+  `)).join("");
   document.getElementById("arch-more").innerHTML = list.length > 12
     ? `<button class="btn sm" data-arch-all="1">${ARCH.all ? t().archLess : t().archAll(list.length)}</button>` : "";
   h2hPicker();
@@ -2645,8 +2667,12 @@ document.addEventListener("click", ev => {
     if (go.tagName === "BUTTON") goToSection(document.getElementById("jogos"));
     return;
   }
-  const b = ev.target.closest("button, [data-close]");
+  const b = ev.target.closest("button, [data-close], a[data-person], a[data-nation], a[data-h2h]");
   if (!b) return;
+  if (b.tagName === "A") {  // link de perfil: com Ctrl/⌘ ou botão do meio, o navegador abre em outra aba
+    if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button) return;
+    ev.preventDefault();
+  }
   const ds = b.dataset;
   if (ds.close) { closeSheet(); return; }
   if (ds.h2hGo) { openH2H(document.getElementById("h2h-a").value, document.getElementById("h2h-b").value); return; }
