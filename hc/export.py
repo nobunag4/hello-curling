@@ -10,6 +10,7 @@ Um arquivo por seleção mantém cada download pequeno: o site só baixa a sele�
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -219,6 +220,41 @@ def run(args) -> None:
             "names": {str(p): persons[p]["name"] for p in names_needed[code]},
             "types": {str(k): v for k, v in types_used[code].items()},  # all: [ano, tipo, fase, rodada, pontos, contra]
         })
+
+    # ---------------- Grand Slam: campanha, retrospecto entre times e última formação, por naipe.
+    # Os times do circuito são chamados pelo skip ("Hasselborg", "X. Schwaller"), igual ao placar ao vivo.
+    slam = {"m": {}, "w": {}}
+    slam_names = set()
+    tkey = lambda n: re.sub(r"\.\s*", ". ", n).strip()  # "T.Peterson" e "T. Peterson" são o mesmo time (igual a slamKey na página)
+    for en in ordered:  # do mais recente para o mais antigo
+        e = events[en["event_id"]]
+        if e["source"] != "gsoc" or e["division"] not in ("Men", "Women"):
+            continue
+        team = slam["m" if e["division"] == "Men" else "w"].setdefault(
+            tkey(en["name"]), {"nation": en["nation"], "events": [], "vs": defaultdict(lambda: [0, 0, []]), "lineup": None})
+        team["nation"] = team["nation"] or en["nation"]
+        w, l = rec[en["id"]]
+        team["events"].append([e["year"], e["name"], en["rank"], w, l])
+        if team["lineup"] is None and any(r in PLAYING for _, r, _ in members[en["id"]]):
+            team["lineup"] = {"year": e["year"], "name": e["name"],
+                              "members": [[p, r, sk] for p, r, sk in members[en["id"]] if p in persons and r in PLAYING]}
+            slam_names.update(p for p, _, _ in team["lineup"]["members"])
+        for g, other, sm, so in reversed(games_by_entry[en["id"]]):
+            opp = entries.get(other, {}).get("name")
+            if not opp:
+                continue
+            r = team["vs"][tkey(opp)]
+            r[0 if sm > so else 1] += sm != so
+            mine = g["entry1"] == en["id"]
+            r[2].append({"y": e["year"], "name": e["name"], "stage": g["stage"], "draw": g["draw"], "when": (g["start_local"] or "")[:10],
+                         "f": sm, "a": so, "h": (g["hammer"] == (1 if mine else 2)) if g["hammer"] else None,
+                         "e": json.loads(g["ends1"] if mine else g["ends2"]), "o": json.loads(g["ends2"] if mine else g["ends1"])})
+    total += _dump(out / "slam.json", {
+        "teams": {d: {n: {"nation": t["nation"], "events": t["events"], "lineup": t["lineup"],
+                          "vs": {o: {"w": r[0], "l": r[1], "games": r[2]} for o, r in t["vs"].items()}} for n, t in teams.items()}
+                  for d, teams in slam.items()},
+        "names": {str(p): persons[p]["name"] for p in slam_names},
+    })
 
     # ---------------- índice de busca
     idx_people = []

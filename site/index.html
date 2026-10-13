@@ -414,6 +414,11 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .fnats a { color: var(--ink2); text-decoration: none; margin-right: 10px; white-space: nowrap; }
 .fnats a:hover { color: var(--ink); }
 .fresh { color: var(--green); white-space: nowrap; }
+.gp-prev { display: grid; gap: 6px; margin-top: 10px; font-size: 13px; }
+.gp-prev > div { display: flex; justify-content: space-between; gap: 10px; color: var(--ink2); }
+.gp-prev > div span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-prev b .md { margin-right: 5px; }
+.gp-prev b { font-weight: 500; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .fresh.stale { color: var(--red); }
 .sheet-x { position: sticky; top: 0; float: right; margin: -16px -12px 0 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg2); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 2; }
 .pf-head { text-align: center; margin-bottom: 28px; }
@@ -1112,6 +1117,9 @@ const T = {
     frozenMin: n => `Placar parado há ${n} min · pode estar atrasado`, extraEnd: "EE", endsTap: "Toque num jogo para ver os detalhes",
     gpCamp: "Neste torneio", gpNoGames: "ainda sem jogos", gpH2h: "Retrospecto", gpGames: n => n === 1 ? "1 jogo" : `${n} jogos`, gpLast: n => `Os ${n} confrontos mais recentes; toque para ver o placar por end.`, gpTap: "Toque num confronto para ver o placar por end.",
     gpFirst: "Primeiro encontro entre as duas seleções nesta categoria.", gpLineups: "Última formação",
+    gpH2hSlam: "Retrospecto no Grand Slam", gpFirstSlam: "Primeiro encontro entre os dois times em Slams (desde 2024-25).",
+    gpSlamPrev: "Nos Slams anteriores", gpNoSlam: "primeiro Slam desde 2024-25", champion: "título ", gpLineupSlam: "Formação no último Slam",
+    gpSrcSlam: "Grand Slams desde a temporada 2024-25, com dados oficiais do Grand Slam of Curling.",
     gpSrc: "Retrospecto e formações: resultados oficiais da World Curling.",
     h2hK: "Confronto direto", h2hTitle: (a, b) => `${a} x ${b} no curling`, h2hBig: n => `Maior vitória: ${n}`, h2hAll: "Todos os jogos",
     h2hTap: "Os jogos mais recentes abrem o placar por end.", h2hNever: "As duas seleções nunca se enfrentaram em campeonatos da World Curling.",
@@ -1209,6 +1217,9 @@ const T = {
     frozenMin: n => `Score unchanged for ${n} min · may be delayed`, extraEnd: "EE", endsTap: "Tap a game for details",
     gpCamp: "In this event", gpNoGames: "no games yet", gpH2h: "Head to head", gpGames: n => n === 1 ? "1 game" : `${n} games`, gpLast: n => `The ${n} most recent meetings; tap for the end-by-end score.`, gpTap: "Tap a meeting for the end-by-end score.",
     gpFirst: "First meeting between these two teams in this category.", gpLineups: "Latest line-up",
+    gpH2hSlam: "Grand Slam head to head", gpFirstSlam: "First Slam meeting between these teams (since 2024-25).",
+    gpSlamPrev: "Previous Slams", gpNoSlam: "first Slam since 2024-25", champion: "title ", gpLineupSlam: "Line-up at the last Slam",
+    gpSrcSlam: "Grand Slams since the 2024-25 season, official data from the Grand Slam of Curling.",
     gpSrc: "Head to head and line-ups: official World Curling results.",
     h2hK: "Head to head", h2hTitle: (a, b) => `${a} v ${b} curling`, h2hBig: n => `Biggest win: ${n}`, h2hAll: "All games",
     h2hTap: "The most recent games open the end-by-end score.", h2hNever: "These two teams have never met in a World Curling championship.",
@@ -2016,6 +2027,14 @@ async function openPerson(id, quiet) {
 // ---------- Página do jogo ----------
 // Um toque num jogo abre os detalhes: placar por end, a campanha dos dois times no torneio e, entre
 // seleções, o retrospecto e a última formação de cada uma (data/vs/XXX.json, gerado do banco histórico).
+// Grand Slam desde 2024-25 (data/slam.json): por naipe e pelo nome do time, igual ao placar ao vivo
+let SLAM;
+async function loadSlam() {
+  if (SLAM !== undefined) return SLAM;
+  try { const r = await fetch("data/slam.json"); SLAM = r.ok ? await r.json() : null; } catch { SLAM = null; }
+  return SLAM;
+}
+
 const VS = {};
 async function loadVs(code) {
   if (VS[code] !== undefined) return VS[code];
@@ -2103,6 +2122,34 @@ async function renderGameSheet(first) {
     };
     const la = lu(va, gm.a), lb = lu(vb, gm.b);
     if (la || lb) lineups = `<h3 class="pf-h">${t().gpLineups}</h3><div class="gp-lus">${la}${lb}</div>`;
+  } else if (g.gsoc && gm.div) {
+    const sl = await loadSlam();
+    if (GAME.key !== key) return;
+    const slamKey = n => n.replace(/\.\s*/g, ". ").trim();  // igual a tkey em hc/export.py
+    const teams = sl && sl.teams[gm.div], ta = teams && teams[slamKey(gm.a)], tb = teams && teams[slamKey(gm.b)];
+    const rec = ta && ta.vs[slamKey(gm.b)];
+    if (rec) {
+      h2h = `<h3 class="pf-h">${t().gpH2hSlam}</h3>
+        <div class="gp-h2h"><div><b>${rec.w}</b><span>${esc(teamName(gm.a))}</span></div><div class="gp-h2h-n">${t().gpGames(rec.games.length)}</div><div><b>${rec.l}</b><span>${esc(teamName(gm.b))}</span></div></div>
+        <div class="gp-ms">${rec.games.map(m => `<details class="gp-m"><summary><span>${m.y} · ${esc(m.name)}<small>${esc(drawLabel(m.draw))}</small></span>
+          <b class="${m.f > m.a ? "w" : "l"}">${m.f}–${m.a}</b></summary>${linescore({ team: teamName(gm.a), opp: teamName(gm.b), for: m.f, against: m.a, hammer: m.h, ends: m.e, endsOpp: m.o })}</details>`).join("")}</div>
+        <p class="gp-more">${t().gpTap}</p>`;
+    } else if (ta || tb) h2h = `<h3 class="pf-h">${t().gpH2hSlam}</h3><div class="msg">${t().gpFirstSlam}</div>`;
+    // campanha nos Slams anteriores e a última formação de cada time
+    const prev = (x, tm) => `<div class="gp-camp"><div class="gp-camp-h"><b>${esc(teamName(x))}</b><span>${tm ? (w => `${w[0]}–${w[1]}`)(tm.events.reduce((s, ev) => [s[0] + ev[3], s[1] + ev[4]], [0, 0])) : ""}</span></div>
+      ${tm ? `<div class="gp-prev">${tm.events.slice(0, 6).map(([y, nm, rk, w, l]) => `<div><span>${y} · ${esc(nm)}</span><b>${rk === 1 ? medalDot(1) + t().champion : rk ? ordinal(rk) : ""} ${w}–${l}</b></div>`).join("")}</div>`
+        : `<em>${t().gpNoSlam}</em>`}</div>`;
+    if (ta || tb) h2h += `<h3 class="pf-h">${t().gpSlamPrev}</h3><div class="gp-camps">${prev(gm.a, ta)}${prev(gm.b, tb)}</div>`;
+    const lu = (x, tm) => {
+      const L = tm && tm.lineup;
+      if (!L || !L.members.length) return "";
+      return `<div class="gp-lu"><div class="gp-camp-h"><b>${esc(teamName(x))}</b><span>${esc(L.name)} ${L.year}</span></div><div class="mates">${L.members.map(([p, r, sk]) => {
+        const nm = sl.names[p] || "";
+        return navTag(personPath(p, nm), `data-person="${p}"`, "mate", `${avatar(p, nm, "sm")}<span>${esc(nm)}<small>${ROLE_L[state.lang][r] || r}${sk ? " · skip" : ""}</small></span>`);
+      }).join("")}</div></div>`;
+    };
+    const la = lu(gm.a, ta), lb = lu(gm.b, tb);
+    if (la || lb) lineups = `<h3 class="pf-h">${t().gpLineupSlam}</h3><div class="gp-lus">${la}${lb}</div>`;
   }
 
   const html = `
@@ -2120,7 +2167,7 @@ async function renderGameSheet(first) {
     <h3 class="pf-h">${t().gpCamp}</h3>
     <div class="gp-camps">${campHTML(gm.a)}${campHTML(gm.b)}</div>
     ${h2h}${lineups}
-    ${nations ? `<p class="pf-src">${t().gpSrc}</p>` : ""}`;
+    ${nations ? `<p class="pf-src">${t().gpSrc}</p>` : g.gsoc && (h2h || lineups) ? `<p class="pf-src">${t().gpSrcSlam}</p>` : ""}`;
   const body = document.getElementById("sheet-body");
   if (first) openSheet(html); else if (!document.getElementById("sheet").hidden) body.innerHTML = html;
 }
