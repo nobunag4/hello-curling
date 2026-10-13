@@ -2417,8 +2417,10 @@ function applySchedule(sch) {
     const slam = se.source === "gsoc";
     const watch = old.watch || ((e.links || []).find(l => l[0] === "watch") || [])[1] || (slam ? ROCK : WCTV);
     if (se.teams) Object.assign(SKIP_CC, se.teams);
-    // jogo encerrado com placar por end (Grand Slam): um toque mostra os ends
-    const ends = g => g.ends ? { on: false, ends: g.ends.map(([x, y], i) => ({ n: String(i + 1), a: x, b: y })), swap: false } : undefined;
+    // placar por end (Grand Slam): um toque mostra os ends; jogo que o robô viu em andamento continua "ao vivo"
+    // (e não "Final") até a leitura direta do placar responder, ou se ela falhar
+    const ends = g => g.live ? { ...fromSlam({ ...g, state: "live", ends: g.ends || [], hammer: g.hammer || null }).live, swap: false }
+      : g.ends ? { on: false, ends: g.ends.map(([x, y], i) => ({ n: slamEnd(i), a: x, b: y })), swap: false } : undefined;
     GAMES[se.id] = {
       id: se.id, len: old.len || (se.md ? 2 : 2.75), watch, scores: slam ? (old.scores || GSOC) : `${LIVE}/${se.slug}/`,
       src: slam ? "thegrandslamofcurling.com" : "livescores.worldcurling.org",
@@ -2513,13 +2515,14 @@ function putLive(gm, lg) {
 }
 
 // Jogo do Grand Slam (já enxuto pelo nosso serviço) no mesmo formato de fromCurlit
+const slamEnd = i => i >= 8 ? "EE" : String(i + 1);  // jogos de 8 ends; o 9º é o end extra
 function fromSlam(s) {
   const on = s.state === "live";
   let ham = s.hammer;
-  const played = s.ends.map(([x, y], i) => ({ n: String(i + 1), a: x, b: y }));
+  const played = s.ends.map(([x, y], i) => ({ n: slamEnd(i), a: x, b: y }));
   played.forEach(e => { if (ham && e.a > 0) ham = "b"; else if (ham && e.b > 0) ham = "a"; });
-  const ends = on ? [...played, { n: String(played.length + 1), a: null, b: null }] : played;
-  return { a: s.a, b: s.b, div: s.div, sa: s.sa, sb: s.sb, live: { on, end: played.length + 1, hammer: ham, ends, status: s.state } };
+  const ends = on ? [...played, { n: slamEnd(played.length), a: null, b: null }] : played;
+  return { a: s.a, b: s.b, div: s.div, sa: s.sa, sb: s.sb, live: { on, end: slamEnd(played.length), hammer: ham, ends, status: s.state } };
 }
 
 // No Slam o horário de cada jogo é exato: casa pela rodada e pelos times
@@ -2551,7 +2554,7 @@ async function pollLive(force) {
     if (g.gsoc) {
       try {
         const r = await fetch(SLAM_API + g.gsoc, { cache: "no-store" });
-        if (r.ok) { (await r.json()).games.forEach(s => { if (mergeSlam(g, s)) changed = g.liveChanged = Date.now(); }); g.livePolled = Date.now(); }
+        if (r.ok) { (await r.json()).games.forEach(s => { if (mergeSlam(g, s)) changed = g.liveChanged = Date.now(); }); g.livePolled = Date.now(); g.liveChanged ||= g.livePolled; }
       } catch {}
       continue;
     }
@@ -2563,6 +2566,7 @@ async function pollLive(force) {
         const list = await r.json();
         list.forEach(rg => { if (mergeCurlit(g, fromCurlit(rg, g.md, c.lower))) changed = g.liveChanged = Date.now(); });
         g.livePolled = Date.now();
+        g.liveChanged ||= g.livePolled;  // "parado há X min" conta a partir da 1ª leitura, mesmo sem mudança
       } catch {}
     }
   }
