@@ -413,6 +413,8 @@ tr.fol.ita td:first-child { box-shadow: inset 4px 0 0 var(--blue); }
 .fnats { margin-top: 28px; font-size: 13px; line-height: 2; color: var(--ink2); }
 .fnats a { color: var(--ink2); text-decoration: none; margin-right: 10px; white-space: nowrap; }
 .fnats a:hover { color: var(--ink); }
+.fresh { color: var(--green); white-space: nowrap; }
+.fresh.stale { color: var(--red); }
 .sheet-x { position: sticky; top: 0; float: right; margin: -16px -12px 0 0; width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--bg2); color: var(--ink); font-size: 16px; cursor: pointer; z-index: 2; }
 .pf-head { text-align: center; margin-bottom: 28px; }
 .av { display: inline-grid; place-items: center; flex: none; border-radius: 50%; overflow: hidden; background: var(--bg2); color: var(--ink2); font-weight: 600; letter-spacing: .02em; box-shadow: inset 0 0 0 1px var(--line); }
@@ -1105,7 +1107,9 @@ const T = {
     tbc: "Sede a confirmar", approx: "data aproximada",
     watch: "Assistir", scores: "Site oficial", photo: "Foto",
     liveEnd: n => `● Ao vivo · ${n === "EE" ? "end extra" : "end " + n}`, hammer: "Hammer (última pedra do end)",
-    liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, extraEnd: "EE", endsTap: "Toque num jogo para ver os detalhes",
+    liveNow: d => `Placar ao vivo, atualizado às ${hm(d)}`, freshNow: "● placar atualizado agora", freshMin: n => `● placar atualizado há ${n} min`,
+    staleMin: n => `Placar sem atualização há ${n} min · confira na tabela oficial`, staleNone: "Placar ao vivo indisponível · confira na tabela oficial",
+    frozenMin: n => `Placar parado há ${n} min · pode estar atrasado`, extraEnd: "EE", endsTap: "Toque num jogo para ver os detalhes",
     gpCamp: "Neste torneio", gpNoGames: "ainda sem jogos", gpH2h: "Retrospecto", gpGames: n => n === 1 ? "1 jogo" : `${n} jogos`, gpLast: n => `Os ${n} confrontos mais recentes; toque para ver o placar por end.`, gpTap: "Toque num confronto para ver o placar por end.",
     gpFirst: "Primeiro encontro entre as duas seleções nesta categoria.", gpLineups: "Última formação",
     gpSrc: "Retrospecto e formações: resultados oficiais da World Curling.",
@@ -1200,7 +1204,9 @@ const T = {
     tbc: "Venue TBC", approx: "approximate dates",
     watch: "Watch", scores: "Official site", photo: "Photo",
     liveEnd: n => `● Live · ${n === "EE" ? "extra end" : "end " + n}`, hammer: "Hammer (last stone of the end)",
-    liveNow: d => `Live scores, updated ${hm(d)}`, extraEnd: "EE", endsTap: "Tap a game for details",
+    liveNow: d => `Live scores, updated ${hm(d)}`, freshNow: "● scores updated just now", freshMin: n => `● scores updated ${n} min ago`,
+    staleMin: n => `No score update for ${n} min · check the official draw`, staleNone: "Live scores unavailable · check the official draw",
+    frozenMin: n => `Score unchanged for ${n} min · may be delayed`, extraEnd: "EE", endsTap: "Tap a game for details",
     gpCamp: "In this event", gpNoGames: "no games yet", gpH2h: "Head to head", gpGames: n => n === 1 ? "1 game" : `${n} games`, gpLast: n => `The ${n} most recent meetings; tap for the end-by-end score.`, gpTap: "Tap a meeting for the end-by-end score.",
     gpFirst: "First meeting between these two teams in this category.", gpLineups: "Latest line-up",
     gpSrc: "Head to head and line-ups: official World Curling results.",
@@ -1455,7 +1461,7 @@ function renderGames() {
   document.querySelectorAll("[data-tz]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tz === state.tz));
 
   document.getElementById("evhead").innerHTML = `
-    <div><div class="t">${esc(name(e))}</div><div class="m">${esc(place(e))} · ${fmtRange(e)} · ${t().tzNow(tz().split("/").pop().replace(/_/g, " "))}</div></div>
+    <div><div class="t">${esc(name(e))}</div><div class="m">${esc(place(e))} · ${fmtRange(e)} · ${t().tzNow(tz().split("/").pop().replace(/_/g, " "))}${freshHTML(g)}</div></div>
     <div class="cta" style="margin:0">${ext(g.watch, t().watch, "btn sm primary")}${g.curlit ? "" : ext(g.scores, t().site, "btn sm")}</div>`;
 
   const daysEl = document.getElementById("days");
@@ -2102,7 +2108,7 @@ async function renderGameSheet(first) {
   const html = `
     <div class="pf-head">
       <div class="pf-k">${esc(name(e))}</div>
-      <div class="gp-meta">${esc(drawTxt)} · ${when}${gm.div ? " · " + t().divShort[gm.div] : ""}</div>
+      <div class="gp-meta">${esc(drawTxt)} · ${when}${gm.div ? " · " + t().divShort[gm.div] : ""}${on ? freshHTML(g) : ""}</div>
     </div>
     <div class="gp-score">
       ${side(gm.a, A, done && gm.sa > gm.sb)}
@@ -2498,7 +2504,7 @@ async function pollLive(force) {
     if (g.gsoc) {
       try {
         const r = await fetch(SLAM_API + g.gsoc, { cache: "no-store" });
-        if (r.ok) { (await r.json()).games.forEach(s => { if (mergeSlam(g, s)) changed = true; }); g.livePolled = Date.now(); }
+        if (r.ok) { (await r.json()).games.forEach(s => { if (mergeSlam(g, s)) changed = g.liveChanged = Date.now(); }); g.livePolled = Date.now(); }
       } catch {}
       continue;
     }
@@ -2508,7 +2514,7 @@ async function pollLive(force) {
         const r = await fetch(`${CURLIT_API}?season=${c.season}&competition=${c.comp}&eventId=${ev}&sessionId=0`, { cache: "no-store" });
         if (!r.ok) continue;
         const list = await r.json();
-        list.forEach(rg => { if (mergeCurlit(g, fromCurlit(rg, g.md, c.lower))) changed = true; });
+        list.forEach(rg => { if (mergeCurlit(g, fromCurlit(rg, g.md, c.lower))) changed = g.liveChanged = Date.now(); });
         g.livePolled = Date.now();
       } catch {}
     }
@@ -2517,8 +2523,29 @@ async function pollLive(force) {
   if (changed && sig !== liveSig) { liveSig = sig; renderNow(); renderGames(); renderBrazil(); }
   else if (changed) renderGames();
   if (changed && GAME.key) renderGameSheet(false);
+  else if (jobs.some(([, g]) => freshText(g) && !document.querySelector(`[data-fresh="${g.id}"]`))) renderGames();
 }
 setInterval(pollLive, 30000);
+
+// Placar honesto: quando foi a última leitura que deu certo. Se a fonte parar de responder (ou um jogo em andamento
+// ficar parado tempo demais), avisa em vez de mostrar um placar congelado como se fosse o atual.
+const STALE_MS = 3 * 60000, FROZEN_MS = 25 * 60000;
+function freshText(g) {
+  const now = Date.now(), on = g.list.some(d => d.games.some(x => x.live && x.live.on));
+  if (!on && !inLiveWindow(g)) return null;
+  const started = g.list.some(d => now > d.t.getTime() + STALE_MS && now < d.t.getTime() + (g.len + 1.5) * 3600000);
+  if (!g.livePolled) return started || on ? { stale: true, txt: t().staleNone } : null;
+  const age = now - g.livePolled, min = Math.max(1, Math.round(age / 60000));
+  if (age > STALE_MS) return { stale: true, txt: t().staleMin(min) };
+  if (on && g.liveChanged && now - g.liveChanged > FROZEN_MS) return { stale: true, txt: t().frozenMin(Math.round((now - g.liveChanged) / 60000)) };
+  return { stale: false, txt: age < 60000 ? t().freshNow : t().freshMin(min) };
+}
+const freshHTML = g => { const f = freshText(g); return f ? ` <span class="fresh${f.stale ? " stale" : ""}" data-fresh="${g.id}">${f.txt}</span>` : ""; };
+setInterval(() => document.querySelectorAll("[data-fresh]").forEach(el => {
+  const f = GAMES[el.dataset.fresh] && freshText(GAMES[el.dataset.fresh]);
+  if (!f) { el.remove(); return; }
+  el.textContent = f.txt; el.classList.toggle("stale", f.stale);
+}), 15000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
 document.addEventListener("click", ev => {
   const row = ev.target.closest("[data-game]");
